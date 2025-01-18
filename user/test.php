@@ -130,25 +130,73 @@ $conn->close();
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<head>
-   <?php include('disc/partials/header.php');?>
+
+<!DOCTYPE php>
+<php lang="en">
+  <head>
+ <?php include ('./disc/partials/header.php'); ?>
+
+ </head>
   </head>
-</head>
-<body class="flex bg-[#90e0ef]">
 
-  <!-- Sidebar -->
- <?php include ('disc/partials/sidebar.php'); ?>  
+    
+    <div class="loader-mask">
+        <div class="loader">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    
+ 
+  <body class="vertical  light">
+  <div class="wrapper">
 
-  <!-- Main Content with Navbar -->
-  <div class="flex-1 flex flex-col">
-    <!-- Top Navbar -->
-    <?php include('disc/partials/navbar.php'); ?>
+<?php include ('./disc/partials/navbar.php'); ?>
+<?php include ('./disc/partials/sidebar.php'); ?>
+</div>
+      <main role="main" class="main-content">
+        
+        <!--For Notification header naman ito-->
 
-    <!-- Main Content Area -->
-    <main id="mainContent" class="p-8">
+        <div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="defaultModalLabel">Notifications</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+
+              <div class="modal-body">
+  <div class="list-group list-group-flush my-n3">
+   
+      <div class="col-12 mb-4">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="notification">
+          <img class="fade show" src="../assets/images/unified-lgu-logo.png" width="35" height="35">
+          <strong style="font-size:12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></strong> 
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="removeNotification()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div> <!-- /. col -->
+
+    <div id="no-notifications" style="display: none; text-align:center; margin-top:10px;">No notifications</div>
+  </div> <!-- / .list-group -->
+ 
+</div>
+
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary btn-block" onclick="clearAllNotifications()">Clear All</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+      <!--YOUR CONTENTHERE-->
       <div class="flex justify-center items-center w-full">
         <form action="" method="POST" enctype="multipart/form-data" class="bg-white p-8 rounded-lg shadow-md w-full">
         <i class="fas fa-paw text-3xl text-blue-500 mb-2"></i> <h2 class="text-2xl font-bold mb-6 text-center">Registration Form</h2>
@@ -252,6 +300,10 @@ $conn->close();
   });
 </script>
 <?php endif; ?>
-<script src="disc/js/script.js"></script>
-</body>
-</html>
+
+  <!-- Include jQuery -->
+  <?php include ('./script.php'); ?>
+  </body>
+</php>
+
+   

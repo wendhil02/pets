@@ -4097,7 +4097,7 @@ a.close.disabled {
 
 .modal {
   position: fixed;
-  top: 0;
+  top: 0; 
   left: 0;
   z-index: 1050;
   display: none;
@@ -7445,6 +7445,7 @@ button:focus {
 
   .form-control {
     border-radius: 4px; /* Rounded corners */
+    padding:3px; /* Add some padding */
     transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
 }
 
