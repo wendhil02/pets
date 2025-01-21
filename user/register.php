@@ -1,273 +1,311 @@
 <?php
-include('../dbconn/config.php');
-include('../dbconn/authentication.php');
-include('../phpqrcode/qrlib.php');
-
-
-$showModal = false; // To control modal visibility in HTML
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $error = array();
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    $targetDir = "../stored/pet_image/";
-    $vaccineDir = "../stored/vaccine_record/";
-
-    // Validate inputs
-    if (empty($_POST['owner_name'])) {
-        $error['owner_name'] = 'Owner Name is required';
-    } else {
-        $ownerName = htmlspecialchars($_POST['owner_name']);
-    }
-    
-    if (empty($_POST['phonee'])) {
-      $error['phonee'] = 'Phone Number is required';
-  } else {
-      $phone = htmlspecialchars($_POST['phonee']);
-  }
-
-    if (empty($_POST['email'])) {
-        $error['email'] = 'Email is required';
-    } else {
-        $email = htmlspecialchars($_POST['email']); // Corrected variable assignment
-    }
-
-    if (empty($_POST['pet_name'])) {
-        $error['pet_name'] = 'Pet Name is required';
-    } else {
-        $petName = htmlspecialchars($_POST['pet_name']);
-    }
-
-    if (empty($_POST['pet_age'])) {
-        $error['pet_age'] = 'Pet age is required';
-    } else {
-        $petAge = htmlspecialchars($_POST['pet_age']);
-    }
-
-    if (empty($_POST['pet_breed'])) {
-        $error['pet_breed'] = 'Pet breed is required';
-    } else {
-        $petBreed = htmlspecialchars($_POST['pet_breed']);
-    }
-
-    if (empty($_POST['address'])) {
-        $error['address'] = 'Address is required';
-    } else {
-        $address = htmlspecialchars($_POST['address']);
-    }
-
-    if (empty($_POST['additional_info'])) {
-        $error['additional_info'] = 'Additional information is required';
-    } else {
-        $additionalInfo = htmlspecialchars($_POST['additional_info']);
-    }
-
-    // Handle file uploads
-    function handleFileUpload($fileInputName, $allowedTypes, $targetDir, &$error) {
-        if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === 0) {
-            $fileType = mime_content_type($_FILES[$fileInputName]['tmp_name']);
-            $fileSize = $_FILES[$fileInputName]['size'];
-
-            if (!in_array($fileType, $allowedTypes)) {
-                $error[$fileInputName] = "Only JPEG, JPG, and PNG files are allowed for $fileInputName";
-            } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB limit
-                $error[$fileInputName] = "File size should not exceed 2MB for $fileInputName";
-            } else {
-                $fileName = basename($_FILES[$fileInputName]['name']);
-                $sanitizedFile = preg_replace("/[^a-zA-Z0-9,\-_]/", "", $fileName); // Sanitize filename
-                $targetFile = $targetDir . $sanitizedFile;
-
-                if (move_uploaded_file($_FILES[$fileInputName]['tmp_name'], $targetFile)) {
-                    return $targetFile;
-                } else {
-                    $error[$fileInputName] = "Failed to upload $fileInputName";
-                }
-            }
-        } else {
-            $error[$fileInputName] = "File is required for $fileInputName";
-        }
-        return null;
-    }
-
-    // Handle the pet image upload
-    $petImagePath = handleFileUpload('pet_image', $allowedTypes, $targetDir, $error);
-
-    // Handle the vaccine record upload
-    $vaccineRecordPath = handleFileUpload('vaccine_record', $allowedTypes, $vaccineDir, $error);
-
-    // Check for errors before database insertion
-    if (empty($error)) {
-        $sql = "INSERT INTO register (owner,phone, email, phonee, pet, age, breed, address, pet_image, pet_vaccine, additional_info) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssssss", $ownerName,$phone, $email, $petName, $petAge, $petBreed, $address, $petImagePath, $vaccineRecordPath, $additionalInfo);
-
-        if ($stmt->execute()) {
-          // Generate QR code after successful insertion
-          $registrationID = $stmt->insert_id; // get the last inserted ID (assuming it's auto-incremented)
-          
-          // URL for the pet's profile (make sure the URL is accessible)
-          $profileUrl = "localhost/userside/user/Pet_profiling.phpid=" . $registrationID; // Example URL with registration ID
-
-         // Generate the QR code and save it to a file
-$qrCodeFile = "../qrUpload/pet_" . $registrationID . "_qr.png"; // Set the QR code file path
-
-// Make sure the qrUpload folder exists and is writable
-if (!file_exists("../qrUpload")) {
-    mkdir("../qrUpload", 0777, true); // Create the folder if it doesn't exist
-}
-
-QRcode::png($profileUrl, $qrCodeFile, QR_ECLEVEL_L, 10);
-
-// Set $showModal to true to display the modal
-$showModal = true;
-unset($_POST); // Clear form data after submission
-
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-
-        $stmt->close();
-    }
-}
-
-$conn->close();
-
+include('dbconn/config.php');
+include('dbconn/authentication.php');
 ?>
 
-<!DOCTYPE php>
-<php lang="en">
-  <head>
- <?php include ('./disc/partials/header.php'); ?>
- </head>
-  </head>
+<!DOCTYPE html>
+<html lang='en'>
 
-    
-    <div class="loader-mask">
-        <div class="loader">
-            <div></div>
-            <div></div>
-        </div>
+<head>
+    <?php include('./disc/partials/header.php');
+    ?>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+
+<div class="loader-mask">
+    <div class="loader">
+        <div></div>
+        <div></div>
     </div>
-    
- 
-  <body class="vertical  light">
-  <div class="wrapper">
+</div>
 
-<?php include ('./disc/partials/navbar.php'); ?>
-<?php include ('./disc/partials/sidebar.php'); ?>
 
-      <main role="main" class="main-content">
-        
-        <!--For Notification header naman ito-->
-       <?php include('./disc/partials/modal-notif.php')?>
+<body class='vertical  light'>
+    <div class='wrapper'>
 
-      <!--YOUR CONTENTHERE-->
-      <div class="container-fluid">
-        <div class="col-md-12">
-          <br>
-           <div class="card">
-            <div class="card-header justify-content-center">
-              <h4 class="card-title">Pet Registration</h4>
+        <?php include('./disc/partials/navbar.php');
+        ?>
+        <?php include('./disc/partials/sidebar.php');
+        ?>
+
+        <main role='main' class='main-content'>
+
+            <!--For Notification header naman ito-->
+            <?php include('./disc/partials/modal-notif.php') ?>
+
+            <!--YOUR CONTENTHERE-->
+            <div class='container'>
+                <div class='card'>
+                    <div class=''>
+                        <h4 class='card-title mt-5'>PET REGISTRATION FORM</h4>
+                    </div>
+                    <div class='card-body'>
+                        <form id="regForm" class='row ' enctype='multipart/form-data' method='POST'>
+                            <div class='col-md-6 mt-3'>
+                                <label for='name' class='form-label'>Name</label>
+                                <input type='text' class='form-control' id='name' name='name' required>
+                                <div id='nameError' class='text-danger d-none'>Name is required and cannot contain
+                                    numbers.</div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='phone' class='form-label'>Phone Number</label>
+                                <input type='text' class='form-control' id='phone' name='phone' required>
+                                <div id='phoneError' class='text-danger d-none'>Please enter a valid phone number ( 11
+                                    digits ).</div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='email' class='form-label'>Email</label>
+                                <input type='email' class='form-control' id='email' name='email' required>
+                                <div id='emailError' class='text-danger d-none'>Please enter a valid email address.
+                                </div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='address' class='form-label'>Address</label>
+                                <textarea class='form-control' id='address' name='address' required></textarea>
+                                <div id='addressError' class='text-danger d-none'>Address is required.</div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='petName' class='form-label'>Pet Name</label>
+                                <input type='text' class='form-control' id='petName' name='petName' required>
+                                <div id='petNameError' class='text-danger d-none'>Pet name is required.</div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='petAge' class='form-label'>Pet Age</label>
+                                <input type='number' class='form-control' id='petAge' name='petAge' required>
+                                <div id='petAgeError' class='text-danger d-none'>Pet age must be a positive number.
+                                </div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='breed' class='form-label'>Breed</label>
+                                <input type='text' class='form-control' id='petBreed' name='petBreed' required>
+                                <div id='petBreedError' class='text-danger d-none'>Pet Breed is required.</div>
+                            </div>
+
+                            <div class=' col-md-6 mt-3'>
+                                <label for='additional_info' class='form-label'>Additional Information</label>
+                                <textarea class='form-control' id='info' name='info'></textarea>
+                                <div id='infoError' class='text-danger d-none'>additional information is required.</div>
+                            </div>
+
+                            <div class=' col-md-6 mt-3'>
+                                <label for='pet_image' class='form-label'>Pet Image</label>
+                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*'
+                                    required>
+                                <div id='petImageError' class='text-danger d-none'>Please upload a valid image file for
+                                    Pet Image.</div>
+                            </div>
+
+                            <div class='col-md-6 mt-3'>
+                                <label for='vaccineImage' class='form-label'>Vaccine Record Image</label>
+                                <input type='file' class='form-control' id='vaccineImage' name='vaccineImage'
+                                    accept='image/*' required>
+                                <div id='vaccineImageError' class='text-danger d-none'>Please upload a valid image file
+                                    for Vaccine Record.</div>
+                            </div>
+
+                            <div class=" col-md-12 mt-4 align-items-center text-center" style="">
+                                <button type="button" id="submitForm" class="p-3 btn btn-primary">Submit</button>
+                            </div>
+
+                        </form>
+                        <div id="submitFeedback" class="alert d-none mt-3"></div>
+                    </div>
+        </main>
+
+
+        <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <canvas id="qrcodeCanvas" class="mb-3"></canvas>
+                        <div id="qrActions">
+                            <a id="downloadQR" class="btn btn-success me-2 my-2" download="qrcode.png">Download QR
+                                Code</a>
+                            <a id="viewContents" class="btn btn-info me-2 my-2" target="_blank">View Uploaded Data</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-               <form action="" method="POST" enctype="multipart/form-data">
-                <div class="row">
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Owner Name</label>
-                    <input  class="form-control" name="owner_name" type="text" value="<?php echo isset($_POST['owner_name']) ? htmlspecialchars($_POST['owner_name']) : ''; ?>">
-                    <?php if (isset($error['owner_name']))  echo "<span style='color:red;'>" . $error['owner_name'] . "</span>"; ?>
-                </div>
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Phone No.</label>
-                    <input  class="form-control" name="phonee" type="tel" value="<?php echo isset($_POST['phonee']) ? htmlspecialchars($_POST['phonee']) : ''; ?>">
-                    <?php if (isset($error['phonee']))  echo "<span style='color:red;'>" . $error['phonee'] . "</span>"; ?>
-                </div>
-                </div>
-                <div class="row">
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Email</label>
-                    <input  class="form-control"  name="email" type="text" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-                    <?php if (isset($error['email'])) echo "<span style='color:red;'>" . $error['email'] . "</span>"; ?>
-                </div>
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Address</label>
-                    <input type="text"name="address" class="form-control" value="<?php echo isset($_POST['address']) ? htmlspecialchars($_POST['address']) : ''; ?>">
-                    <?php if (isset($error['address']))  echo "<span style='color:red;'>" . $error['address'] . "</span>"; ?>
-                </div>
-                </div>
-                <div class="row">
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Pet Name</label>
-                    <input class="form-control" name="pet_name" type="text" value="<?php echo isset($_POST['pet_name']) ? htmlspecialchars($_POST['pet_name']) : ''; ?>">
-                    <?php if (isset($error['pet_name']))  echo "<span style='color:red;'>" . $error['pet_name'] . "</span>"; ?>
-                </div>
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Pet Age</label>
-                    <input  class="form-control" name="pet_age" type="number" value="<?php echo isset($_POST['pet_age']) ? htmlspecialchars($_POST['pet_age']) : ''; ?>">
-                    <?php if (isset($error['pet_age']))  echo "<span style='color:red;'>" . $error['pet_age'] . "</span>"; ?>
-                </div>
-                </div>
-                <div class="row">
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Pet Breed</label>
-                    <input class="form-control" name="pet_breed" type="text" value="<?php echo isset($_POST['pet_breed']) ? htmlspecialchars($_POST['pet_breed']) : ''; ?>">
-                    <?php if (isset($error['pet_breed'])) echo "<span style='color:red;'>" . $error['pet_breed'] . "</span>"; ?>
-                </div>
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Additional Information</label>
-                  <textarea name="additional_info" id="" class="form-control"><?php echo isset($_POST['additional_info']) ? htmlspecialchars($_POST['additional_info']) : ''; ?></textarea>
-                    <?php if (isset($error['additional_info'])) echo "<span style='color:red;'>" . $error['additional_info'] . "</span>"; ?>
-                </div>
-                </div>
-                <div class="row">
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Pet Image</label>
-                  <input class="form-control" name="pet_image" type="file" >
-                   <?php if (isset($error['pet_image']))  echo "<span style='color:red;'>" . $error['pet_image'] . "</span>"; ?>
-                </div>
-                <div class="col-md mb-3">
-                  <label for="" class="form-label">Vaccination Record</label>
-                  <input class="form-control"name=" vaccine_record" type="file">
-                  <?php if (isset($error['vaccine_record']))  echo "<span style='color:red;'>". $error['vaccine_record'] . "</span>"; ?>
-                </div>
-                </div>
-                <button type="button" class="col-md-12 p-2 mt-3 btn btn-primary" data-bs-toggle="modal" data-bs-target="#qrCodeModal">Submit</button>
-               </form>
-            </div>
-          </div>
         </div>
-      </div>
-</main>
 
 
-<div class="modal " tabindex="-1" id="qrCodeModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title mt-1">Registration Successful!</h5>
-        <button type="button" class="btn-close" style="border-radius:28px;" data-bs-dismiss="modal" aria-label="Close">x</button>
-      </div>
-      <div class="modal-body">
-      <p>Scan or download the QR Code below:</p>
-        <div class="">
-        <img id="qrCodeImage" src="<?php echo $qrCodeFile; ?>" alt="QR Code" class="mx-auto my-4 w-48 h-48"> 
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="<?php echo $qrCodeFile; ?>" download class="btn p-2 btn-primary">Download</a>
-
-        <a href="userside/user/Pet_profiling.php?id=<?php echo $registrationID; ?>" target='_blank' class="p-2 btn btn-primary" data-bs-dismiss="modal">View Profile</a>
-        
-        <button type="button" class="btn btn-secondary p-2" data-bs-dismiss="modal">Close</button>
-      </div>
     </div>
-  </div>
-</div>
-</div>
-  <!-- Include jQuery -->
-  <?php include ('./script.php'); ?>
-  </body>
-</php>
+    <?php include('script.php'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form Submission
+        document.getElementById('submitForm').addEventListener('click', function () {
+            if (validateForm()) {
+                const form = document.getElementById('regForm');
+                const formData = new FormData(form);
 
-   
+                fetch('register-process.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedback = document.getElementById('submitFeedback');
+                        feedback.classList.remove('d-none');
+                        feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
+                        feedback.textContent = data.message;
+
+                        if (data.status === 'success') {
+                            const qrCodeCanvas = document.getElementById('qrcodeCanvas');
+
+                            QRCode.toCanvas(qrCodeCanvas, data.qrUrl, function (error) {
+                                if (error) {
+                                    console.error('QR Code Generation Error:', error);
+                                }
+                            });
+
+                            const downloadQR = document.getElementById('downloadQR');
+                            const viewContents = document.getElementById('viewContents');
+
+                            downloadQR.href = qrCodeCanvas.toDataURL();
+                            viewContents.href = data.qrUrl;
+
+                            // Initialize and show the modal
+                            const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+                            qrModal.show();  // This will ensure the modal is shown
+                        }
+                    })
+                    .catch(error => {
+                        const feedback = document.getElementById('submitFeedback');
+                        feedback.classList.remove('d-none');
+                        feedback.classList.add('alert-danger');
+                        feedback.textContent = 'An error occurred during the submit process';
+                    });
+            }
+        });
+
+
+        function validateForm() {
+            let isValid = true;
+
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const petName = document.getElementById('petName').value.trim();
+            const petAge = document.getElementById('petAge').value.trim();
+            const petBreed = document.getElementById('petBreed').value.trim();
+            const info = document.getElementById('info').value.trim();
+            const petImage = document.getElementById('petImage').files[0];
+            const vaccineImage = document.getElementById('vaccineImage').files[0];
+
+            const nameError = document.getElementById('nameError');
+            if (!name || /\d/.test(name)) {
+
+                nameError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                nameError.classList.add('d-none');
+            }
+
+            // Phone Validation
+            const phoneError = document.getElementById('phoneError');
+            if (!/^[0-9]{11}$/.test(phone)) {
+
+                phoneError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                phoneError.classList.add('d-none');
+            }
+
+            // Email Validation
+            const emailError = document.getElementById('emailError');
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)) {
+
+                emailError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                emailError.classList.add('d-none');
+            }
+
+            // Address Validation
+            const addressError = document.getElementById('addressError');
+            if (!address) {
+
+                addressError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                addressError.classList.add('d-none');
+            }
+
+            // Pet Name Validation
+            const petNameError = document.getElementById('petNameError');
+            if (!petName) {
+
+                petNameError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petNameError.classList.add('d-none');
+            }
+
+            // Pet Age Validation
+            const petAgeError = document.getElementById('petAgeError');
+            if (petAge <= 0) {
+
+                petAgeError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petAgeError.classList.add('d-none');
+            }
+            // Breed Validation
+            const petBreedError = document.getElementById('petBreedError');
+            if (!petBreed) {
+
+                petBreedError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petBreedError.classList.add('d-none');
+            }
+
+            const infoError = document.getElementById('infoError');
+            if (!info) {
+
+                infoError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                infoError.classList.add('d-none');
+            }
+            // File Validation
+            const petImageError = document.getElementById('petImageError');
+            const vaccineImageError = document.getElementById('vaccineImageError');
+
+            if (!petImage || !petImage.type.startsWith('image/')) {
+
+                petImageError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petImageError.classList.add('d-none');
+            }
+
+            if (!vaccineImage || !vaccineImage.type.startsWith('image/')) {
+
+                vaccineImageError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                vaccineImageError.classList.add('d-none');
+            }
+
+            return isValid;
+
+
+        }
+    </script>
+</body>
+
+</html>
