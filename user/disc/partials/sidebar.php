@@ -9,7 +9,7 @@
             <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="#">
               
                 
-                <img src="../assets/images/unified-lgu-logo.png" width="45">
+                <img src="./img/unified-lgu-logo.png" width="45">
               
 
             <div class="brand-title">

@@ -1,79 +1,41 @@
 <?php
-include('dbconn/config.php');  // Ensure your DB connection file is correct
+// viewContent.php
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
 
-// Get user ID from the URL
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $userId = $_GET['id']; // Sanitize input to ensure it's a valid number
+    // Fetch the data from the database using the $id
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "bpa_system";
 
-    // Fetch user details
-    $sql = "SELECT * FROM register WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    
-    if ($stmt === false) {
-        // Handle SQL error if preparation fails
-        echo "<div class='text-center'><h1 class='text-red-600 font-bold text-lg'>SQL Error: Unable to prepare the query.</h1></div>";
-        exit;
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
-    
-    $stmt->bind_param("i", $userId);
+
+    $stmt = $conn->prepare("SELECT * FROM register WHERE registrationID = ?");
+    $stmt->bind_param("s", $id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // User found, fetch the user data
-        $user = $result->fetch_assoc();
-        
-        // Check if user has a picture, and set a default if not
-        $userImage = !empty($user['pet_image']) ? $user['pet_image'] : 'default-pet-image.jpg'; // Default image fallback
-        
-        // Check if owner email exists
-        $Email = !empty($user['email']) ? $user['email'] : 'No email provided'; // Fallback if no email is available
-        ?>
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>User Details</title>
-            <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body class="bg-gray-100">
-            <div class="min-h-screen flex items-center justify-center">
-                <div class="bg-white shadow-md rounded-lg max-w-md w-full p-6">
-                    <div class="flex flex-col items-center">
-                        <!-- User Picture -->
-                        <img src="<?php echo htmlspecialchars($userImage); ?>" 
-                             alt="User Picture" 
-                             class="w-32 h-32 rounded-full mb-4 border-2 border-gray-300">
-                        
-                        <!-- Pet Name -->
-                        <h1 class="text-2xl font-bold mb-2">Hello, I'm <?php echo htmlspecialchars($user['pet']); ?></h1>
-                        
-                        <!-- Emergency Notification Message -->
-                        <p class="text-gray-600 mb-4">In case of emergency, please notify my owner via 
-    <?php if ($Email !== 'No email provided'): ?>
-        <a href="mailto:<?php echo urlencode($Email); ?>" class="text-blue-600 hover:underline">email</a>.
-    <?php else: ?>
-        <span class="text-red-600">Email not provided</span>.<br>
-    <?php endif; ?>
-</p>
-
-                    </div>
-            </div>
-        </body>
-        </html>
-        <?php
+        $row = $result->fetch_assoc();
+        echo "<h1>Content for Pet: " . htmlspecialchars($row['owner']) . "</h1>";
+        echo "<p><strong>Name:</strong> " . htmlspecialchars($row['pet']) . "</p>";
+        echo "<p><strong>Pet Age:</strong> " . htmlspecialchars($row['age']) . "</p>";
+        echo "<p><strong>Breed:</strong> " . htmlspecialchars($row['breed']) . "</p>";
+        echo "<p><strong>Additional Info:</strong> " . htmlspecialchars($row['info']) . "</p>";
+        echo "<p><strong>Pet Image:</strong><br><img src='" . htmlspecialchars($row['pet_image']) . "' alt='Pet Image' class='img-fluid'></p>";
+        echo "<p><strong>Vaccine Record:</strong><br><img src='" . htmlspecialchars($row['pet_vaccine']) . "' alt='Vaccine Record' class='img-fluid'></p>";
     } else {
-        // If no user found
-        echo "<div class='text-center'><h1 class='text-red-600 font-bold text-lg'>User not found!</h1></div>";
+        echo "<p>No content found.</p>";
     }
 
-    // Clean up and close the statement
     $stmt->close();
+    $conn->close();
 } else {
-    // Invalid or missing ID in the URL
-    echo "<div class='text-center'><h1 class='text-red-600 font-bold text-lg'>Invalid request!</h1></div>";
+    echo "<p>No ID provided.</p>";
 }
-
-$conn->close();  // Close the database connection
 ?>

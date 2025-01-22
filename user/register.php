@@ -12,13 +12,6 @@ include('dbconn/authentication.php');
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 
-<div class="loader-mask">
-    <div class="loader">
-        <div></div>
-        <div></div>
-    </div>
-</div>
-
 
 <body class='vertical  light'>
     <div class='wrapper'>
@@ -140,7 +133,7 @@ include('dbconn/authentication.php');
 
 
     </div>
-    <?php include('script.php'); ?>
+    <?php include('./script.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Form Submission
@@ -161,8 +154,8 @@ include('dbconn/authentication.php');
                         feedback.textContent = data.message;
 
                         if (data.status === 'success') {
+                            form.reset();
                             const qrCodeCanvas = document.getElementById('qrcodeCanvas');
-
                             QRCode.toCanvas(qrCodeCanvas, data.qrUrl, function (error) {
                                 if (error) {
                                     console.error('QR Code Generation Error:', error);

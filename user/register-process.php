@@ -58,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             // Generate the QR code URL
-            $viewUrl = "http://localhost/user/pet_view.php?id=" . $registrationID;
+            $viewUrl = "http://localhost/userside/user/pet_profiling.php?id=" . $registrationID;
 
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Upload successful!',
+                'message' => 'Registration successfully!',
                 'qrUrl' => $viewUrl,
             ]);
         } else {
