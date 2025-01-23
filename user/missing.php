@@ -56,9 +56,9 @@ include('dbconn/authentication.php');
                             </div>
 
                             <div class='col-md-6 mt-3'>
-                                <label for='address' class='form-label'>Address</label>
+                                <label for='address' class='form-label'>Lost/Found</label>
                                 <textarea class='form-control' id='address' name='address' required></textarea>
-                                <div id='addressError' class='text-danger d-none'>Address is required.</div>
+                                <div id='addressError' class='text-danger d-none'> is required.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
@@ -68,7 +68,7 @@ include('dbconn/authentication.php');
                             </div>
 
                             <div class='col-md-6 mt-3'>
-                                <label for='petAge' class='form-label'>Pet Age</label>
+                                <label for='petAge' class='form-label'>Pet type</label>
                                 <input type='number' class='form-control' id='petAge' name='petAge' required>
                                 <div id='petAgeError' class='text-danger d-none'>Pet age must be a positive number.
                                 </div>
@@ -191,11 +191,10 @@ include('dbconn/authentication.php');
             const email = document.getElementById('email').value.trim();
             const address = document.getElementById('address').value.trim();
             const petName = document.getElementById('petName').value.trim();
-            const petAge = document.getElementById('petAge').value.trim();
             const petBreed = document.getElementById('petBreed').value.trim();
             const info = document.getElementById('info').value.trim();
             const petImage = document.getElementById('petImage').files[0];
-            const vaccineImage = document.getElementById('vaccineImage').files[0];
+      
 
             const nameError = document.getElementById('nameError');
             if (!name || /\d/.test(name)) {
