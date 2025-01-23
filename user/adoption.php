@@ -24,8 +24,8 @@ include('dbconn/authentication.php');
             <!-- YOUR CONTENT HERE -->
             <div class='container'>
                 <div class='card'>
-                    <div class='card-header'>
-                        <h4 class='card-title mt-2'>PET ADOPTION</h4>
+                    <div class=''>
+                        <h4 class='card-title mt-5'>PET ADOPTION</h4>
                     </div>
                     <div class='card-body'>
                         <form id="adoptForm" class='row' enctype='multipart/form-data' method='POST'>
