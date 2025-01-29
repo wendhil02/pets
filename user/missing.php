@@ -57,9 +57,9 @@ include('dbconn/authentication.php');
                             </div>
 
                             <div class='col-md-6 mt-3'>
-                                <label for='petAge' class='form-label'>Pet Age</label>
-                                <input type='number' class='form-control' id='petAge' name='petAge' required>
-                                <div id='petAgeError' class='text-danger d-none'>Pet age must be a positive number.</div>
+                                <label for='petType' class='form-label'>Pet Type</label>
+                                <input type='text' class='form-control' id='petType' name='petType' required>
+                                <div id='petTypeError' class='text-danger d-none'>Pet age must be a positive number.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
@@ -155,7 +155,7 @@ include('dbconn/authentication.php');
             const email = document.getElementById('email').value.trim();
             const address = document.getElementById('address').value.trim();
             const petName = document.getElementById('petName').value.trim();
-            const petAge = document.getElementById('petAge').value.trim();
+            const petType = document.getElementById('petType').value.trim();
             const petBreed = document.getElementById('petBreed').value.trim();
             const info = document.getElementById('info').value.trim();
             const petImage = document.getElementById('petImage').files[0];
@@ -201,12 +201,12 @@ include('dbconn/authentication.php');
                 petNameError.classList.add('d-none');
             }
 
-            const petAgeError = document.getElementById('petAgeError');
-            if (petAge <= 0) {
-                petAgeError.classList.remove('d-none');
+            const petTypeError = document.getElementById('petTypeError');
+            if (!petType) {
+                petTypeError.classList.remove('d-none');
                 isValid = false;
             } else {
-                petAgeError.classList.add('d-none');
+                petTypeError.classList.add('d-none');
             }
 
             const petBreedError = document.getElementById('petBreedError');
