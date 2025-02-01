@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('dbconn/config.php');
+include('./dbconn/config.php');
 
 // Check if the user is already logged in
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="absolute inset-0 overlay"></div>
     <div class="login-card p-5 rounded-lg w-full max-w-md relative z-10 sm:w-11/12 md:w-9/12 lg:w-1/3">
         <div class="flex justify-center mb-4">
-            <img src="admin/img/barangay.png" alt="Government Logo" class="h-20 w-auto">
+            <img src="user/img/barangay.png" alt="Government Logo" class="h-20 w-auto">
         </div>
         <h2 class="text-center text-2xl font-semibold text-gray-700 mb-6">Login</h2>
 
