@@ -1,6 +1,6 @@
 <?php
-include('../dbconn/config.php');
-include('../dbconn/authentication.php');
+include('./dbconn/config.php');
+include('./dbconn/authentication.php');
 ?>
 
 
@@ -34,7 +34,7 @@ include('../dbconn/authentication.php');
                         while ($row = $result->fetch_assoc()) {
                             ?>
 
-                            <div class='card mb-3 m-2' style='max-width: 540px;'>
+                            <div class='card mb-3 m-2' style='max-width: auto;'>
                                 <div class='row g-0'>
                                     <div class='col-md-4'>
                                         <img src="<?php echo $row['pet_image']; ?>" class='card-img-top'

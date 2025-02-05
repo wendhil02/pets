@@ -1,152 +1,58 @@
-<?php
-session_start();
-include('./dbconn/config.php');
-
-// Check if the user is already logged in
-if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-    if ($_SESSION['role'] === 'admin') {
-        header("Location: admin/admin_dashboard.php");
-        exit;
-    } elseif ($_SESSION['role'] === 'user') {
-        header("Location: user/user_dashboard.php");
-        exit;
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $error = array(); // Initialize error array
-    
-    // Validate email/username and password fields
-    if (empty($_POST['umail'])) {
-        $error['umail'] = 'Please enter your email or username.';
-    } else { 
-        $umail = htmlspecialchars(trim($_POST['umail']));
-    }
-
-    if (empty($_POST['password'])) {
-        $error['password'] = 'Please enter your password.';
-    } else {
-        $password = htmlspecialchars(trim($_POST['password']));
-    }
-
-    // If no errors, proceed to account check
-    if (empty($error)) {
-        // Check if the account exists
-        $stmt = $conn->prepare('SELECT id, username, pwd, role FROM users WHERE username=? OR email=?');
-        $stmt->bind_param('ss', $umail, $umail);
-        $stmt->execute();
-        $stmt->store_result();
-
-        // If no account is found
-        if ($stmt->num_rows === 0) {
-            $error['account'] = 'Account not found.';
-        } else {
-            // If account is found, fetch user details
-            $stmt->bind_result($id, $username, $hpassword, $role);
-            $stmt->fetch();
-
-            // Verify the password
-            if (password_verify($password, $hpassword)) {
-                // Prevent session fixation
-                session_regenerate_id(true);
-
-                // Set session variables for authentication
-                $_SESSION['user_id'] = $id;
-                $_SESSION['username'] = $username;
-                $_SESSION['role'] = $role;
-                $_SESSION['logged_in'] = true;
-
-                // Redirect based on role
-                if ($role === 'admin') {
-                    header("Location: admin/admin_dashboard.php");
-                } elseif ($role === 'user') {
-                    header("Location: user/dashboard.php");
-                } else {
-                    $error['role'] = 'Invalid role. Please contact support.';
-                }
-                exit;
-            } else {
-                $error['password'] = 'Incorrect password. Please try again.';
-            }
-        }
-        $stmt->close();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Pet Animal Welfare Protection</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="user/img/barangay.png" type="image/x-icon">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f7fb;
-        }
-        .background-img {
-            background-image: url('admin/img/stray.png');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-        .overlay {
-            background-color: rgba(0, 47, 108, 0.7);
-        }
-        .login-card {
-            background-color: #ffffff;
-            border-left: 6px solid #002f6c;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-    </style>
+    <title>Login Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col items-center justify-center h-screen background-img relative">
-    <div class="absolute inset-0 overlay"></div>
-    <div class="login-card p-5 rounded-lg w-full max-w-md relative z-10 sm:w-11/12 md:w-9/12 lg:w-1/3">
-        <div class="flex justify-center mb-4">
-            <img src="user/img/barangay.png" alt="Government Logo" class="h-20 w-auto">
+<body class="relative flex flex-col items-center justify-center min-h-screen bg-gray-100">
+
+   <!-- Background Image with Overlay -->
+   <div class="absolute inset-0 bg-cover bg-center z-[-2]" style="background-image: url('backone.jpg');"></div>
+   <div class="absolute inset-0 bg-black/60 z-[-1]"></div> <!-- Overlay added here -->
+
+   <!-- Centered Login Form with Highlight Effect -->
+   <div class="form w-full max-w-sm rounded-md shadow-2xl overflow-hidden z-[100] relative cursor-pointer snap-start shrink-0 py-6 px-8 bg-[#DFA16A] flex flex-col items-center justify-center gap-5 transition-all duration-300">
+      <p class="text-[#A15A3E] text-xl font-semibold flex items-center justify-center gap-2">
+        <i class="fa-solid fa-paw"></i> Pet Sign In Account
+      </p>
+
+      <form action="" class="flex flex-col gap-4 w-full">
+        <div class="flex flex-col">
+          <label for="email" class="text-sm text-[#7F3D27] font-semibold">Email</label>
+          <input
+            type="email"
+            placeholder="Enter Your Email"
+            class="w-full py-2 px-3 bg-transparent outline-none border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] text-[#7F3D27]"
+          />
         </div>
-        <h2 class="text-center text-2xl font-semibold text-gray-700 mb-6">Login</h2>
 
-        <?php if (!empty($error)) : ?>
-            <div class="bg-red-600 text-white text-center py-2 mb-4 rounded">
-                <?php 
-                foreach ($error as $err) {
-                    echo htmlspecialchars($err) . '<br>';
-                }
-                ?>
-            </div>
-        <?php endif; ?>
+        <div class="flex flex-col">
+          <label for="password" class="text-sm text-[#7F3D27] font-semibold">Password</label>
+          <input
+            type="password"
+            placeholder="Enter Your Password"
+            class="w-full py-2 px-3 bg-transparent outline-none border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] text-[#7F3D27]"
+          />
+        </div>
 
-        <form action="" method="POST" id="loginForm">
-            <div class="mb-4">
-                <label for="umail" class="block text-sm font-semibold text-gray-700">Email/Username</label>
-                <input type="text" name="umail" id="umail" class="mt-1 p-3 border border-gray-300 rounded w-full focus:outline-none focus:border-blue-600" value="<?php echo isset($_POST['umail']) ? htmlspecialchars($_POST['umail']) : ''; ?>" autocomplete="off">
-            </div>
+        <div class="flex items-center gap-2 text-[#A15A3E]">
+          <input type="checkbox" class="w-4 h-4 accent-[#A15A3E]" checked />
+          <p class="text-xs">By signing in, you agree to the <span class="font-semibold">Terms & Policy</span></p>
+        </div>
 
-            <div class="mb-6">
-                <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
-                <input type="password" name="password" id="password" class="mt-1 p-3 border border-gray-300 rounded w-full focus:outline-none focus:border-blue-600" autocomplete="off">
-            </div>
+        <button class="w-full px-6 font-semibold text-sm py-3 rounded-md hover:scale-105 transition-all text-[#7F3D27] bg-[#D9D9D9] shadow-lg">
+          Sign In
+        </button>
+      </form>
+   </div>
 
-            <div class="flex justify-center">
-                <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition duration-200 w-full">Login</button>
-            </div>
-        </form>
-    <!--    <a class="flex justify-center mt-4 text-blue-600 hover:underline" href="register.php">Create an account. Sign up</a>
-    -->
-    </div>
+   <!-- Copyright Section -->
+   <footer class="absolute bottom-4 text-center text-sm text-gray-200 z-[100]">
+     &copy; 2025 Pet Login System. All Rights Reserved.
+   </footer>
 
-    <!-- Copyright Footer -->
-    <footer class="text-gray-500 text-sm mt-4 text-center absolute bottom-4">
-        &copy; <?php echo date("Y"); ?> Barangay Pet Animal Welfare Protection System. All Rights Reserved.
-    </footer>
 </body>
 </html>
-

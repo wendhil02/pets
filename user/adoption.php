@@ -1,6 +1,6 @@
 <?php
-include('../dbconn/config.php');
-include('../dbconn/authentication.php');
+include('./dbconn/config.php');
+include('./dbconn/authentication.php');
 ?>
 
 
@@ -119,6 +119,7 @@ include('../dbconn/authentication.php');
 </div>
 <?php include('./script.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
    document.getElementById("submitForm").addEventListener("click", function () {
     let isValid = true;

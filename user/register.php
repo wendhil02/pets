@@ -1,6 +1,6 @@
 <?php
-include('../dbconn/config.php');
-include('../dbconn/authentication.php');
+include('./dbconn/config.php');
+include('./dbconn/authentication.php');
 ?>
 
 <!DOCTYPE html>

@@ -8,6 +8,14 @@
 <?php include('navandside/nav.php'); ?>
 <?php include('navandside/sidebar.php'); ?>
 <?php include('navandside/head.php'); ?>
+
+<div class="loader-mask">
+    <div class="loader">
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
 <body class="vertical  light">
     
 
