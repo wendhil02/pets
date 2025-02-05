@@ -11,13 +11,18 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="relative bg-gray-100 font-sans">
 
-    <div class="flex justify-center items-center min-h-screen px-4 flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-6">
+    <!-- Background with Overlay -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('backone.jpg'); z-index: -1;">
+        <div class="absolute inset-0 bg-black opacity-50"></div> 
+    </div>
+
+    <div class="relative flex justify-center items-center min-h-screen px-4 flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-6">
 
         <!-- Left Box: Upload and Classify -->
-        <div class="bg-white p-6 rounded-lg shadow-lg w-full sm:w-80 md:w-96 lg:w-1/3 xl:w-1/4 h-auto flex flex-col max-w-full">
-            <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-6 flex items-center justify-center">
+        <div class="bg-[#DFA16A] p-6 rounded-lg shadow-lg shadow-white w-full sm:w-80 md:w-96 lg:w-1/3 xl:w-1/4 h-auto flex flex-col max-w-full relative z-10">
+            <h1 class="text-3xl font-extrabold text-center text-white mb-6 flex items-center justify-center">
                 <i class="fas fa-paw mr-2"></i> Pet Recognition
             </h1>
 
@@ -25,7 +30,7 @@
             <div class="space-y-4 flex-grow">
                 <div>
                     <input type="file" id="fileInput" accept="image/*"
-                        class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:bg-gray-50 hover:file:bg-gray-100"
+                        class="block w-full text-sm text-white-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:bg-gray-50 hover:file:bg-gray-100"
                         onchange="previewImage()">
                 </div>
 
@@ -44,36 +49,41 @@
 
             <!-- Information Display -->
             <div id="info" class="mt-4 text-center hidden">
-                <h2 class="text-xl font-semibold text-gray-800">Information</h2>
-                <p id="petInfo" class="text-gray-600"></p>
+                <h2 class="text-xl font-semibold text-white">Information</h2>
+                <p id="petInfo" class="text-white"></p>
             </div>
 
             <!-- Refresh Button -->
             <div class="mt-4 flex justify-center">
-                <button onclick="refreshPage()" class="text-gray-600 hover:text-gray-800 p-2 rounded-full focus:outline-none">
+                <button onclick="refreshPage()" class="text-white hover:text-gray-800 p-2 rounded-full focus:outline-none">
                     <i class="fas fa-sync-alt h-6 w-6"></i>
                 </button>
             </div>
         </div>
 
         <!-- Right Box: Camera Feed -->
-        <div class="bg-white p-6 rounded-lg shadow-lg w-full sm:w-80 md:w-96 lg:w-1/3 xl:w-1/4 h-auto flex flex-col max-w-full">
-            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 flex items-center justify-center">
+        <div class="bg-[#DFA16A] p-6 rounded-lg shadow-lg shadow-white w-full sm:w-80 md:w-96 lg:w-1/3 xl:w-1/4 h-auto flex flex-col max-w-full relative z-10">
+            <h1 class="text-3xl font-bold text-center text-white mb-6 flex items-center justify-center">
                 <i class="fas fa-camera-retro mr-2"></i> Pets Scanner
             </h1>
 
             <!-- Camera Feed Section -->
-            <div class="mb-6 border-4 p-4 rounded-md shadow-md flex-grow">
+            <div class="mb-6 border-1 p-4 rounded-md shadow-md flex-grow">
                 <video id="video" width="100%" height="auto" autoplay class="border rounded-md shadow-md w-full"></video>
             </div>
 
             <!-- Information Below the Camera -->
             <div id="cameraInfo" class="text-center hidden">
-                <h2 class="text-xl font-semibold text-gray-800">Camera Prediction</h2>
-                <p id="cameraPetInfo" class="text-gray-600"></p>
+                <h2 class="text-xl font-semibold text-white">Camera Prediction</h2>
+                <p id="cameraPetInfo" class="text-gray-800"></p>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="absolute bottom-2 w-full text-center text-white text-sm z-10">
+        © 2025 Pet Recognition. All Rights Reserved.
+    </footer>
 
     <script>
         let model;
@@ -82,7 +92,7 @@
         async function loadModel() {
             model = await mobilenet.load();
             console.log("Model loaded successfully!");
-            classifyCameraFrame(); // Start real-time detection once model loads
+            classifyCameraFrame();
         }
 
         async function setupCamera() {
@@ -144,18 +154,14 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageTensor = tf.browser.fromPixels(canvas);
             const predictions = await model.classify(imageTensor);
-            imageTensor.dispose(); // Free memory
+            imageTensor.dispose();
 
             const cameraInfo = document.getElementById('cameraInfo');
             const cameraPetInfo = document.getElementById('cameraPetInfo');
 
-            const isPet = predictions[0].className.toLowerCase().includes("cat") || 
-                          predictions[0].className.toLowerCase().includes("dog");
-
-            if (isPet) {
+            if (predictions[0].className.toLowerCase().includes("cat") || predictions[0].className.toLowerCase().includes("dog")) {
                 cameraInfo.classList.remove('hidden');
-                cameraPetInfo.innerText = 
-                    `Prediction: ${predictions[0].className} with ${Math.round(predictions[0].probability * 100)}% confidence.`;
+                cameraPetInfo.innerText = `Prediction: ${predictions[0].className} with ${Math.round(predictions[0].probability * 100)}% confidence.`;
             } else {
                 cameraInfo.classList.add('hidden');
             }
