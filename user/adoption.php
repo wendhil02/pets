@@ -3,33 +3,29 @@ include('./dbconn/config.php');
 include('./dbconn/authentication.php');
 ?>
 
-
 <!DOCTYPE html>
 <html lang='en'>
 
 <head>
     <?php include('./disc/partials/header.php'); ?>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
-<body>
-<div class='vertical light'>
+<body class='vertical light'>
     <div class='wrapper'>
-
         <?php include('./disc/partials/navbar.php'); ?>
         <?php include('./disc/partials/sidebar.php'); ?>
 
         <main role='main' class='main-content'>
-            <?php include('./disc/partials/modal-notif.php'); ?>
+            <!-- Notification header -->
+            <?php include('./disc/partials/modal-notif.php') ?>
 
-            <!-- YOUR CONTENT HERE -->
             <div class='container'>
                 <div class='card'>
                     <div class=''>
-                        <h4 class='card-title mt-5'>PET ADOPTION</h4>
+                        <h4 class='card-title mt-5'>ADOPTION</h4>
                     </div>
                     <div class='card-body'>
-                        <form id="adoptForm" class='row' enctype='multipart/form-data' method='POST'>
+                        <form id="adoptForm" class='row ' enctype='multipart/form-data' method='POST'>
                             <div class='col-md-6 mt-3'>
                                 <label for='name' class='form-label'>Name</label>
                                 <input type='text' class='form-control' id='name' name='name' required>
@@ -50,7 +46,7 @@ include('./dbconn/authentication.php');
 
                             <div class='col-md-6 mt-3'>
                                 <label for='address' class='form-label'>Address</label>
-                                <input type="text" class='form-control' id='address' name='address' required>
+                                <textarea class='form-control' id='address' name='address' required></textarea>
                                 <div id='addressError' class='text-danger d-none'>Address is required.</div>
                             </div>
 
@@ -63,38 +59,31 @@ include('./dbconn/authentication.php');
                             <div class='col-md-6 mt-3'>
                                 <label for='petType' class='form-label'>Pet Type</label>
                                 <input type='text' class='form-control' id='petType' name='petType' required>
-                                <div id='petTypeError' class='text-danger d-none'>Pet type is required.</div>
+                                <div id='petTypeError' class='text-danger d-none'>Pet age must be a positive number.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
                                 <label for='breed' class='form-label'>Breed</label>
                                 <input type='text' class='form-control' id='petBreed' name='petBreed' required>
-                                <div id='petBreedError' class='text-danger d-none'>Breed is required.</div>
+                                <div id='petBreedError' class='text-danger d-none'>Pet Breed is required.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
-                                <label for='info' class='form-label'>Additional Information</label>
+                                <label for='additional_info' class='form-label'>Additional Information</label>
                                 <textarea class='form-control' id='info' name='info'></textarea>
-                                <div id='infoError' class='text-danger d-none'>additional information is required.</div>
+                                <div id='infoError' class='text-danger d-none'>Additional information is required.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
-                                <label for='reason' class='form-label'>Reason to Adopt</label>
-                                <textarea class='form-control' id='reason' name='reason'></textarea>
-                                <div id='reasonError' class='text-danger d-none'>This is required.</div>
+                                <label for='pet_image' class='form-label'>Pet Image</label>
+                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*' required>
+                                <div id='petImageError' class='text-danger d-none'>Please upload a valid image file for Pet Image.</div>
                             </div>
 
-                            <div class='col-md-6 mt-3'>
-                                <label for='experience' class='form-label'>Experience with Pets</label>
-                                <textarea class='form-control' id='experience' name='experience'></textarea>
-                                <div id='experienceError' class='text-danger d-none'>This is required.</div>
-                            </div>
-
-                            <div class="col-md-12 mt-4 text-center">
-                                <button type="button" id="submitForm" class="btn btn-primary">Submit</button>
+                            <div class="col-md-12 mt-4 align-items-center text-center">
+                                <button type="button" id="submitForm" class="p-3 btn btn-primary">Submit</button>
                             </div>
                         </form>
-
                         <div id="submitFeedback" class="alert d-none mt-3"></div>
                     </div>
                 </div>
@@ -116,57 +105,137 @@ include('./dbconn/authentication.php');
             </div>
         </div>
     </div>
-</div>
-<?php include('./script.php'); ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <?php include('./script.php'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+   document.getElementById('submitForm').addEventListener('click', function () {
+    if (validateForm()) {
+        const form = document.getElementById('adoptForm');
+        const formData = new FormData(form);
 
-<script>
-   document.getElementById("submitForm").addEventListener("click", function () {
-    let isValid = true;
+        fetch('adoption-process.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            const feedback = document.getElementById('submitFeedback');
+            feedback.classList.remove('d-none');
+            feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
+            feedback.textContent = data.status === 'success' ? 'Successfully Registered!' : 'Registration Failed!';
 
-    const requiredFields = ['name', 'phone', 'email', 'address', 'petName', 'petType', 'petBreed','info','reason','experience'];
-    requiredFields.forEach(field => {
-        const value = document.getElementById(field).value.trim();
-        const errorDiv = document.getElementById(`${field}Error`);
-        if (!value) {
-            errorDiv.classList.remove('d-none');
-            isValid = false;
-        } else {
-            errorDiv.classList.add('d-none');
-        }
-    });
+            if (data.status === 'success') {
+                // Show the success modal
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
 
-    const phone = document.getElementById('phone').value.trim();
-    if (!/^\d{11}$/.test(phone)) {
-        document.getElementById('phoneError').classList.remove('d-none');
-        isValid = false;
-    }
+                // Reset the form
+                form.reset();
+            }
 
-    if (isValid) {
-        const formData = new FormData(document.getElementById("adoptForm"));
-
-        $.ajax({
-            url: "adoption-process.php",
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                const res = JSON.parse(response);
-                if (res.status === "success") {
-                    $("#successModal").modal("show");
-                    document.getElementById("adoptForm").reset();
-                } else {
-                    alert("Errors: " + res.errors.join("\n"));
-                }
-            },
-            error: function (xhr, status, error) {
-                alert("An error occurred: " + error);
-            },
+            setTimeout(function() {
+        feedback.classList.add('d-none');
+    }, 3000); 
+        })
+        .catch(error => {
+            const feedback = document.getElementById('submitFeedback');
+            feedback.classList.remove('d-none');
+            feedback.classList.add('alert-danger');
+            feedback.textContent = 'An error occurred during the submit process';
         });
     }
 });
 
-</script>
+
+        function validateForm() {
+            let isValid = true;
+
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const petName = document.getElementById('petName').value.trim();
+            const petType = document.getElementById('petType').value.trim();
+            const petBreed = document.getElementById('petBreed').value.trim();
+            const info = document.getElementById('info').value.trim();
+            const petImage = document.getElementById('petImage').files[0];
+
+            const nameError = document.getElementById('nameError');
+            if (!name || /\d/.test(name)) {
+                nameError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                nameError.classList.add('d-none');
+            }
+
+            const phoneError = document.getElementById('phoneError');
+            if (!/^[0-9]{11}$/.test(phone)) {
+                phoneError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                phoneError.classList.add('d-none');
+            }
+
+            const emailError = document.getElementById('emailError');
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)) {
+                emailError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                emailError.classList.add('d-none');
+            }
+
+            const addressError = document.getElementById('addressError');
+            if (!address) {
+                addressError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                addressError.classList.add('d-none');
+            }
+
+            const petNameError = document.getElementById('petNameError');
+            if (!petName) {
+                petNameError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petNameError.classList.add('d-none');
+            }
+
+            const petTypeError = document.getElementById('petTypeError');
+            if (!petType) {
+                petTypeError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petTypeError.classList.add('d-none');
+            }
+
+            const petBreedError = document.getElementById('petBreedError');
+            if (!petBreed) {
+                petBreedError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petBreedError.classList.add('d-none');
+            }
+
+            const infoError = document.getElementById('infoError');
+            if (!info) {
+                infoError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                infoError.classList.add('d-none');
+            }
+
+            const petImageError = document.getElementById('petImageError');
+            if (!petImage || !petImage.type.startsWith('image/')) {
+                petImageError.classList.remove('d-none');
+                isValid = false;
+            } else {
+                petImageError.classList.add('d-none');
+            }
+
+            return isValid;
+        }
+    </script>
 </body>
-</html> 
+
+</html>
