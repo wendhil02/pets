@@ -1,8 +1,27 @@
 <?php
 include('./dbconn/config.php');
 include('./dbconn/authentication.php');
-?>
 
+// Check if a deletion has been requested
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['pet_id'])) {
+    $pet_id = intval($_POST['pet_id']);
+
+    // Prepare the statement to safely delete the pet listing
+    $stmt = $conn->prepare("DELETE FROM adoption WHERE id = ?");
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $pet_id);
+    
+    if ($stmt->execute()) {
+        $message = "Pet listing deleted successfully";
+    } else {
+        $error = "Failed to delete pet listing";
+    }
+
+    $stmt->close();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,8 +44,8 @@ include('./dbconn/authentication.php');
             display: flex;
             flex-direction: column;
             justify-content: center;  
-            align-items: start;      
-            text-align: start;
+            align-items: flex-start;      
+            text-align: left;
         }
         .card-title {
             font-size: 12px;
@@ -37,16 +56,12 @@ include('./dbconn/authentication.php');
             font-size: 14px;
             margin-bottom: 0.25rem;
         }
+        .card-footer {
+            background: transparent;
+            border-top: none;
+        }
     </style>
 </head>
-
-<div class="loader-mask">
-        <div class="loader">
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-
 <body class="vertical light">
     <div class="wrapper">
         <?php include('./disc/partials/navbar.php'); ?>
@@ -54,6 +69,13 @@ include('./dbconn/authentication.php');
         <main role="main" class="main-content">
             <?php include('./disc/partials/modal-notif.php'); ?>
             <div class="container-fluid">
+                <!-- Display success/error messages if available -->
+                <?php if (isset($message)) : ?>
+                    <div class="alert alert-success" role="alert"><?php echo htmlspecialchars($message); ?></div>
+                <?php elseif (isset($error)) : ?>
+                    <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($error); ?></div>
+                <?php endif; ?>
+
                 <div class="row">
                     <?php
                     // Fetch data from the "adoption" table
@@ -74,21 +96,27 @@ include('./dbconn/authentication.php');
                                 <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['pet_info']); ?></p>
                                 <p class="card-text"><strong>Owner Email:</strong> <?php echo htmlspecialchars($row['mail']); ?></p>
                             </div>
-                            <!-- Adopt Button triggers the modal and passes pet details (including owner email) -->
-                            <button 
-                                type="button" 
-                                class="btn btn-primary m-3" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#adoptModal"
-                                data-pet-id="<?php echo $row['id']; ?>"
-                                data-pet-name="<?php echo htmlspecialchars($row['pet_name']); ?>"
-                                data-pet-breed="<?php echo htmlspecialchars($row['pet_breed']); ?>"
-                                data-pet-info="<?php echo htmlspecialchars($row['pet_info']); ?>"
-                                data-pet-image="<?php echo htmlspecialchars($row['pet_image']); ?>"
-                                data-owner-email="<?php echo htmlspecialchars($row['mail']); ?>"
-                                style="padding: 15px 29px">
-                                Adopt
-                            </button>
+                            <!-- Card Footer with Buttons -->
+                            <div class="card-footer d-flex justify-content-around align-items-center">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-primary flex-grow-1 mx-1" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#adoptModal"
+                                    data-pet-id="<?php echo $row['id']; ?>"
+                                    data-pet-name="<?php echo htmlspecialchars($row['pet_name']); ?>"
+                                    data-pet-breed="<?php echo htmlspecialchars($row['pet_breed']); ?>"
+                                    data-pet-info="<?php echo htmlspecialchars($row['pet_info']); ?>"
+                                    data-pet-image="<?php echo htmlspecialchars($row['pet_image']); ?>"
+                                    data-owner-email="<?php echo htmlspecialchars($row['mail']); ?>">
+                                    Adopt
+                                </button>
+                                <form action="" method="POST" onsubmit="return confirmDelete();" class="flex-grow-1 mx-1">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="pet_id" value="<?php echo $row['id']; ?>">
+                                    <button type="submit" class="btn btn-danger w-100">Delete</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <?php
@@ -149,7 +177,7 @@ include('./dbconn/authentication.php');
           </div>
         </div>
         
-        <!-- JavaScript to Populate Modal Fields -->
+        <!-- JavaScript to Populate Modal Fields and Confirm Deletion -->
         <script>
             document.getElementById('adoptModal').addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
@@ -170,6 +198,16 @@ include('./dbconn/authentication.php');
                 document.getElementById('modal-owner-email').textContent = ownerEmail;
                 document.getElementById('modal-owner-email-hidden').value = ownerEmail;
             });
+            
+            function confirmDelete() {
+                return confirm("Are you sure you want to delete this adoption listing?");
+            }
+            $(document).ready(function(){
+    // Wait 3 seconds (3000 ms) and then fade out any element with the "alert" class.
+    setTimeout(function(){
+      $('.alert').fadeOut('fast');
+    }, 3000);
+  });
         </script>
     </div>
 </body>

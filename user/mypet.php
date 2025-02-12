@@ -1,20 +1,68 @@
 <?php
 include('./dbconn/config.php');
 include('./dbconn/authentication.php');
-?>
 
+$errorMessage = "";
+$successMessage = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
+    // Sanitize and validate inputs
+    $petId    = (int) $_POST['petId'];
+    $petName  = trim($_POST['petName']);
+    $petAge   = (int) $_POST['petAge'];
+    $petBreed = trim($_POST['petBreed']);
+    $petInfo  = trim($_POST['petInfo']);
+    $mail     = filter_var($_POST['mail'], FILTER_SANITIZE_EMAIL);
+    $petImage = trim($_POST['petImage']);
+
+    // Check for duplicates: if the same pet_id and email already exist
+    $checkQuery = "SELECT id FROM adoption WHERE pet_id = ? AND mail = ?";
+    if ($checkStmt = $conn->prepare($checkQuery)) {
+        $checkStmt->bind_param("is", $petId, $mail);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+        
+        if ($checkStmt->num_rows > 0) {
+            // Duplicate found—set an error message.
+            $errorMessage = "This adoption record already exists.";
+        }
+        $checkStmt->close();
+    } else {
+        $errorMessage = "Error preparing duplicate check: " . $conn->error;
+    }
+
+    // If no error, proceed with insertion.
+    if (empty($errorMessage)) {
+        $query = "INSERT INTO adoption (pet_id, pet_name, pet_age, pet_breed, pet_info, mail, pet_image) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        if ($stmt = $conn->prepare($query)) {
+            $stmt->bind_param("isissss", $petId, $petName, $petAge, $petBreed, $petInfo, $mail, $petImage);
+            
+            if ($stmt->execute()) {
+                $successMessage = "Adoption record successfully created.";
+                // Optionally, you could redirect the user here.
+                // header("Location: mypet.php");
+                // exit;
+            } else {
+                $errorMessage = "Error executing statement: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $errorMessage = "Error preparing statement: " . $conn->error;
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <?php include('./disc/partials/header.php'); ?>
-    <!-- Bootstrap CSS (if not already included in your header partial) -->
     <style>
-        /* Ensure every card stretches to fill its column height */
+        /* Card Styles */
         .card {
             height: 100%;
             display: flex;
             flex-direction: column;
-            cursor: pointer; /* Indicate that the card is clickable */
+            cursor: pointer;
         }
         .card-img-top {
             width: 100%;
@@ -79,7 +127,7 @@ include('./dbconn/authentication.php');
                                 <p class="card-text"><strong>Age:</strong> <?php echo htmlspecialchars($row['age']); ?></p>
                                 <p class="card-text"><strong>Breed:</strong> <?php echo htmlspecialchars($row['breed']); ?></p>
                                 <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['info']); ?></p>
-                                <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
+                                <p class="card-text"><strong>Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
                             </div>
                         </div>
                     </div>
@@ -96,7 +144,7 @@ include('./dbconn/authentication.php');
 
         <!-- Modal for Pet Details with Adoption Button -->
         <div class="modal fade" id="petModal" tabindex="-1" aria-labelledby="petModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="petModalLabel">Pet Details</h5>
@@ -114,7 +162,7 @@ include('./dbconn/authentication.php');
                     </div>
                     <!-- Modal Footer with Adoption Form -->
                     <div class="modal-footer">
-                        <form id="adoptForm" action="adoption-process.php" method="post">
+                        <form id="adoptForm" action="" method="post">
                             <!-- Hidden inputs to transfer pet data -->
                             <input type="hidden" name="petId" id="formPetId" value="">
                             <input type="hidden" name="petName" id="formPetName" value="">
@@ -131,17 +179,45 @@ include('./dbconn/authentication.php');
             </div>
         </div>
 
-        <?php include('./script.php'); ?>
-        <!-- Bootstrap JS Bundle (if not already included) -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Error Modal (for duplicate or other errors) -->
+        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
+                    </div>
+                    <div class="modal-body">
+                        <?php echo htmlspecialchars($errorMessage); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- JavaScript to handle card clicks, modal population, and form data assignment -->
+        <!-- Success Modal (if needed) -->
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="successModalLabel">Success</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
+                    </div>
+                    <div class="modal-body">
+                        <?php echo htmlspecialchars($successMessage); ?>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <?php include('./script.php'); ?>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                // Initialize the modal (Bootstrap 5)
+                // Initialize the pet modal (for adoption details)
                 var petModal = new bootstrap.Modal(document.getElementById('petModal'));
 
-                // Attach click event to each card
+                // Attach click event to each pet card
                 document.querySelectorAll('.card').forEach(function(card) {
                     card.addEventListener('click', function() {
                         // Retrieve data attributes from the clicked card
@@ -161,7 +237,7 @@ include('./dbconn/authentication.php');
                         document.getElementById('modalPetInfo').textContent = petInfo;
                         document.getElementById('modalMail').textContent = mail;
 
-                        // Assign values to the hidden fields in the adoption form
+                        // Assign values to hidden fields in the adoption form
                         document.getElementById('formPetId').value = petId;
                         document.getElementById('formPetName').value = petName;
                         document.getElementById('formPetAge').value = petAge;
@@ -170,10 +246,22 @@ include('./dbconn/authentication.php');
                         document.getElementById('formMail').value = mail;
                         document.getElementById('formPetImage').value = petImage;
 
-                        // Show the modal
+                        // Show the pet details modal
                         petModal.show();
                     });
                 });
+
+                // If there's an error message, show the error modal.
+                <?php if (!empty($errorMessage)) { ?>
+                    var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                    errorModal.show();
+                <?php } ?>
+
+                // If there's a success message, show the success modal.
+                <?php if (!empty($successMessage)) { ?>
+                    var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                <?php } ?>
             });
         </script>
     </div>
