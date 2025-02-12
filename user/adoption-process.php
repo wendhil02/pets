@@ -1,58 +1,49 @@
 <?php
 include('./dbconn/config.php');
 
-// Handle POST request
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitize inputs
-    $name = htmlspecialchars(trim($_POST['name']));
-    $phone = htmlspecialchars(trim($_POST['phone']));
-    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
-    $address = htmlspecialchars(trim($_POST['address']));
-    $petName = htmlspecialchars(trim($_POST['petName']));
-    $petType = htmlspecialchars(trim( $_POST['petType']));
-    $petBreed = htmlspecialchars(trim($_POST['petBreed']));
-    $info = htmlspecialchars(trim($_POST['info']));
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
+    // Sanitize and validate inputs
+    $petId    = (int) $_POST['petId'];
+    $petName  = trim($_POST['petName']);
+    $petAge   = (int) $_POST['petAge'];
+    $petBreed = trim($_POST['petBreed']);
+    $petInfo  = trim($_POST['petInfo']);
+    $mail     = filter_var($_POST['mail'], FILTER_SANITIZE_EMAIL);
+    $petImage = trim($_POST['petImage']);
 
-    $errors = [];
-    if (empty($name) || !preg_match("/^[a-zA-Z ]+$/", $name)) $errors[] = "Invalid name.";
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email.";
-
-    // If there are validation errors, return the errors in JSON format
-    if ($errors) {
-        echo json_encode(['status' => 'error', 'message' => implode(' ', $errors)]);
-        exit;
-    }
-
-    // File handling
-    $petImageDir = 'uploads/pet_adopt/';
-    if (!is_dir($petImageDir)) mkdir($petImageDir, 0777, true);
-
-    $petImage = $_FILES['petImage'];  // Only handle petImage as per the form provided
-    $petImageName = uniqid('petAdopt_') . '.' . pathinfo($petImage['name'], PATHINFO_EXTENSION);
-    $uploadPath1 = $petImageDir . $petImageName;
-
-    // Check if the file is valid image
-    if (!move_uploaded_file($petImage['tmp_name'], $uploadPath1)) {
-        echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
-        exit;
-    }
-
-    // Insert into the database
-    $stmt = $conn->prepare("INSERT INTO adoption (owner, phone_number, email, address, pet_name, petType, pet_breed, additional_info, pet_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssss", $name, $phone, $email, $address, $petName, $petType, $petBreed, $info, $uploadPath1);
-
-    if ($stmt->execute()) {
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Registration successfully!'
-        ]);
+    // Check for duplicates: consider a record duplicate if the same pet_id and email already exist
+    $checkQuery = "SELECT id FROM adoption WHERE pet_id = ? AND mail = ?";
+    if ($checkStmt = $conn->prepare($checkQuery)) {
+        $checkStmt->bind_param("is", $petId, $mail);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+        
+        if ($checkStmt->num_rows > 0) {
+            // Duplicate found, so do not insert again.
+            echo "This adoption record already exists.";
+            $checkStmt->close();
+            exit;
+        }
+        $checkStmt->close();
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to save the upload record in the database. ' . $stmt->error]);
+        echo "Error preparing duplicate check: " . $conn->error;
+        exit;
     }
-    $stmt->close();
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
-}
 
-$conn->close();
+    // Prepare the SQL statement for insertion
+    $query = "INSERT INTO adoption (pet_id, pet_name, pet_age, pet_breed, pet_info, mail, pet_image) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    if ($stmt = $conn->prepare($query)) {
+        $stmt->bind_param("isissss", $petId, $petName, $petAge, $petBreed, $petInfo, $mail, $petImage);
+        
+        if ($stmt->execute()) {
+            header("Location: mypet.php"); // Redirect upon success
+            exit;
+        } else {
+            echo "Error executing statement: " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        echo "Error preparing statement: " . $conn->error;
+    }
+}
 ?>

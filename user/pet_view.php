@@ -39,6 +39,14 @@ include('./dbconn/authentication.php');
         }
     </style>
 </head>
+
+<div class="loader-mask">
+        <div class="loader">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
 <body class="vertical light">
     <div class="wrapper">
         <?php include('./disc/partials/navbar.php'); ?>
@@ -63,8 +71,8 @@ include('./dbconn/authentication.php');
                                 <h5 class="card-title">PET INFORMATION</h5>
                                 <p class="card-text"><strong>Name:</strong> <?php echo htmlspecialchars($row['pet_name']); ?></p>
                                 <p class="card-text"><strong>Breed:</strong> <?php echo htmlspecialchars($row['pet_breed']); ?></p>
-                                <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['additional_info']); ?></p>
-                                <p class="card-text"><strong>Owner Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
+                                <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['pet_info']); ?></p>
+                                <p class="card-text"><strong>Owner Email:</strong> <?php echo htmlspecialchars($row['mail']); ?></p>
                             </div>
                             <!-- Adopt Button triggers the modal and passes pet details (including owner email) -->
                             <button 
@@ -75,9 +83,9 @@ include('./dbconn/authentication.php');
                                 data-pet-id="<?php echo $row['id']; ?>"
                                 data-pet-name="<?php echo htmlspecialchars($row['pet_name']); ?>"
                                 data-pet-breed="<?php echo htmlspecialchars($row['pet_breed']); ?>"
-                                data-pet-info="<?php echo htmlspecialchars($row['additional_info']); ?>"
+                                data-pet-info="<?php echo htmlspecialchars($row['pet_info']); ?>"
                                 data-pet-image="<?php echo htmlspecialchars($row['pet_image']); ?>"
-                                data-owner-email="<?php echo htmlspecialchars($row['email']); ?>"
+                                data-owner-email="<?php echo htmlspecialchars($row['mail']); ?>"
                                 style="padding: 15px 29px">
                                 Adopt
                             </button>

@@ -46,7 +46,6 @@ include('./dbconn/authentication.php');
               <h2 class="row px-4 pt-2 fw-bold">Barangay Animal Welfare</h2>
               <p class="row-md-4 px-4 text-overly">Barangay Animal Welfare promotes animal well-being by encouraging responsible pet ownership, preventing abuse, addressing stray animal issues, and providing resources for pet care, all to foster a compassionate and safe community for animals and residents.</p>
               <div class=" col-12-md-4 justify-content-center align-items-center text-center">
-               <a href="#" class=" btn btn-lg btn-primary">Adoption</a> 
               </div>
             </div>
           </div>
@@ -66,7 +65,7 @@ include('./dbconn/authentication.php');
             </div>
             </div>
             <div class=" col-12-md-4 justify-content-center align-items-center text-center">
-            <a href="#" class=" btn btn-lg btn-primary">Pet for adoption </a> 
+            <a href="pet_view.php" class=" btn btn-lg btn-primary">Pet for adoption </a> 
             </div>
           </div> 
   
@@ -76,7 +75,7 @@ include('./dbconn/authentication.php');
                 <h2 class="row px-4 pt-2 fw-bold">Barangay Animal Welfare</h2>
                 <p class="row-md-4 px-4 text-overly">Barangay Animal Welfare promotes animal well-being by encouraging responsible pet ownership, preventing abuse, addressing stray animal issues, and providing resources for pet care, all to foster a compassionate and safe community for animals and residents.</p>
                 <div class=" col-12-md-4 justify-content-center align-items-center text-center">
-                  <a href="#" class=" btn btn-lg btn-primary">Report </a> 
+                  <a href="cruelty.php" class=" btn btn-lg btn-primary">Report </a> 
                 </div>
               </div>
               <div class="col col-md-6">
