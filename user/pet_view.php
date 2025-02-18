@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <div class="row">
                     <?php
                     // Fetch data from the "adoption" table
-                    $sql = "SELECT * FROM adoption";
+                    $sql = "SELECT id, pet_id, owner, pet_name, pet_age, pet_breed, pet_info, mail, pet_image, created_at FROM adoption WHERE approved = 1 ORDER BY created_at DESC";
                     $result = $conn->query($sql);
 
                     if ($result->num_rows > 0) {
@@ -111,11 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                     data-owner-email="<?php echo htmlspecialchars($row['mail']); ?>">
                                     Adopt
                                 </button>
-                                <form action="" method="POST" onsubmit="return confirmDelete();" class="flex-grow-1 mx-1">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="pet_id" value="<?php echo $row['id']; ?>">
-                                    <button type="submit" class="btn btn-danger w-100">Delete</button>
-                                </form>
+                                <?php /*if (isset($_SESSION['mail'])):*/?>
+                                    <form action="" method="POST" onsubmit="return confirmDelete();" class="flex-grow-1 mx-1">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="pet_id" value="<?php echo $row['id']; ?>">
+                                        <button type="submit" class="btn btn-danger w-100">Delete</button>
+                                    </form>
+                                <?php /*endif;*/ ?>
                             </div>
                         </div>
                     </div>
@@ -203,11 +205,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 return confirm("Are you sure you want to delete this adoption listing?");
             }
             $(document).ready(function(){
-    // Wait 3 seconds (3000 ms) and then fade out any element with the "alert" class.
-    setTimeout(function(){
-      $('.alert').fadeOut('fast');
-    }, 3000);
-  });
+                // Wait 3 seconds (3000 ms) and then fade out any element with the "alert" class.
+                setTimeout(function(){
+                    $('.alert').fadeOut('fast');
+                }, 3000);
+            });
         </script>
     </div>
 </body>

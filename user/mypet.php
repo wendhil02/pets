@@ -12,13 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
     $petAge   = (int) $_POST['petAge'];
     $petBreed = trim($_POST['petBreed']);
     $petInfo  = trim($_POST['petInfo']);
-    $mail     = filter_var($_POST['mail'], FILTER_SANITIZE_EMAIL);
     $petImage = trim($_POST['petImage']);
 
     // Check for duplicates: if the same pet_id and email already exist
-    $checkQuery = "SELECT id FROM adoption WHERE pet_id = ? AND mail = ?";
+    $checkQuery = "SELECT id FROM adoption WHERE pet_id = ?";
     if ($checkStmt = $conn->prepare($checkQuery)) {
-        $checkStmt->bind_param("is", $petId, $mail);
+        $checkStmt->bind_param("i", $petId);
         $checkStmt->execute();
         $checkStmt->store_result();
         
@@ -33,12 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 
     // If no error, proceed with insertion.
     if (empty($errorMessage)) {
-        $query = "INSERT INTO adoption (pet_id, pet_name, pet_age, pet_breed, pet_info, mail, pet_image) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO adoption (pet_id, pet_name, pet_age, pet_breed, pet_info, pet_image, approved ) VALUES (?, ?, ?, ?, ?, ?, 0)";
         if ($stmt = $conn->prepare($query)) {
-            $stmt->bind_param("isissss", $petId, $petName, $petAge, $petBreed, $petInfo, $mail, $petImage);
+            $stmt->bind_param("isisss", $petId, $petName, $petAge, $petBreed, $petInfo,  $petImage);
             
             if ($stmt->execute()) {
-                $successMessage = "Adoption record successfully created.";
+                $successMessage = "    Your post has been submitted successfully and is pending approval.
+        You will be redirected shortly.";
                 // Optionally, you could redirect the user here.
                 // header("Location: mypet.php");
                 // exit;
@@ -59,32 +59,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
     <style>
         /* Card Styles */
         .card {
-            height: 100%;
+            height: 80%;
             display: flex;
             flex-direction: column;
             cursor: pointer;
         }
         .card-img-top {
-            width: 100%;
-            height: 200px;
+            margin: 20px;
+            width: 80%;
+            height: 150px;
             object-fit: contain;
             background: #f8f9fa;
         }
         .card-body {
             flex-grow: 1;
-            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
-            text-align: left;
+            text-align: left;   
         }
-        .card-title {
+     /*   .card-title {
             font-size: 12px;
             font-weight: bold;
             margin-bottom: 0.5rem;
         }
+    */        
         .card-text {
-            font-size: 14px;
+            font-size: 20px;
             margin-bottom: 0.25rem;
         }
         @media (max-width: 576px) {
@@ -94,6 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
         }
     </style>
 </head>
+
+<div class="loader-mask">
+        <div class="loader">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
 <body class="vertical light">
     <div class="wrapper">
         <?php include('./disc/partials/navbar.php'); ?>
@@ -118,23 +127,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                              data-age="<?php echo htmlspecialchars($row['age']); ?>"
                              data-breed="<?php echo htmlspecialchars($row['breed']); ?>"
                              data-info="<?php echo htmlspecialchars($row['info']); ?>"
+                             data-owner="<?php echo htmlspecialchars($row['owner']); ?>" 
                              data-mail="<?php echo htmlspecialchars($row['email']); ?>"  
                              data-image="<?php echo htmlspecialchars($row['pet_image']); ?>">
                             <img src="<?php echo htmlspecialchars($row['pet_image']); ?>" class="card-img-top" alt="Pet Image">
                             <div class="card-body">
-                                <h5 class="card-title">PET INFORMATION</h5>
-                                <p class="card-text"><strong>Name:</strong> <?php echo htmlspecialchars($row['pet']); ?></p>
-                                <p class="card-text"><strong>Age:</strong> <?php echo htmlspecialchars($row['age']); ?></p>
-                                <p class="card-text"><strong>Breed:</strong> <?php echo htmlspecialchars($row['breed']); ?></p>
-                                <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['info']); ?></p>
-                                <p class="card-text"><strong>Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
+                                <p class="card-text"><strong> <?php echo htmlspecialchars($row['pet']); ?></strong></p>
                             </div>
                         </div>
                     </div>
                     <?php
                         }
                     } else {
-                        echo "<p>No register found.</p>";
+                        // Centered text when no records are found
+                        echo '<div class="col-12"><p class="text-center">No adoption listing available.</p></div>';
                     }
                     $conn->close();
                     ?>
@@ -144,21 +150,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 
         <!-- Modal for Pet Details with Adoption Button -->
         <div class="modal fade" id="petModal" tabindex="-1" aria-labelledby="petModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered  modal-fullscreen-sm-down">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="petModalLabel">Pet Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
                     </div>
                     <div class="modal-body">
-                        <!-- Pet image -->
-                        <img id="modalPetImage" src="" alt="Pet Image" class="img-fluid mb-3">
-                        <!-- Pet details -->
-                        <h5 id="modalPetName"></h5>
-                        <p><strong>Age:</strong> <span id="modalPetAge"></span></p>
-                        <p><strong>Breed:</strong> <span id="modalPetBreed"></span></p>
-                        <p><strong>Info:</strong> <span id="modalPetInfo"></span></p>
-                        <p><strong>Owner email:</strong> <span id="modalMail"></span></p>
+                        <div class="row">
+                            <!-- Image Column -->
+                            <div class="col-md-4 text-center">
+                                <img id="modalPetImage" src="" alt="Pet Image" class="img-fluid">
+                            </div>
+                            <!-- Text Information Column -->
+                            <div class="col-md-8">
+                                <div class="card-title"><strong>Information</strong></div>
+                                <p><strong>Pet Name:</strong> <span id="modalPetName"></span></p>
+                                <p><strong>Age:</strong> <span id="modalPetAge"></span></p>
+                                <p><strong>Breed:</strong> <span id="modalPetBreed"></span></p>
+                                <p><strong>Info:</strong> <span id="modalPetInfo"></span></p>
+                            </div>
+                        </div>
                     </div>
                     <!-- Modal Footer with Adoption Form -->
                     <div class="modal-footer">
@@ -169,7 +181,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                             <input type="hidden" name="petAge" id="formPetAge" value="">
                             <input type="hidden" name="petBreed" id="formPetBreed" value="">
                             <input type="hidden" name="petInfo" id="formPetInfo" value="">
-                            <input type="hidden" name="mail" id="formMail" value="">
                             <input type="hidden" name="petImage" id="formPetImage" value="">
                             <button type="submit" class="btn btn-primary">Adoption</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -181,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 
         <!-- Error Modal (for duplicate or other errors) -->
         <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="errorModalLabel">Error</h5>
@@ -196,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 
         <!-- Success Modal (if needed) -->
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="successModalLabel">Success</h5>
@@ -205,7 +216,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                     <div class="modal-body">
                         <?php echo htmlspecialchars($successMessage); ?>
                     </div>
-                    
                 </div>
             </div>
         </div>
@@ -226,7 +236,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                         var petAge = card.getAttribute('data-age');
                         var petBreed = card.getAttribute('data-breed');
                         var petInfo = card.getAttribute('data-info');
-                        var mail = card.getAttribute('data-mail');
                         var petImage = card.getAttribute('data-image');
 
                         // Update modal content
@@ -235,15 +244,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                         document.getElementById('modalPetAge').textContent = petAge;
                         document.getElementById('modalPetBreed').textContent = petBreed;
                         document.getElementById('modalPetInfo').textContent = petInfo;
-                        document.getElementById('modalMail').textContent = mail;
-
+                      
                         // Assign values to hidden fields in the adoption form
                         document.getElementById('formPetId').value = petId;
                         document.getElementById('formPetName').value = petName;
                         document.getElementById('formPetAge').value = petAge;
                         document.getElementById('formPetBreed').value = petBreed;
                         document.getElementById('formPetInfo').value = petInfo;
-                        document.getElementById('formMail').value = mail;
                         document.getElementById('formPetImage').value = petImage;
 
                         // Show the pet details modal

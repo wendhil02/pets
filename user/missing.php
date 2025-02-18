@@ -11,11 +11,11 @@ include('./dbconn/authentication.php');
 </head>
 
 <div class="loader-mask">
-        <div class="loader">
-            <div></div>
-            <div></div>
-        </div>
+    <div class="loader">
+        <div></div>
+        <div></div>
     </div>
+</div>
 
 <body class='vertical light'>
     <div class='wrapper'>
@@ -36,19 +36,22 @@ include('./dbconn/authentication.php');
                             <div class='col-md-6 mt-3'>
                                 <label for='name' class='form-label'>Name</label>
                                 <input type='text' class='form-control' id='name' name='name' required>
-                                <div id='nameError' class='text-danger d-none'>Name is required and cannot contain numbers.</div>
+                                <div id='nameError' class='text-danger d-none'>Name is required and cannot contain
+                                    numbers.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
                                 <label for='phone' class='form-label'>Phone Number</label>
                                 <input type='text' class='form-control' id='phone' name='phone' required>
-                                <div id='phoneError' class='text-danger d-none'>Please enter a valid phone number (11 digits).</div>
+                                <div id='phoneError' class='text-danger d-none'>Please enter a valid phone number (11
+                                    digits).</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
                                 <label for='email' class='form-label'>Email</label>
                                 <input type='email' class='form-control' id='email' name='email' required>
-                                <div id='emailError' class='text-danger d-none'>Please enter a valid email address.</div>
+                                <div id='emailError' class='text-danger d-none'>Please enter a valid email address.
+                                </div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
@@ -56,6 +59,7 @@ include('./dbconn/authentication.php');
                                 <textarea class='form-control' id='address' name='address' required></textarea>
                                 <div id='addressError' class='text-danger d-none'>Address is required.</div>
                             </div>
+
 
                             <div class='col-md-6 mt-3'>
                                 <label for='petName' class='form-label'>Pet Name</label>
@@ -66,13 +70,30 @@ include('./dbconn/authentication.php');
                             <div class='col-md-6 mt-3'>
                                 <label for='petType' class='form-label'>Pet Type</label>
                                 <input type='text' class='form-control' id='petType' name='petType' required>
-                                <div id='petTypeError' class='text-danger d-none'>Pet age must be a positive number.</div>
+                                <div id='petTypeError' class='text-danger d-none'>Pet age must be a positive number.
+                                </div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
                                 <label for='breed' class='form-label'>Breed</label>
                                 <input type='text' class='form-control' id='petBreed' name='petBreed' required>
                                 <div id='petBreedError' class='text-danger d-none'>Pet Breed is required.</div>
+                            </div>
+
+
+                            <div class='col-md-6 mt-3'>
+                                <label class='form-label'>Status</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status" id="lost" value="Lost"
+                                        required>
+                                    <label class="form-check-label" for="lost">Lost</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status" id="found" value="Found"
+                                        required>
+                                    <label class="form-check-label" for="found">Found</label>
+                                </div>
+                                <div id='statusError' class='text-danger d-none'>Please select a status.</div>
                             </div>
 
                             <div class='col-md-6 mt-3'>
@@ -83,8 +104,10 @@ include('./dbconn/authentication.php');
 
                             <div class='col-md-6 mt-3'>
                                 <label for='pet_image' class='form-label'>Pet Image</label>
-                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*' required>
-                                <div id='petImageError' class='text-danger d-none'>Please upload a valid image file for Pet Image.</div>
+                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*'
+                                    required>
+                                <div id='petImageError' class='text-danger d-none'>Please upload a valid image file for
+                                    Pet Image.</div>
                             </div>
 
                             <div class="col-md-12 mt-4 align-items-center text-center">
@@ -115,43 +138,43 @@ include('./dbconn/authentication.php');
     <?php include('./script.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-   document.getElementById('submitForm').addEventListener('click', function () {
-    if (validateForm()) {
-        const form = document.getElementById('regForm');
-        const formData = new FormData(form);
+        document.getElementById('submitForm').addEventListener('click', function () {
+            if (validateForm()) {
+                const form = document.getElementById('regForm');
+                const formData = new FormData(form);
 
-        fetch('missing-process.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            const feedback = document.getElementById('submitFeedback');
-            feedback.classList.remove('d-none');
-            feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
-            feedback.textContent = data.status === 'success' ? 'Successfully Registered!' : 'Registration Failed!';
+                fetch('missing-process.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedback = document.getElementById('submitFeedback');
+                        feedback.classList.remove('d-none');
+                        feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
+                        feedback.textContent = data.status === 'success' ? 'Successfully Registered!' : 'Registration Failed!';
 
-            if (data.status === 'success') {
-                // Show the success modal
-                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
+                        if (data.status === 'success') {
+                            // Show the success modal
+                            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                            successModal.show();
 
-                // Reset the form
-                form.reset();
+                            // Reset the form
+                            form.reset();
+                        }
+
+                        setTimeout(function () {
+                            feedback.classList.add('d-none');
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        const feedback = document.getElementById('submitFeedback');
+                        feedback.classList.remove('d-none');
+                        feedback.classList.add('alert-danger');
+                        feedback.textContent = 'An error occurred during the submit process';
+                    });
             }
-
-            setTimeout(function() {
-        feedback.classList.add('d-none');
-    }, 3000); 
-        })
-        .catch(error => {
-            const feedback = document.getElementById('submitFeedback');
-            feedback.classList.remove('d-none');
-            feedback.classList.add('alert-danger');
-            feedback.textContent = 'An error occurred during the submit process';
         });
-    }
-});
 
 
         function validateForm() {
