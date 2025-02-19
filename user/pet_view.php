@@ -111,13 +111,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                     data-owner-email="<?php echo htmlspecialchars($row['mail']); ?>">
                                     Adopt
                                 </button>
-                                <?php /*if (isset($_SESSION['mail'])):*/?>
+                                <?php 
+                                    // Only show the delete button if the logged-in user is the pet owner.
+                                    if (isset($_SESSION['mail']) && $_SESSION['mail'] === $row['mail']) : 
+                                ?>
                                     <form action="" method="POST" onsubmit="return confirmDelete();" class="flex-grow-1 mx-1">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="pet_id" value="<?php echo $row['id']; ?>">
                                         <button type="submit" class="btn btn-danger w-100">Delete</button>
                                     </form>
-                                <?php /*endif;*/ ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -204,8 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             function confirmDelete() {
                 return confirm("Are you sure you want to delete this adoption listing?");
             }
+            
+            // Fade out alert messages after 3 seconds
             $(document).ready(function(){
-                // Wait 3 seconds (3000 ms) and then fade out any element with the "alert" class.
                 setTimeout(function(){
                     $('.alert').fadeOut('fast');
                 }, 3000);

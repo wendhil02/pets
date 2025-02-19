@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adoption Management</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -12,6 +14,7 @@
       padding: 0;
       background-color: #f4f4f9;
     }
+
     /* General Box Styles */
     .box {
       width: auto;
@@ -24,11 +27,13 @@
       margin: 8px;
       overflow: auto;
     }
+
     .box-container {
       display: flex;
       gap: 16px;
       flex-direction: column;
     }
+
     /* Sticky Filter Section */
     .filter-container {
       position: sticky;
@@ -43,19 +48,23 @@
       border-bottom: 2px solid transparent;
       box-shadow: 0 0px 0px 0px rgb(255, 255, 255);
     }
+
     .search-container {
       flex: 2;
     }
+
     .search-bar-wrapper {
       position: relative;
       display: flex;
       align-items: center;
     }
+
     .fa-search {
       position: absolute;
       left: 10px;
       color: #555;
     }
+
     .search-bar {
       width: 50%;
       padding: 10px 12px 10px 35px;
@@ -65,14 +74,17 @@
       outline: none;
       transition: border-color 0.3s;
     }
+
     .search-bar:focus {
       border-color: #007bff;
     }
+
     .category-container {
       flex: 1;
       display: flex;
       justify-content: flex-end;
     }
+
     .category-filter {
       padding: 8px;
       font-size: 1rem;
@@ -83,9 +95,11 @@
       width: 180px;
       transition: border-color 0.3s;
     }
+
     .category-filter:focus {
       border-color: #007bff;
     }
+
     .title {
       font-size: 1.25rem;
       font-weight: 600;
@@ -94,11 +108,13 @@
       flex: 2;
       text-align: left;
     }
+
     .filter-container i {
       color: #555;
       font-size: 1.2rem;
       margin-right: 8px;
     }
+
     /* Table Wrapper */
     .table-wrapper {
       overflow-x: auto;
@@ -106,25 +122,31 @@
       -ms-overflow-style: none;
       transition: opacity 0.3s ease-in-out;
     }
+
     .table-wrapper::-webkit-scrollbar {
       height: 8px;
       transition: opacity 0.3s ease-in-out;
     }
+
     .table-wrapper::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.3);
       border-radius: 4px;
     }
+
     .table-wrapper::-webkit-scrollbar-track {
       background: rgba(0, 0, 0, 0.1);
     }
+
     .table-wrapper::-webkit-scrollbar,
     .table-wrapper::-webkit-scrollbar-thumb {
       opacity: 0;
     }
+
     .table-wrapper:hover::-webkit-scrollbar,
     .table-wrapper:hover::-webkit-scrollbar-thumb {
       opacity: 1;
     }
+
     /* Table Styles */
     table {
       width: 100%;
@@ -133,6 +155,7 @@
       border-radius: 5px;
       overflow: hidden;
     }
+
     th {
       background-color: rgb(0, 0, 0);
       color: #ffffff;
@@ -140,6 +163,7 @@
       padding: 12px;
       font-size: 16px;
     }
+
     td {
       padding: 12px;
       text-align: center;
@@ -147,42 +171,54 @@
       color: #374151;
       font-size: 14px;
     }
+
     tr:last-child td {
       border-bottom: none;
     }
+
     tbody tr:hover {
       background-color: #f3f4f6;
     }
+
     /* Button Styles */
-    .view-btn, .approve-btn, .reject-btn {
+    .view-btn,
+    .approve-btn,
+    .reject-btn {
       padding: 8px 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 14px;
     }
+
     .view-btn {
       background-color: #17a2b8;
       color: #fff;
     }
+
     .view-btn:hover {
       background-color: #138496;
     }
+
     .approve-btn {
       background-color: #28a745;
       color: #fff;
       margin-right: 8px;
     }
+
     .approve-btn:hover {
       background-color: #218838;
     }
+
     .reject-btn {
       background-color: #dc3545;
       color: #fff;
     }
+
     .reject-btn:hover {
       background-color: #c82333;
     }
+
     /* Modal Styles */
     .modal {
       display: none;
@@ -193,9 +229,10 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0,0,0,0.5);
+      background-color: rgba(0, 0, 0, 0.5);
       padding: 20px;
     }
+
     .modal-content {
       background-color: #fff;
       margin: 10% auto;
@@ -204,9 +241,11 @@
       width: 50%;
       position: relative;
     }
+
     .modal-content h3 {
       margin-top: 0;
     }
+
     .close {
       position: absolute;
       top: 10px;
@@ -216,11 +255,13 @@
       font-weight: bold;
       cursor: pointer;
     }
+
     .close:hover {
       color: #000;
     }
   </style>
 </head>
+
 <body class="vertical light">
   <?php include('navandside/nav.php'); ?>
   <?php include('navandside/sidebar.php'); ?>
@@ -228,43 +269,43 @@
 
   <div class="box-container">
     <!-- Box 1 as Table -->
-    <?php if(isset($_GET['success'])): ?>
-    <div class="alert alert-success">Post approved successfully!</div>
-  <?php endif; ?>
-  
-  <?php if(isset($_GET['rejected'])): ?>
-    <div class="alert alert-warning">Post rejected successfully!</div>
-  <?php endif; ?>
+    <?php if (isset($_GET['success'])): ?>
+      <div class="alert alert-success">Post approved successfully!</div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['rejected'])): ?>
+      <div class="alert alert-warning">Post rejected successfully!</div>
+    <?php endif; ?>
 
     <div class="box">
       <div class="filter-container">
         <h3 class="title">Adoption Management</h3>
       </div>
-  
+
       <!-- Table Wrapper for Scroll -->
       <div class="table-wrapper">
-      <table id="pet-table">
+        <table id="pet-table">
           <thead>
             <tr>
-              <th>User Name</th>
+              <th class="justify-content-center">Username</th>
               <th>View</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <?php
-              include('./dbconn/config.php');
+            include('./dbconn/config.php');
 
-              $sql = "SELECT pet_id, pet_name, pet_age, pet_breed, pet_info, pet_image, created_at, mail 
+            $sql = "SELECT pet_id, owner, pet_name, pet_age, pet_breed, pet_info, pet_image, created_at, mail 
                       FROM adoption WHERE approved = 0";
-              $result = $conn->query($sql);
-              
-              if ($result && $result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                  $jsonData = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
-                  $userName = htmlspecialchars($row['mail']);
-                  echo "<tr data-record='{$jsonData}'>
-                          <td>{$userName}</td>
+            $result = $conn->query($sql);
+
+            if ($result && $result->num_rows > 0) {
+              while ($row = $result->fetch_assoc()) {
+                $jsonData = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
+                $owner = htmlspecialchars($row['owner']);
+                echo "<tr data-record='{$jsonData}'>
+                          <td>{$owner}</td>
                           <td><button class='view-btn' onclick='viewDetails(this)'>View</button></td>
                           <td>
                             <form action='approve_adoption.php' method='POST' class='d-inline'>
@@ -277,11 +318,11 @@
                             </form>
                           </td>
                         </tr>";
-                }
-              } else {
-                echo '<tr><td colspan="3">No records found.</td></tr>';
               }
-              $conn->close();
+            } else {
+              echo '<tr><td colspan="3">No records found.</td></tr>';
+            }
+            $conn->close();
             ?>
           </tbody>
         </table>
@@ -312,12 +353,11 @@
           <p><strong>Pet Age:</strong> ${data.pet_age || 'N/A'}</p>
           <p><strong>Pet Breed:</strong> ${data.pet_breed || 'N/A'}</p>
           <p><strong>Information:</strong> ${data.pet_info || 'N/A'}</p>
-          <p><strong>User Name:</strong> ${data.user_name || 'N/A'}</p>
-          <p><strong>Email/Owner:</strong> ${data.mail || 'N/A'}</p>
-          <p><strong>Pet Image:</strong> ${
-            data.pet_image 
-              ? `<br/><img src="${data.pet_image}" alt="Pet Image" style="max-width:200px; height:auto;">` 
-              : 'N/A'
+          <p><strong>User Name:</strong> ${data.owner || 'N/A'}</p>
+          <p><strong>Email/Owner:</strong> ${data.email || 'N/A'}</p>
+          <p><strong>Pet Image:</strong> ${data.pet_image
+            ? `<br/><img src="${data.pet_image}" alt="Pet Image" style="max-width:200px; height:auto;">`
+            : 'N/A'
           }</p>
           <p><strong>Pet Vaccine:</strong> ${data.pet_vaccine || 'N/A'}</p>
           <p><strong>Created At:</strong> ${data.created_at || 'N/A'}</p>
@@ -346,22 +386,22 @@
           },
           body: JSON.stringify({ adoption_id: data.id }) // Ensure your record has an 'id' field.
         })
-        .then(response => response.json())
-        .then(result => {
-          if(result.success) {
-            alert("Approved adoption for " + (data.pet_name || 'N/A'));
-            // Optionally remove the row from the table:
-            row.remove();
-            // Optionally, redirect to the user pet view page:
-            // window.location.href = 'user_petview.php';
-          } else {
-            alert("Approval failed. Please try again.");
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert("An error occurred during approval.");
-        });
+          .then(response => response.json())
+          .then(result => {
+            if (result.success) {
+              alert("Approved adoption for " + (data.pet_name || 'N/A'));
+              // Optionally remove the row from the table:
+              row.remove();
+              // Optionally, redirect to the user pet view page:
+              // window.location.href = 'user_petview.php';
+            } else {
+              alert("Approval failed. Please try again.");
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred during approval.");
+          });
       }
     }
 
@@ -377,7 +417,7 @@
     }
 
     // Close the modal if clicking outside of it.
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       var modal = document.getElementById("viewModal");
       if (event.target == modal) {
         closeModal();
@@ -385,4 +425,5 @@
     }
   </script>
 </body>
+
 </html>
