@@ -169,8 +169,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                             </div>
                         </div>
                     </div>
-                    <!-- Modal Footer with Adoption Form -->
-                    <div class="modal-footer">
+                    <!-- Modal Footer with Adoption Form (Centered) -->
+                    <div class="modal-footer justify-content-center">
                         <form id="adoptForm" action="" method="post">
                             <!-- Hidden inputs to transfer pet data -->
                             <input type="hidden" name="petId" id="formPetId" value="">
@@ -182,7 +182,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                             <input type="hidden" name="mail" id="formMail" value="">
                             <input type="hidden" name="petImage" id="formPetImage" value="">
                             <button type="submit" class="btn btn-primary">Adoption</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </form>
                     </div>
                 </div>
