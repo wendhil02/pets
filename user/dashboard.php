@@ -1,164 +1,102 @@
 <?php
-include('./dbconn/config.php');
 include('./dbconn/authentication.php');
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <?php include('./disc/partials/header.php');
-    ?>
+    <?php include('./disc/partials/header.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        .hero-section {
+            background-color: #f8f9fa;
+            padding: 3rem 1rem;
+            border-radius: 1rem;
+        }
+        .hero-section img {
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .content-section {
+            padding: 4rem 1rem;
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        .gallery-img {
+            height: 300px;
+            object-fit: cover;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            border-radius: 2rem;
+            padding: 0.75rem 2rem;
+        }
+        @media (max-width: 768px) {
+            .hero-section img,
+            .gallery-img {
+                height: 200px;
+            }
+        }
+    </style>
 </head>
-    
-    <div class="loader-mask">
-        <div class="loader">
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-    
- 
-  <body class="vertical  light">
+<body class="vertical light">
     <div class="wrapper">
-    <div class="wrapper">
+        <?php include('./disc/partials/navbar.php'); ?>
+        <?php include('./disc/partials/sidebar.php'); ?>
 
+        <main role="main" class="main-content">
+            <?php include('./disc/partials/modal-notif.php'); ?>
 
-    <?php include('./disc/partials/navbar.php');
-        ?>
-        <?php include('./disc/partials/sidebar.php');
-        ?>
-
-      <main role="main" class="main-content">
-
-            <!--For Notification header naman ito-->
-            <?php include('./disc/partials/modal-notif.php') ?>
-
-      <!--YOUR CONTENTHERE-->
-        
-        <div class="container my-6">
-          <div class="row ">
-            <div class="col col-md-6">
-              <img class="img-fluid rounded-lg " src="img/animal_welfare.jpg" alt="animal_welfare">
-            </div>
-            <div class="col-md  "> 
-              <h2 class="row px-4 pt-2 fw-bold">Barangay Animal Welfare</h2>
-              <p class="row-md-4 px-4 text-overly">Barangay Animal Welfare promotes animal well-being by encouraging responsible pet ownership, preventing abuse, addressing stray animal issues, and providing resources for pet care, all to foster a compassionate and safe community for animals and residents.</p>
-              <div class=" col-12-md-4 justify-content-center align-items-center text-center">
-              </div>
-            </div>
-          </div>
-        </div>
-               
-
-        <div class="container my-6">
-          <div class="row  ">
-            <div class="col-md-4 p-2">
-              <img class="img-fluid rounded-lg" src="img/dog1.jpg" alt="Animal">
-            </div>
-            <div class="col-md-4 p-2">
-              <img class="img-fluid rounded-lg" src="img/dog1.jpg" alt="Animal">
-            </div>
-            <div class="col-md-4 p-2">
-            <img class="img-fluid rounded-lg" src="img/dog1.jpg" alt="Animal">
-            </div>
-            </div>
-            <div class=" col-12-md-4 justify-content-center align-items-center text-center">
-            <a href="pet_view.php" class=" btn btn-lg btn-primary">Pet for adoption </a> 
-            </div>
-          </div> 
-  
-          <div class="container my-6">
-            <div class="row ">
-              <div class="col-md "> 
-                <h2 class="row px-4 pt-2 fw-bold">Barangay Animal Welfare</h2>
-                <p class="row-md-4 px-4 text-overly">Barangay Animal Welfare promotes animal well-being by encouraging responsible pet ownership, preventing abuse, addressing stray animal issues, and providing resources for pet care, all to foster a compassionate and safe community for animals and residents.</p>
-                <div class=" col-12-md-4 justify-content-center align-items-center text-center">
-                  <a href="cruelty.php" class=" btn btn-lg btn-primary">Report </a> 
-                </div>
-              </div>
-              <div class="col col-md-6">
-                <img class="img-fluid rounded-lg " src="img/animal_welfare.jpg" alt="animal_welfare">
-              </div>
-            </div>
-          </div>
-
-          <div class="container my-6">
-            <div class="row ">
-              <div class="col-md  "> 
-                <h2 class="col px-4 pt-2 fw-bold text-center">About</h2>
-                <p class="row-md-4 px-4 text-overly">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam, quaerat? Quae cupiditate quisquam dolores sit, blanditiis quo perspiciatis ratione placeat quibusdam, odio odit animi mollitia, modi dicta veritatis sint aut?Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores sapiente, aut itaque dolor nesciunt perferendis sit libero laboriosam qui esse maxime consequatur, nostrum voluptatibus culpa hic commodi inventore earum excepturi.</p>
-              </div>
-            </div>
-          </div>
-
-         <footer id="footer" class="row card-body  mt-6">
-          
-          <div class="col-md-4">
-           <div class="card-body">
-            <div class="row align-items-center">
-              <div class="col">
-               <div class="row ">
-                <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
-                <div class="">
-                 <p>Email: <a href="mailto:info@yourwebsite.com" class="text-green-600 hover:underline">info@yourwebsite.com</a></p>
-                 <p>Phone: <a href="tel:+11234567890" class="text-green-600 hover:underline">+1 (123) 456-7890</a></p>
-                 <p>Address: 123 Main Street, Your City, Your Country</p>
-                </div>
-               </div>
-            </div>
-            </div>
-           </div>
-          </div>
-           <div class="col-md-4">
-            <div class="card-body">
-              <div class="row align-items-center">
-               <div class="">
-            <div class="col">
-              <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
-              <div class="">
-                <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">Facebook</a>
-                          <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">Twitter</a>
-                          <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">Instagram</a>
-                          <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">LinkedIn</a>
-              </div>
-            </div>
-               </div>
-              </div>
-           </div>
-            </div>
-           <div class="col-md-4">
-            <div class="card-body">
-              <div class="row align-items-center">
-                <div class="col">
-                  <div class="row">
-                        <div class="col">
-                          <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
-                        <div class="col">
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">About Us</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">Services</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">Volunteer</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">Contact</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600">FAQ</a>
-                        </div>
-                        </div>
-                      </div>
+            <section class="container hero-section text-center">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <img class="img-fluid" src="img/animal_welfare.jpg" alt="animal_welfare">
                     </div>
-                  </div>
+                    <div class="col-md-6 text-md-start">
+                        <h2 class="fw-bold">Barangay Animal Welfare</h2>
+                        <p>Promoting animal well-being through responsible pet ownership, preventing abuse, addressing stray issues, and providing resources for pet care to foster a compassionate community.</p>
+                    </div>
                 </div>
-              </div>
-          
+            </section>
 
+            <section class="container content-section text-center">
+                <h2 class="fw-bold mb-4">Pets Available for Adoption</h2>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <img class="img-fluid gallery-img" src="img/dog1.jpg" alt="Animal">
+                    </div>
+                    <div class="col-md-4">
+                        <img class="img-fluid gallery-img" src="img/dog1.jpg" alt="Animal">
+                    </div>
+                    <div class="col-md-4">
+                        <img class="img-fluid gallery-img" src="img/dog1.jpg" alt="Animal">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="pet_view.php" class="btn btn-primary btn-lg btn-custom">View Pets for Adoption</a>
+                </div>
+            </section>
 
-         </footer>
-        
-      </main>
-      
-      </div>  
-  <!-- Include jQuery -->
-<?php include ('./script.php'); ?>
+            <section class="container content-section text-center">
+                <h2 class="fw-bold mb-4">Report Animal Cruelty</h2>
+                <p>Help us protect our community's animals. Report any cases of cruelty and be part of the solution for a safe environment for all.</p>
+                <a href="cruelty.php" class="btn btn-danger btn-lg btn-custom">Report Now</a>
+            </section>
 
-  </body>
-</>
+            <section class="container content-section">
+                <h2 class="fw-bold text-center mb-4">About Us</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam, quaerat? Quae cupiditate quisquam dolores sit, blanditiis quo perspiciatis ratione placeat quibusdam, odio odit animi mollitia, modi dicta veritatis sint aut? Asperiores sapiente, aut itaque dolor nesciunt perferendis sit libero laboriosam qui esse maxime consequatur, nostrum voluptatibus culpa hic commodi inventore earum excepturi.</p>
+            </section>
 
+            <footer class="container text-center py-4 border-top">
+                <p class="mb-0">&copy; 2025 Barangay Animal Welfare. All rights reserved.</p>
+            </footer>
+        </main>
+    </div>
+
+    <?php include('./script.php'); ?>
+</body>
+</html>

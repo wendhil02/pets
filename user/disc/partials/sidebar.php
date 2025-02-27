@@ -40,7 +40,7 @@
             <li class="nav-item w-100">
                 <a class="nav-link" href="mypet.php">
                     <i class="fa-solid fa-clipboard-list"></i> <!-- Clipboard Icon for Pet Registered -->
-                    <span class="ml-3 item-text">Pet Registered</span>
+                    <span class="ml-3 item-text">My Pets</span>
                 </a>
             </li>
         </ul>
@@ -54,7 +54,7 @@
             <li class="nav-item w-100">
                 <a class="nav-link" href="pet_view.php">
                     <i class="fa-solid fa-list"></i> <!-- List Icon for List Adoption -->
-                    <span class="ml-3 item-text">List Adoption</span>
+                    <span class="ml-3 item-text">Adopt a pet</span>
                 </a>
             </li>
         </ul>
@@ -67,14 +67,14 @@
             <li class="nav-item w-100">
                 <a class="nav-link" href="missing.php">
                     <i class="fa-solid fa-magnifying-glass"></i> <!-- Search Icon for Missing Animal -->
-                    <span class="ml-3 item-text">Missing Animal</span>
+                    <span class="ml-3 item-text">Report missing pet</span>
                 </a>
             </li>
 
             <li class="nav-item w-100">
                 <a class="nav-link" href="cruelty.php">
                     <i class="fa-solid fa-exclamation-triangle"></i> <!-- Warning Icon for Animal Cruelty -->
-                    <span class="ml-3 item-text">Animal Cruelty</span>
+                    <span class="ml-3 item-text">Report animal cruelty</span>
                 </a>
             </li>
         </ul>
