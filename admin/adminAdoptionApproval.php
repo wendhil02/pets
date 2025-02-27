@@ -97,8 +97,7 @@
           <tbody>
             <?php
             include('./dbconn/config.php');
-            $sql = "SELECT pet_id, owner, pet_name, pet_age, pet_breed, pet_info, pet_image, created_at, email 
-                      FROM adoption WHERE approved = 0";
+            $sql = "SELECT * FROM adoption WHERE approved = 0";
             $result = $conn->query($sql);
             if ($result && $result->num_rows > 0) {
               while ($row = $result->fetch_assoc()) {
@@ -159,7 +158,10 @@
             ? `<br/><img src="${data.pet_image}" alt="Pet Image" style="max-width:200px; height:auto;">`
             : 'N/A'
           }</p>
-          <p><strong>Pet Vaccine:</strong> ${data.pet_vaccine || 'N/A'}</p>
+          <p><strong>Pet Vaccine:</strong>  ${data.pet_vaccine
+            ? `<br/><img src="${data.pet_vaccine}" alt="Pet Vaccine" style="max-width:200px; height:auto;">`
+            : 'N/A'
+          }</p>
           <p><strong>Created At:</strong> ${data.created_at || 'N/A'}</p>
         `;
         document.getElementById("modal-details").innerHTML = detailsHtml;
