@@ -4,14 +4,14 @@ include('./dbconn/config.php');
 
 // Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = htmlspecialchars(trim($_POST['name']));
-    $phone = htmlspecialchars(trim($_POST['phone']));
-    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $name    = htmlspecialchars(trim($_POST['name']));
+    $phone   = htmlspecialchars(trim($_POST['phone']));
+    $email   = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
     $address = htmlspecialchars(trim($_POST['address']));
     $petName = htmlspecialchars(trim($_POST['petName']));
-    $petAge = intval($_POST['petAge']);
-    $petBreed = htmlspecialchars(trim($_POST['petBreed']));
-    $info = htmlspecialchars(trim($_POST['info']));
+    $petAge  = intval($_POST['petAge']);
+    $petBreed= htmlspecialchars(trim($_POST['petBreed']));
+    $info    = htmlspecialchars(trim($_POST['info']));
 
     $errors = [];
     if (empty($name) || !preg_match("/^[a-zA-Z ]+$/", $name)) $errors[] = "Invalid name.";
@@ -25,11 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Process Images (Convert to Base64)
     function convertToBase64($imageFile) {
-        $imageData = file_get_contents($imageFile['tmp_name']);
-        return base64_encode($imageData);
+        return base64_encode(file_get_contents($imageFile['tmp_name']));
     }
 
-    $petImage = $_FILES['petImage'];
+    $petImage     = $_FILES['petImage'];
     $vaccineImage = $_FILES['vaccineImage'];
 
     if ($petImage['error'] !== 0 || $vaccineImage['error'] !== 0) {
@@ -37,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $petImageBase64 = convertToBase64($petImage);
+    $petImageBase64     = convertToBase64($petImage);
     $vaccineImageBase64 = convertToBase64($vaccineImage);
 
     // Generate Registration ID

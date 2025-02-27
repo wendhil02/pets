@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
     $petInfo  = trim($_POST['petInfo']);
     $mail     = filter_var(trim($_POST['mail']), FILTER_SANITIZE_EMAIL);
 
-    // Handle Image Upload: use file input if provided, otherwise use the hidden input value
+    // Handle Pet Image Upload
     if (!empty($_FILES['petImage']['tmp_name'])) {
         $imageData = file_get_contents($_FILES['petImage']['tmp_name']);
         $petImage  = base64_encode($imageData);
@@ -23,6 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
         $petImage = $_POST['petImage'];
     } else {
         $petImage = "";
+    }
+
+    // Handle Vaccine Image Upload
+    if (!empty($_FILES['petVaccine']['tmp_name'])) {
+        $vaccineData = file_get_contents($_FILES['petVaccine']['tmp_name']);
+        $petVaccine  = base64_encode($vaccineData);
+    } elseif (!empty($_POST['petVaccine'])) {
+        $petVaccine = $_POST['petVaccine'];
+    } else {
+        $petVaccine = "";
     }
 
     // Check for duplicates
@@ -42,10 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 
     // If no error, proceed with insertion
     if (empty($errorMessage)) {
-        $query = "INSERT INTO adoption (pet_id, owner, pet_name, pet_age, pet_breed, pet_info, email, pet_image, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)";
+        $query = "INSERT INTO adoption (pet_id, owner, pet_name, pet_age, pet_breed, pet_info, email, pet_image, pet_vaccine, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
         if ($stmt = $conn->prepare($query)) {
-            // Bind parameters using the correct email variable ($mail)
-            $stmt->bind_param("ississss", $petId, $owner, $petName, $petAge, $petBreed, $petInfo, $mail, $petImage);
+            $stmt->bind_param("ississsss", $petId, $owner, $petName, $petAge, $petBreed, $petInfo, $mail, $petImage, $petVaccine);
 
             if ($stmt->execute()) {
                 $successMessage = "Your adoption request has been submitted successfully and is pending approval.";
@@ -73,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
             flex-direction: column;
             cursor: pointer;
         }
-
         .card-img-top {
             margin: 20px;
             width: 80%;
@@ -81,7 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
             object-fit: contain;
             background: #f8f9fa;
         }
-
         .card-body {
             flex-grow: 1;
             flex-direction: column;
@@ -89,12 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
             align-items: flex-start;
             text-align: left;
         }
-
         .card-text {
             font-size: 20px;
             margin-bottom: 0.25rem;
         }
-
         @media (max-width: 576px) {
             .card-img-top {
                 height: 150px;
@@ -126,7 +131,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
-                            $imageSrc = !empty($row['pet_image']) ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_image']) : 'default.jpg';
+                            // Prepare the pet image source
+                            $imageSrc = !empty($row['pet_image']) 
+                                ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_image']) 
+                                : 'default.jpg';
+                            // Prepare the vaccine image source
+                            $vaccineSrc = !empty($row['pet_vaccine']) 
+                                ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_vaccine']) 
+                                : 'default_vaccine.jpg';
                             ?>
                             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                                 <div class="card" 
@@ -137,7 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                                      data-info="<?php echo htmlspecialchars($row['info']); ?>"
                                      data-owner="<?php echo htmlspecialchars($row['owner']); ?>"
                                      data-mail="<?php echo htmlspecialchars($row['email']); ?>"
-                                     data-image="<?php echo $imageSrc; ?>">
+                                     data-image="<?php echo $imageSrc; ?>"
+                                     data-vaccine="<?php echo $vaccineSrc; ?>">
                                     <img src="<?php echo $imageSrc; ?>" class="card-img-top" alt="Pet Image">
                                     <div class="card-body">
                                         <p class="card-text"><strong><?php echo htmlspecialchars($row['pet']); ?></strong></p>
@@ -177,6 +190,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                                 <p><strong>Age:</strong> <span id="modalPetAge"></span></p>
                                 <p><strong>Breed:</strong> <span id="modalPetBreed"></span></p>
                                 <p><strong>Info:</strong> <span id="modalPetInfo"></span></p>
+                                <div>
+                                    <strong>Vaccine Record:</strong><br/>
+                                    <img id="modalPetVaccine" src="" alt="Vaccine Record" class="img-fluid" style="max-width: 100%;">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -191,6 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                             <input type="hidden" name="petInfo" id="formPetInfo">
                             <input type="hidden" name="mail" id="formMail">
                             <input type="hidden" name="petImage" id="formPetImage">
+                            <input type="hidden" name="petVaccine" id="formPetVaccine">
                             <button type="submit" class="btn btn-primary">Adopt</button>
                         </form>
                     </div>
@@ -244,6 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                         var petInfo  = card.getAttribute('data-info');
                         var mail     = card.getAttribute('data-mail');
                         var petImage = card.getAttribute('data-image');
+                        var petVaccine = card.getAttribute('data-vaccine');
 
                         document.getElementById('modalPetImage').src = petImage;
                         document.getElementById('modalOwner').textContent    = owner;
@@ -252,15 +271,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                         document.getElementById('modalPetBreed').textContent = petBreed;
                         document.getElementById('modalPetInfo').textContent  = petInfo;
                         document.getElementById('modalMail').textContent     = mail;
+                        document.getElementById('modalPetVaccine').src       = petVaccine;
 
-                        document.getElementById('formPetId').value   = petId;
-                        document.getElementById('formOwner').value   = owner;
-                        document.getElementById('formPetName').value = petName;
-                        document.getElementById('formPetAge').value  = petAge;
-                        document.getElementById('formPetBreed').value= petBreed;
-                        document.getElementById('formPetInfo').value = petInfo;
-                        document.getElementById('formMail').value    = mail;
+                        document.getElementById('formPetId').value    = petId;
+                        document.getElementById('formOwner').value    = owner;
+                        document.getElementById('formPetName').value  = petName;
+                        document.getElementById('formPetAge').value   = petAge;
+                        document.getElementById('formPetBreed').value = petBreed;
+                        document.getElementById('formPetInfo').value  = petInfo;
+                        document.getElementById('formMail').value     = mail;
                         document.getElementById('formPetImage').value = petImage;
+                        document.getElementById('formPetVaccine').value = petVaccine;
 
                         petModal.show();
                     });

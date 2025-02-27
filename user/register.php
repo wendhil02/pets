@@ -185,6 +185,7 @@ include('./dbconn/authentication.php');
                         feedback.classList.remove('d-none');
                         feedback.classList.add('alert-danger');
                         feedback.textContent = 'An error occurred during the submit process';
+                        
                     });
             }
         });
@@ -305,6 +306,9 @@ include('./dbconn/authentication.php');
 
 
         }
+
+ 
+
     </script>
 </body>
 
