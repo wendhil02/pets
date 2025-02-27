@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -295,8 +294,8 @@
           <tbody>
             <?php
             include('./dbconn/config.php');
-
-            $sql = "SELECT pet_id, owner, pet_name, pet_age, pet_breed, pet_info, pet_image, created_at, mail 
+     
+            $sql = "SELECT pet_id, owner, pet_name, pet_age, pet_breed, pet_info, pet_image, created_at, email 
                       FROM adoption WHERE approved = 0";
             $result = $conn->query($sql);
 

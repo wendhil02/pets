@@ -18,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         $error = "Failed to delete pet listing";
     }
-
     $stmt->close();
 }
 ?>
@@ -42,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Aligns all content to the left */
+            align-items: flex-start;
             text-align: left;
             padding: 1rem;
         }
@@ -84,24 +83,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <?php elseif (isset($error)) : ?>
                     <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
-
                 <div class="row">
                     <?php
-                    $sql = "SELECT id, pet_id, owner, pet_name, pet_age, pet_breed, pet_info, mail, pet_image, created_at FROM adoption WHERE approved = 1 ORDER BY created_at DESC";
+                    // Select approved adoption listings
+                    $sql = "SELECT * FROM adoption WHERE approved = 1 ORDER BY created_at DESC";
                     $result = $conn->query($sql);
 
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
+
                     ?>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                         <div class="card">
-                            <img src="<?php echo htmlspecialchars($row['pet_image']); ?>" class="card-img-top" alt="Pet Image">
+                            <img src=" <?php echo htmlspecialchars($row['pet_image']); ?>" class="card-img-top" alt="Pet Image">
                             <div class="card-body">
                                 <h5 class="card-title">PET INFORMATION</h5>
                                 <p class="card-text"><strong>Name:</strong> <?php echo htmlspecialchars($row['pet_name']); ?></p>
                                 <p class="card-text"><strong>Breed:</strong> <?php echo htmlspecialchars($row['pet_breed']); ?></p>
                                 <p class="card-text"><strong>Info:</strong> <?php echo htmlspecialchars($row['pet_info']); ?></p>
-                                <p class="card-text"><strong>Owner Email:</strong> <?php echo htmlspecialchars($row['mail']); ?></p>
+                                <p class="card-text"><strong>Owner Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
                             </div>
                             <div class="card-footer">
                                 <button 
@@ -113,11 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                     data-pet-name="<?php echo htmlspecialchars($row['pet_name']); ?>"
                                     data-pet-breed="<?php echo htmlspecialchars($row['pet_breed']); ?>"
                                     data-pet-info="<?php echo htmlspecialchars($row['pet_info']); ?>"
-                                    data-pet-image="<?php echo htmlspecialchars($row['pet_image']); ?>"
-                                    data-owner-email="<?php echo htmlspecialchars($row['mail']); ?>">
+                                    data-pet-image="<?php echo $imageSrc; ?>"
+                                    data-owner-email="<?php echo htmlspecialchars($row['email']); ?>">
                                     Adopt
                                 </button>
-                                <?php if (isset($_SESSION['mail']) && $_SESSION['mail'] === $row['mail']) : ?>
+                                <?php if (isset($_SESSION['email']) && $_SESSION['mail'] === $row['email']) : ?>
                                     <form action="" method="POST" onsubmit="return confirmDelete();">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="pet_id" value="<?php echo $row['id']; ?>">
@@ -140,8 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <?php include('./script.php'); ?>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <?php include("./disc/partials/adopt-modal.php")?>
-
         <script>
+            // Populate the adoption modal with data from the button's data attributes.
             document.getElementById('adoptModal').addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var petId      = button.getAttribute('data-pet-id');
