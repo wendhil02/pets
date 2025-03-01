@@ -40,9 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['pet_id'], $_POST['acti
     if ($stmt->execute()) {
         // Redirect back to adminAdoptionApproval.php with a corresponding flag
         if($action === 'approve'){
-            header("Location: adminAdoptionApproval.php?success=1");
+            header("Location: adminAdoptionApproval.php");
         } else {
-            header("Location: adminAdoptionApproval.php?rejected=1");
+            header("Location: adminAdoptionApproval.php");
         }
         exit();
     } else {
