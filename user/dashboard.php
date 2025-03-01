@@ -7,6 +7,7 @@ include('./dbconn/authentication.php');
 <head>
     <?php include('./disc/partials/header.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         .hero-section {
             background-color: #f8f9fa;
@@ -15,24 +16,38 @@ include('./dbconn/authentication.php');
         }
         .hero-section img {
             border-radius: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .content-section {
             padding: 4rem 1rem;
-            background-color: #fff;
+            background-color: #f8f9fa; /* Same as body background */
             border-radius: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 2rem;
         }
         .gallery-img {
             height: 300px;
             object-fit: cover;
             border-radius: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .btn-custom {
             border-radius: 2rem;
             padding: 0.75rem 2rem;
+        }
+        .footer {
+            background-color: #f8f9fa; /* Same as body background */
+            color: #000000;
+            padding: 2rem 0;
+        }
+        .footer a {
+            color: #000000;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer a:hover {
+            color: #343a40;
+        }
+        .footer-icons i {
+            font-size: 24px;
+            margin: 0 10px;
         }
         @media (max-width: 768px) {
             .hero-section img,
@@ -91,8 +106,21 @@ include('./dbconn/authentication.php');
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam, quaerat? Quae cupiditate quisquam dolores sit, blanditiis quo perspiciatis ratione placeat quibusdam, odio odit animi mollitia, modi dicta veritatis sint aut? Asperiores sapiente, aut itaque dolor nesciunt perferendis sit libero laboriosam qui esse maxime consequatur, nostrum voluptatibus culpa hic commodi inventore earum excepturi.</p>
             </section>
 
-            <footer class="container text-center py-4 border-top">
-                <p class="mb-0">&copy; 2025 Barangay Animal Welfare. All rights reserved.</p>
+            <footer class="footer text-center">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 footer-icons">
+                            <p class="mb-2">Follow us on:</p>
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-0">&copy; 2025 Barangay Animal Welfare. All rights reserved.</p>
+                            <a href="terms.php">Terms & Agreements</a>
+                        </div>
+                    </div>
+                </div>
             </footer>
         </main>
     </div>

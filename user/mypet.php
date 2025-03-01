@@ -75,36 +75,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
 <head>
     <?php include('./disc/partials/header.php'); ?>
     <style>
-        /* Card Styles */
-        .card {
-            height: 80%;
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-        }
-        .card-img-top {
-            margin: 20px;
-            width: 80%;
-            height: 150px;
-            object-fit: contain;
-            background: #f8f9fa;
-        }
-        .card-body {
-            flex-grow: 1;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            text-align: left;
-        }
-        .card-text {
-            font-size: 20px;
-            margin-bottom: 0.25rem;
-        }
-        @media (max-width: 576px) {
-            .card-img-top {
-                height: 150px;
-            }
-        }
+       /* Card Styles */
+.card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    background: #fff;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: #f8f9fa;
+    border-bottom: 3px solid #ddd;
+}
+
+.card-body {
+    flex-grow: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.card-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-text:hover {
+    overflow: visible;
+    white-space: normal;
+}
+
+@media (max-width: 576px) {
+    .card-img-top {
+        height: 180px;
+    }
+}
+
     </style>
 </head>
 
@@ -167,54 +192,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
             </div>
         </main>
 
-        <!-- Modal for Pet Details with Adoption Button -->
-        <div class="modal fade" id="petModal" tabindex="-1" aria-labelledby="petModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="petModalLabel">Pet Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
+<!-- Updated Modal for Pet Details with Adoption Button -->
+<div class="modal fade" id="petModal" tabindex="-1" aria-labelledby="petModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="petModalLabel">Pet Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <!-- Image Column -->
+                    <div class="col-md-5 text-center">
+                        <img id="modalPetImage" src="" alt="Pet Image" class="img-fluid rounded shadow-sm">
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <!-- Image Column -->
-                            <div class="col-md-4 text-center">
-                                <img id="modalPetImage" src="" alt="Pet Image" class="img-fluid">
-                            </div>
-                            <!-- Text Information Column -->
-                            <div class="col-md-8">
-                                <div class="card-title"><strong>Information</strong></div>
-                                <p><strong>Owner:</strong> <span id="modalOwner"></span></p>
-                                <p><strong>Email:</strong> <span id="modalMail"></span></p>
-                                <p><strong>Pet Name:</strong> <span id="modalPetName"></span></p>
-                                <p><strong>Age:</strong> <span id="modalPetAge"></span></p>
-                                <p><strong>Breed:</strong> <span id="modalPetBreed"></span></p>
-                                <p><strong>Info:</strong> <span id="modalPetInfo"></span></p>
-                                <div>
-                                    <strong>Vaccine Record:</strong><br/>
-                                    <img id="modalPetVaccine" src="" alt="Vaccine Record" class="img-fluid" style="max-width: 100%;">
-                                </div>
-                            </div>
+                    <!-- Text Information Column -->
+                    <div class="col-md-7">
+                        <h4 class="fw-bold" id="modalPetName"></h4>
+                        <p><strong>Owner:</strong> <span id="modalOwner"></span></p>
+                        <p><strong>Email:</strong> <span id="modalMail"></span></p>
+                        <p><strong>Age:</strong> <span id="modalPetAge"></span></p>
+                        <p><strong>Breed:</strong> <span id="modalPetBreed"></span></p>
+                        <p><strong>Info:</strong> <span id="modalPetInfo"></span></p>
+                        <div class="mt-3">
+                            <strong>Vaccine Record:</strong><br/>
+                            <img id="modalPetVaccine" src="" alt="Vaccine Record" class="img-fluid rounded shadow-sm" style="max-width: 100%;">
                         </div>
-                    </div>
-                    <!-- Modal Footer with Adoption Form (Centered) -->
-                    <div class="modal-footer justify-content-center">
-                        <form id="adoptForm" action="" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="petId" id="formPetId">
-                            <input type="hidden" name="owner" id="formOwner">
-                            <input type="hidden" name="petName" id="formPetName">
-                            <input type="hidden" name="petAge" id="formPetAge">
-                            <input type="hidden" name="petBreed" id="formPetBreed">
-                            <input type="hidden" name="petInfo" id="formPetInfo">
-                            <input type="hidden" name="mail" id="formMail">
-                            <input type="hidden" name="petImage" id="formPetImage">
-                            <input type="hidden" name="petVaccine" id="formPetVaccine">
-                            <button type="submit" class="btn btn-primary">Adopt</button>
-                        </form>
                     </div>
                 </div>
             </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <form id="adoptForm" action="" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="petId" id="formPetId">
+                    <input type="hidden" name="owner" id="formOwner">
+                    <input type="hidden" name="petName" id="formPetName">
+                    <input type="hidden" name="petAge" id="formPetAge">
+                    <input type="hidden" name="petBreed" id="formPetBreed">
+                    <input type="hidden" name="petInfo" id="formPetInfo">
+                    <input type="hidden" name="mail" id="formMail">
+                    <input type="hidden" name="petImage" id="formPetImage">
+                    <input type="hidden" name="petVaccine" id="formPetVaccine">
+                    <button type="submit" class="btn btn-success fw-bold">Adopt This Pet</button>
+                </form>
+            </div>
         </div>
+    </div>
+</div>
+
 
         <!-- Error Modal (for duplicate or other errors) -->
         <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
