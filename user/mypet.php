@@ -192,37 +192,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
             </div>
         </main>
 
-<!-- Updated Modal for Pet Details with Adoption Button -->
+<!-- Updated Modal for Pet Details with Improved UI -->
 <div class="modal fade" id="petModal" tabindex="-1" aria-labelledby="petModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg border-0">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="petModalLabel">Pet Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold" id="petModalLabel">🐾 Pet Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
-                <div class="row g-3">
+                <div class="row row-cols-1 row-cols-md-2 g-3">
                     <!-- Image Column -->
-                    <div class="col-md-5 text-center">
-                        <img id="modalPetImage" src="" alt="Pet Image" class="img-fluid rounded shadow-sm">
+                    <div class="col text-center">
+                        <img id="modalPetImage" src="" alt="Pet Image" class="img-fluid rounded border shadow-sm"
+                             style="cursor: pointer;" onclick="openFullSize(this)">
                     </div>
-                    <!-- Text Information Column -->
-                    <div class="col-md-7">
-                        <h4 class="fw-bold" id="modalPetName"></h4>
-                        <p><strong>Owner:</strong> <span id="modalOwner"></span></p>
-                        <p><strong>Email:</strong> <span id="modalMail"></span></p>
-                        <p><strong>Age:</strong> <span id="modalPetAge"></span></p>
-                        <p><strong>Breed:</strong> <span id="modalPetBreed"></span></p>
-                        <p><strong>Info:</strong> <span id="modalPetInfo"></span></p>
-                        <div class="mt-3">
-                            <strong>Vaccine Record:</strong><br/>
-                            <img id="modalPetVaccine" src="" alt="Vaccine Record" class="img-fluid rounded shadow-sm" style="max-width: 100%;">
-                        </div>
+                    <!-- Pet Details Column -->
+                    <div class="col">
+                        <h3 class="fw-bold text-primary" id="modalPetName"></h3><br>
+                        <p class="mb-1"><strong>Owner:</strong> <span id="modalOwner" class="text-secondary"></span></p>
+                        <p class="mb-1"><strong>Email:</strong> <span id="modalMail" class="text-secondary"></span></p>
+                        <p class="mb-1"><strong>Age:</strong> <span id="modalPetAge" class="text-secondary"></span></p>
+                        <p class="mb-1"><strong>Breed:</strong> <span id="modalPetBreed" class="text-secondary"></span></p>
+                        <p><strong>Info:</strong> <span id="modalPetInfo" class="text-secondary"></span></p>
                     </div>
+                </div>
+                <!-- Vaccine Record -->
+                <div class="mt-3 text-center">
+                    <strong class="d-block">Vaccine Record:</strong>
+                    <img id="modalPetVaccine" src="" alt="Vaccine Record" class="img-fluid rounded border shadow-sm"
+                         style="max-width: 100%; cursor: pointer;" onclick="openFullSize(this)">
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-center">
-                <form id="adoptForm" action="" method="post" enctype="multipart/form-data">
+                <form id="adoptForm" action="" method="post">
                     <input type="hidden" name="petId" id="formPetId">
                     <input type="hidden" name="owner" id="formOwner">
                     <input type="hidden" name="petName" id="formPetName">
@@ -232,47 +235,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
                     <input type="hidden" name="mail" id="formMail">
                     <input type="hidden" name="petImage" id="formPetImage">
                     <input type="hidden" name="petVaccine" id="formPetVaccine">
-                    <button type="submit" class="btn btn-success fw-bold">Adopt This Pet</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4 py-2">🐶 Adopt This Pet</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Fullscreen Image Viewer -->
+<div id="fullSizeImageViewer" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center" style="z-index: 1050;">
+    <img id="fullSizeImage" src="" alt="Full Size Image" class="img-fluid rounded shadow-lg">
+    <button class="btn btn-danger position-absolute top-0 end-0 m-3 " onclick="closeFullSize()">X</button>
+</div>
 
-        <!-- Error Modal (for duplicate or other errors) -->
-        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
-                    </div>
-                    <div class="modal-body">
-                        <?php echo htmlspecialchars($errorMessage); ?>
-                    </div>
-                </div>
+
+<!-- Error Modal (Compact & Styled) -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-sm">
+            <div class="modal-header bg-white border-0 p-2">
+            <h6 class="modal-title w-100 text-white fw-bold">
+                    <i class="bi bi-check-circle-fill me-1"></i> 
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-dark fw-semibold mb-2"><?php echo htmlspecialchars($errorMessage); ?></p>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-center">
+                <button type="button" class="btn btn-sm btn-success px-3" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
+    </div>
+</div>        
 
-        <!-- Success Modal (if needed) -->
-        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="successModalLabel">Success</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
-                    </div>
-                    <div class="modal-body">
-                        <?php echo htmlspecialchars($successMessage); ?>
-                    </div>
-                </div>
+<!-- Success Modal (Compact & Styled) -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-sm">
+            <div class="modal-header bg-white border-0 p-2">
+            <h6 class="modal-title w-100 text-white fw-bold">
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="text-dark fw-semibold mb-2"><?php echo htmlspecialchars($successMessage); ?></p>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-center">
+                <button type="button" class="btn btn-sm btn-success px-3" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
+    </div>
+</div>
 
         <?php include('./script.php'); ?>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
+              function openFullSize(img) {
+        document.getElementById("fullSizeImage").src = img.src;
+        document.getElementById("fullSizeImageViewer").classList.remove("d-none");
+    }
+
+    function closeFullSize() {
+        document.getElementById("fullSizeImageViewer").classList.add("d-none");
+    }
+  
+
             document.addEventListener("DOMContentLoaded", function() {
                 var petModal = new bootstrap.Modal(document.getElementById('petModal'));
 

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adoption Management</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -12,24 +14,123 @@
       padding: 0;
       background-color: #f4f4f9;
     }
+
     /* Table and Filter Styles (unchanged) */
-    .box { width: auto; height: 600px; background-color: transparent; border: 0px solid #e5e7eb; border-radius: 10px; box-shadow: 0px 0px 0px rgb(252, 251, 251); padding: 16px; margin: 8px; overflow: auto; }
-    .box-container { display: flex; gap: 16px; flex-direction: column; }
-    .filter-container { position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #fff; font-family: Arial, sans-serif; border-bottom: 2px solid transparent; box-shadow: 0 0px 0px 0px rgb(255, 255, 255); }
-    .title { font-size: 1.25rem; font-weight: 600; color: #333; margin-left: 5px; flex: 2; text-align: left; }
-    .table-wrapper { overflow-x: auto; scrollbar-width: thin; -ms-overflow-style: none; transition: opacity 0.3s ease-in-out; }
-    table { width: 100%; border-collapse: collapse; background-color: white; border-radius: 5px; overflow: hidden; }
-    th { background-color: rgb(0, 0, 0); color: #ffffff; text-align: center; padding: 12px; font-size: 16px; }
-    td { padding: 12px; text-align: center; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px; }
-    tbody tr:hover { background-color: #f3f4f6; }
+    .box {
+      width: auto;
+      height: 600px;
+      background-color: transparent;
+      border: 0px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0px 0px 0px rgb(252, 251, 251);
+      padding: 16px;
+      margin: 8px;
+      overflow: auto;
+    }
+
+    .box-container {
+      display: flex;
+      gap: 16px;
+      flex-direction: column;
+    }
+
+    .filter-container {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+      border-bottom: 2px solid transparent;
+      box-shadow: 0 0px 0px 0px rgb(255, 255, 255);
+    }
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      margin-left: 5px;
+      flex: 2;
+      text-align: left;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      -ms-overflow-style: none;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    th {
+      background-color: rgb(0, 0, 0);
+      color: #ffffff;
+      text-align: center;
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    tbody tr:hover {
+      background-color: #f3f4f6;
+    }
+
     /* Button Styles */
-    .view-btn, .approve-btn, .reject-btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-    .view-btn { background-color: #17a2b8; color: #fff; }
-    .view-btn:hover { background-color: #138496; }
-    .approve-btn { background-color: #28a745; color: #fff; margin-right: 8px; }
-    .approve-btn:hover { background-color: #218838; }
-    .reject-btn { background-color: #dc3545; color: #fff; }
-    .reject-btn:hover { background-color: #c82333; }
+    .view-btn,
+    .approve-btn,
+    .reject-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .view-btn {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+
+    .view-btn:hover {
+      background-color: #138496;
+    }
+
+    .approve-btn {
+      background-color: #28a745;
+      color: #fff;
+      margin-right: 8px;
+    }
+
+    .approve-btn:hover {
+      background-color: #218838;
+    }
+
+    .reject-btn {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .reject-btn:hover {
+      background-color: #c82333;
+    }
+
     /* Modal Styles - Updated for Centering on Desktop */
     .modal {
       position: fixed;
@@ -38,12 +139,13 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.5);
+      background-color: rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
+
     .modal-content {
       background-color: #fff;
       border-radius: 8px;
@@ -51,9 +153,13 @@
       max-width: 800px;
       padding: 20px;
       position: relative;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.26);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
     }
-    .modal-content h3 { margin-top: 0; }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
     .close {
       position: absolute;
       top: 10px;
@@ -63,9 +169,13 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .close:hover { color: #000; }
+
+    .close:hover {
+      color: #000;
+    }
   </style>
 </head>
+
 <body class="vertical light">
   <?php include('navandside/nav.php'); ?>
   <?php include('navandside/sidebar.php'); ?>
@@ -183,4 +293,5 @@
     }
   </script>
 </body>
+
 </html>

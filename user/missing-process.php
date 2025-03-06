@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $petType = htmlspecialchars(trim($_POST['petType']));
     $petBreed = htmlspecialchars(trim($_POST['petBreed']));
     $info    = htmlspecialchars(trim($_POST['info']));
+    $status = isset($_POST['status']) ? $_POST['status'] : '';
 
     $errors = [];
     if (empty($name) || !preg_match("/^[a-zA-Z ]+$/", $name)) {
@@ -39,8 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insert into the database with the Base64 image
-    $stmt = $conn->prepare("INSERT INTO missing (reportParty, phone_number, email, address, pet_name, petType, pet_breed, additional_info, pet_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssss", $name, $phone, $email, $address, $petName, $petType, $petBreed, $info, $base64Image);
+    $stmt = $conn->prepare("INSERT INTO missing (reportParty, phone_number, email, address, pet_name, petType, pet_breed, additional_info, status, pet_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssssss", $name, $phone, $email, $address, $petName, $petType, $petBreed, $info, $status, $base64Image);
+    
 
     if ($stmt->execute()) {
         echo json_encode([

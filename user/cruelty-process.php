@@ -13,38 +13,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $info     = htmlspecialchars(trim($_POST['info']));
 
     $errors = [];
+    
+    // Validate name
     if (empty($name) || !preg_match("/^[a-zA-Z ]+$/", $name)) {
         $errors[] = "Invalid name.";
     }
+    
+    // Validate email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Invalid email.";
     }
+
+    // Check for errors before processing the image
     if (!empty($errors)) {
         echo json_encode(['status' => 'error', 'message' => implode(" ", $errors)]);
         exit;
     }
 
-    // File handling: Convert image to base64
-    $petImage = $_FILES['petImage'];
-    if ($petImage['error'] !== UPLOAD_ERR_OK) {
+    // File handling: Validate and Convert image to base64
+    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    
+    if (!isset($_FILES['petImage']) || $_FILES['petImage']['error'] !== UPLOAD_ERR_OK) {
         echo json_encode(['status' => 'error', 'message' => 'File upload error.']);
         exit;
     }
 
-    // Read the image file and encode it in base64
-    $imageContent = file_get_contents($petImage['tmp_name']);
+    // Check if the uploaded file is a valid image type
+    $imgInfo = getimagesize($_FILES['petImage']['tmp_name']);
+    if ($imgInfo === false || !in_array($imgInfo['mime'], $allowedTypes)) {
+        echo json_encode(['status' => 'error', 'message' => 'Only JPG, JPEG, and PNG files are allowed.']);
+        exit;
+    }
+
+    // Read and encode image
+    $imageContent = file_get_contents($_FILES['petImage']['tmp_name']);
     if ($imageContent === false) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to read the file.']);
         exit;
     }
     $petImageBase64 = base64_encode($imageContent);
-
-    // Validate the image file is indeed an image
-$imgInfo = getimagesize($petImage['tmp_name']);
-if ($imgInfo === false) {
-    echo json_encode(['status' => 'error', 'message' => 'Uploaded file is not a valid image.']);
-    exit;
-}
 
     // Insert into the database
     $stmt = $conn->prepare("

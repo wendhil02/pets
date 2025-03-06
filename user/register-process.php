@@ -1,8 +1,6 @@
 <?php
-// Database connection
 include('./dbconn/config.php');
 
-// Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = htmlspecialchars(trim($_POST['name']));
     $phone   = htmlspecialchars(trim($_POST['phone']));
@@ -23,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Process Images (Convert to Base64)
     function convertToBase64($imageFile) {
         return base64_encode(file_get_contents($imageFile['tmp_name']));
     }
@@ -39,10 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $petImageBase64     = convertToBase64($petImage);
     $vaccineImageBase64 = convertToBase64($vaccineImage);
 
-    // Generate Registration ID
     $registrationID = bin2hex(random_bytes(16));
 
-    // Insert Data into Database
     $stmt = $conn->prepare("
         INSERT INTO register (
             registrationID, owner, phone, email, address, pet, age, breed, info, pet_image, pet_vaccine
@@ -54,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if ($stmt->execute()) {
-        // Generate the QR code URL
-        $viewUrl = "http://localhost/pets/user/pet_profiling.php?id=" . $registrationID;
+        // ✅ Fix: Ensure the correct URL format
+        $viewUrl = "http://localhost/pets/user/petProfiling.php?id=" . urlencode($registrationID);
 
         echo json_encode([
             'status' => 'success',
@@ -63,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'qrUrl' => $viewUrl,
         ]);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to save the upload record in the database.']);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to save the record.']);
     }
     $stmt->close();
 } else {
