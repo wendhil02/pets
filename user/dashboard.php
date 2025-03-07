@@ -1,4 +1,4 @@
-<?php
+<htm?php
 include('./dbconn/config.php');
 include('./dbconn/authentication.php');
 ?>
@@ -45,7 +45,7 @@ include('./dbconn/authentication.php');
             <div class="col-md  "> 
               <h2 class="row px-4 pt-2 fw-bold">Barangay Animal Welfare</h2>
               <p class="row-md-4 px-4 text-overly">Barangay Animal Welfare promotes animal well-being by encouraging responsible pet ownership, preventing abuse, addressing stray animal issues, and providing resources for pet care, all to foster a compassionate and safe community for animals and residents.</p>
-              <div class=" col-12-md-4 justify-content-center align-items-center text-center">
+              <div class=" col-12-md-4 justify-content-center  text-center">
               </div>
             </div>
           </div>
@@ -64,7 +64,7 @@ include('./dbconn/authentication.php');
             <img class="img-fluid rounded-lg" src="img/dog1.jpg" alt="Animal">
             </div>
             </div>
-            <div class=" col-12-md-4 justify-content-center align-items-center text-center">
+            <div class=" col-12-md-4 justify-content-center  text-center">
             <a href="pet_view.php" class=" btn btn-lg btn-primary">Pet for adoption </a> 
             </div>
           </div> 
@@ -74,7 +74,7 @@ include('./dbconn/authentication.php');
               <div class="col-md "> 
                 <h2 class="row px-4 pt-2 fw-bold">Barangay Animal Welfare</h2>
                 <p class="row-md-4 px-4 text-overly">Barangay Animal Welfare promotes animal well-being by encouraging responsible pet ownership, preventing abuse, addressing stray animal issues, and providing resources for pet care, all to foster a compassionate and safe community for animals and residents.</p>
-                <div class=" col-12-md-4 justify-content-center align-items-center text-center">
+                <div class=" col-12-md-4 justify-content-center  text-center">
                   <a href="cruelty.php" class=" btn btn-lg btn-primary">Report </a> 
                 </div>
               </div>
@@ -92,66 +92,39 @@ include('./dbconn/authentication.php');
               </div>
             </div>
           </div>
+         
+          <footer class=" text-dark py-4 border-top">
+  <div class="container">
+    <div class="row align-items-center text-center text-md-start">
+      
+      <!-- Social Media Icons -->
+      <div class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
+        <a href="#" class="text-primary m-3 fs-4"><i class="fab fa-facebook"></i></a>
+        <a href="#" class="text-danger m-3 fs-4"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-info m-3 fs-4"><i class="fab fa-twitter"></i></a>
+      </div>
 
-         <footer id="footer" class="row card-body  mt-6">
-          
-          <div class="col-md-4">
-           <div class="card-body">
-            <div class="row align-items-center">
-              <div class="col">
-               <div class="row ">
-                <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
-                <div class="">
-                 <p>Email: <a href="mailto:info@yourwebsite.com" class="text-green-600 hover:underline">info@yourwebsite.com</a></p>
-                 <p>Phone: <a href="tel:+11234567890" class="text-green-600 hover:underline">+1 (123) 456-7890</a></p>
-                 <p>Address: 123 Main Street, Your City, Your Country</p>
-                </div>
-               </div>
-            </div>
-            </div>
-           </div>
-          </div>
-           <div class="col-md-4">
-            <div class="card-body">
-              <div class="row align-items-center">
-               <div class="">
-            <div class="col">
-              <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
-              <div class="">
-                <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">Facebook</a>
-                          <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">Twitter</a>
-                          <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">Instagram</a>
-                          <a href="#" target="_blank" class="text-gray-600 hover:text-green-600">LinkedIn</a>
-              </div>
-            </div>
-               </div>
-              </div>
-           </div>
-            </div>
-           <div class="col-md-4">
-            <div class="card-body">
-              <div class="row align-items-center">
-                <div class="col">
-                  <div class="row">
-                        <div class="col">
-                          <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
-                        <div class="col">
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">About Us</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">Services</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">Volunteer</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600 mb-1">Contact</a>
-                          <a href="#" class="row text-gray-600 hover:text-green-600">FAQ</a>
-                        </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-          
+      <!-- Copyright Text -->
+      <div class="col-12 col-md-4 text-center">
+        <small>&copy; 2025 Barangay Pet Welfare. <i>All Rights Reserved.</i></small>
+      </div>
 
+      <!-- Links and Sponsor -->
+      <div class="col-12 col-md-4 text-center text-md-end">
+        <a href="#" class="text-primary fw-bold me-2">Terms of Use</a>
+        <a href="#" class="text-primary fw-bold me-2">Privacy Policy</a>
+        <a href="#" class="text-primary fw-bold">Sitemap</a>
+        <p class="d-inline-block text-muted ms-2">
+          Website sponsored by <a href="#" class="text-primary fw-bold">BPWS</a>
+        </p>
+      </div>
 
-         </footer>
+    </div>
+  </div>
+</footer>
+
+<!-- Font Awesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         
       </main>
       
@@ -160,5 +133,5 @@ include('./dbconn/authentication.php');
 <?php include ('./script.php'); ?>
 
   </body>
-</>
+</html>
 

@@ -134,7 +134,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     ?>
                 </div>
             </div>
+            
         </main>
+        
         <?php include('./script.php'); ?>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <?php include("./disc/partials/adopt-modal.php")?>
