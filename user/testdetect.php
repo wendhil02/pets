@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,84 +20,76 @@
 
     <div class="relative flex justify-center items-center min-h-screen px-4 flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-6">
 
-        <!-- Left Box: Upload and Classify -->
-        <div class="bg-[#DFA16A] p-6 rounded-lg shadow-lg shadow-white w-full sm:w-80 md:w-96 lg:w-1/3 xl:w-1/4 h-auto flex flex-col max-w-full relative z-10">
-            <h1 class="text-3xl font-extrabold text-center text-white mb-6 flex items-center justify-center">
-                <i class="fas fa-paw mr-2"></i> Pet Recognition
-            </h1>
-
-            <!-- Image Upload Section -->
-            <div class="space-y-4 flex-grow">
-                <div>
-                    <input type="file" id="fileInput" accept="image/*"
-                        class="block w-full text-sm text-white-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:bg-gray-50 hover:file:bg-gray-100"
-                        onchange="previewImage()">
-                </div>
-
-                <!-- Classify Button -->
-                <button onclick="uploadAndClassify()"
-                    class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-200 flex items-center justify-center">
-                    <i class="fas fa-paw mr-2"></i> Classify Image
-                </button>
-            </div>
-
-            <!-- Image Preview -->
-            <div id="imagePreview" class="mt-6 hidden text-center">
-                <img id="previewImg" src="" alt="Preview"
-                    class="w-64 h-64 object-cover rounded-md mx-auto shadow-md">
-            </div>
-
-            <!-- Information Display -->
-            <div id="info" class="mt-4 text-center hidden">
-                <h2 class="text-xl font-semibold text-white">Information</h2>
-                <p id="petInfo" class="text-white"></p>
-            </div>
-
-            <!-- Refresh Button -->
-            <div class="mt-4 flex justify-center">
-                <button onclick="refreshPage()" class="text-white hover:text-gray-800 p-2 rounded-full focus:outline-none">
-                    <i class="fas fa-sync-alt h-6 w-6"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Right Box: Camera Feed -->
-        <div class="bg-[#DFA16A] p-6 rounded-lg shadow-lg shadow-white w-full sm:w-80 md:w-96 lg:w-1/3 xl:w-1/4 h-auto flex flex-col max-w-full relative z-10">
-            <h1 class="text-3xl font-bold text-center text-white mb-6 flex items-center justify-center">
-                <i class="fas fa-camera-retro mr-2"></i> Pets Scanner
+        <!-- Pet Scanner Box -->
+        <div class="bg-[#DFA16A] p-6 rounded-lg shadow-lg shadow-white w-full sm:w-[350px] flex flex-col relative z-10">
+            <h1 class="text-lg font-bold text-center text-white mb-4 flex items-center justify-center">
+                <i class="fas fa-camera-retro mr-2"></i> Pet Scanner
             </h1>
 
             <!-- Camera Feed Section -->
-            <div class="mb-6 border-1 p-4 rounded-md shadow-md flex-grow">
-                <video id="video" width="100%" height="auto" autoplay class="border rounded-md shadow-md w-full"></video>
+            <div class="mb-4 p-3 rounded-md shadow-md relative">
+                <video id="video" width="350" height="400" autoplay class="border rounded-md shadow-md mx-auto"></video>
+                <canvas id="canvas" class="hidden"></canvas>
             </div>
 
-            <!-- Information Below the Camera -->
-            <div id="cameraInfo" class="text-center hidden">
-                <h2 class="text-xl font-semibold text-white">Camera Prediction</h2>
-                <p id="cameraPetInfo" class="text-gray-800"></p>
+            <!-- Capture and Switch Camera Buttons -->
+            <div class="flex justify-center space-x-4">
+                <button onclick="captureImage()"
+                    class="w-1/3 text-sm bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-camera mr-1"></i> Capture
+                </button>
+
+                <button onclick="switchCamera()"
+                    class="w-1/3 text-sm bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-sync-alt mr-1"></i> Switch
+                </button>
             </div>
         </div>
+
     </div>
 
+<!-- Modal -->
+<div id="resultModal" class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full relative">
+        <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-6">Pet Information</h2>
+        <div class="flex flex-col md:flex-row items-center md:space-x-6">
+            <img id="capturedImg" src="" alt="Captured Image" class="w-full md:w-1/2 h-64 object-cover rounded-md shadow-md border">
+            <p id="cameraPetInfo" class="text-center md:text-left text-lg text-gray-700 mt-4 md:mt-0 w-full md:w-1/2"></p>
+        </div>
+    </div>
+</div>
+
     <!-- Footer -->
-    <footer class="absolute bottom-2 w-full text-center text-white text-sm z-10">
+    <footer class="absolute bottom-4 w-full text-center text-white text-sm z-10">
         © 2025 Pet Recognition. All Rights Reserved.
     </footer>
 
     <script>
         let model;
+        let useBackCamera = false;
         const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const modal = document.getElementById("resultModal");
 
         async function loadModel() {
             model = await mobilenet.load();
             console.log("Model loaded successfully!");
-            classifyCameraFrame();
         }
 
         async function setupCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const constraints = {
+                    video: {
+                        width: 350,
+                        height: 400,
+                        facingMode: useBackCamera ? "environment" : "user"
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
             } catch (error) {
                 console.error("Error accessing the camera: ", error);
@@ -105,77 +97,65 @@
             }
         }
 
-        function previewImage() {
-            const inputFile = document.getElementById('fileInput');
-            if (inputFile.files && inputFile.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('previewImg').src = e.target.result;
-                    document.getElementById('imagePreview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(inputFile.files[0]);
-            }
+        function switchCamera() {
+            useBackCamera = !useBackCamera;
+            setupCamera();
         }
 
-        async function uploadAndClassify() {
+        function captureImage() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const imageDataUrl = canvas.toDataURL("image/png");
+            document.getElementById('capturedImg').src = imageDataUrl;
+            
+            classifyCapturedImage();
+        }
+
+        async function classifyCapturedImage() {
             if (!model) {
                 alert("Model is still loading. Please wait.");
                 return;
             }
 
-            const inputFile = document.getElementById('fileInput');
-            if (inputFile.files.length > 0) {
-                const img = new Image();
-                img.src = URL.createObjectURL(inputFile.files[0]);
-                img.onload = async () => {
-                    const prediction = await model.classify(img);
-
-                    document.getElementById('previewImg').src = img.src;
-                    document.getElementById('imagePreview').classList.remove('hidden');
-
-                    document.getElementById('info').classList.remove('hidden');
-                    document.getElementById('petInfo').innerText = 
-                        `Prediction: ${prediction[0].className} with ${Math.round(prediction[0].probability * 100)}% confidence.`;
-                };
-            }
-        }
-
-        async function classifyCameraFrame() {
-            if (!model) {
-                setTimeout(classifyCameraFrame, 3000);
-                return;
-            }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext("2d");
-
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageTensor = tf.browser.fromPixels(canvas);
             const predictions = await model.classify(imageTensor);
             imageTensor.dispose();
 
-            const cameraInfo = document.getElementById('cameraInfo');
-            const cameraPetInfo = document.getElementById('cameraPetInfo');
-
-            if (predictions[0].className.toLowerCase().includes("cat") || predictions[0].className.toLowerCase().includes("dog")) {
-                cameraInfo.classList.remove('hidden');
-                cameraPetInfo.innerText = `Prediction: ${predictions[0].className} with ${Math.round(predictions[0].probability * 100)}% confidence.`;
-            } else {
-                cameraInfo.classList.add('hidden');
-            }
-
-            setTimeout(classifyCameraFrame, 3000);
+            const petName = predictions[0].className;
+            document.getElementById('cameraPetInfo').innerText = `Prediction: ${petName} (${Math.round(predictions[0].probability * 100)}% confidence)`;
+            fetchGeminiDescription(petName);
+            modal.classList.remove("hidden");
         }
 
-        function refreshPage() {
-            location.reload();
+        async function fetchGeminiDescription(petName) {
+            const apiKey = "YOUR_GEMINI_API_KEY";
+            const url = "https://api.openai.com/v1/chat/completions";
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "gpt-4-turbo",
+                    messages: [{ role: "user", content: `Tell me about a pet called ${petName}` }]
+                })
+            });
+
+            const data = await response.json();
+            const description = data.choices?.[0]?.message?.content || "No additional information available.";
+            document.getElementById('cameraPetInfo').innerText += `\n\n${description}`;
+        }
+
+        function closeModal() {
+            modal.classList.add("hidden");
         }
 
         loadModel();
         setupCamera();
     </script>
-
 </body>
 </html>
