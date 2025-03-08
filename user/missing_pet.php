@@ -5,39 +5,35 @@ include('./dbconn/authentication.php');
 
 <!DOCTYPE html>
 <html lang='en'>
-
 <head>
     <?php include('./disc/partials/header.php'); ?>
     <style>
-        .form-container {
-            max-width: 800px;
-            margin: auto;
-            padding: 30px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+       .card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    gap: 20px;
+    justify-content: center;
+}
 
-        .form-title {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+.card {
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
 
-        .form-group {
-            margin-bottom: 15px;
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
         }
-
-        .btn-submit {
-            display: block;
-            width: auto;
-            padding: 12px 30px;
-            border-radius: 5px;
-            margin: 0 auto;
+        .card-body {
+            padding: 15px;
+            text-align: left; /* Aligns text to the left */
         }
     </style>
 </head>
-
 <body class='vertical light'>
     <div class='wrapper'>
         <?php include('./disc/partials/navbar.php'); ?>
@@ -45,9 +41,60 @@ include('./dbconn/authentication.php');
 
         <main role='main' class='main-content'>
             <div class='container'>
-                <div class='form-container'>
-                    <h4 class='form-title'>Report Missing Pet</h4>
-                    <form id='regForm' enctype='multipart/form-data' method='POST'>
+            <div class='container'>
+                 <!-- Button to open modal -->
+                 <button type="button" class="btn btn-success me-2 p-2" data-bs-toggle="modal" data-bs-target="#reportPetModal">
+                        + Report Missing Pet
+                    </button>
+                    <div class="d-flex justify-content-center mb-4">
+    <h2 class='text-center mb-0'>Missing Pets</h2>
+</div>
+                </div>
+                <div class='card-container'>
+                    <?php
+                    $query = "SELECT * FROM missing";
+                    $result = mysqli_query($conn, $query);
+
+                    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $imageSrc = !empty($row['pet_image']) 
+                            ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_image']) 
+                            : 'default.jpg';
+                            echo "<div class='card'>
+                                    <img src='$imageSrc' alt='Pet Image'>
+                                    <div class='card-body flex-start'>
+                                        <h5 class='card-title'>" . htmlspecialchars($row['pet_name']) . "</h5>
+                                        <p class='card-text'><strong>Type:</strong> " . htmlspecialchars($row['petType']) . "</p>
+                                        <p class='card-text'><strong>Breed:</strong> " . htmlspecialchars($row['pet_breed']) . "</p>
+                                        <p class='card-text'><strong>Owner:</strong> " . htmlspecialchars($row['reportParty']) . "</p>
+                                        <p class='card-text'><strong>Phone:</strong> " . htmlspecialchars($row['phone_number']) . "</p>
+                                        <p class='card-text'><strong>Address:</strong> " . htmlspecialchars($row['address']) . "</p>
+                                        <p class='card-text'><strong>Info:</strong> " . htmlspecialchars($row['additional_info']) . "</p>
+                                    </div>
+                                  </div>";
+                        }
+                    
+                    
+                    } else {
+                        echo "<p class='text-center'>No missing pets reported yet.</p>";
+                    }
+                    ?>
+                </div>
+            </div>
+        </main>
+    </div>
+
+ 
+    <!-- Modal for Reporting a Missing Pet -->
+    <div class="modal fade" id="reportPetModal" tabindex="-1" aria-labelledby="reportPetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportPetModalLabel">Report a Missing Pet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <form id='regForm' enctype='multipart/form-data' method='POST'>
                         <div class='row'>
 
                             <div class='col-md-6 form-group'>
@@ -124,48 +171,11 @@ include('./dbconn/authentication.php');
                     <div id='submitFeedback' class='alert d-none mt-3'></div>
                 </div>
             </div>
-
-
-            <footer class=" text-dark py-4 border-top mt-3">
-  <div class="container">
-    <div class="row align-items-center text-center text-md-start">
-      
-      <!-- Social Media Icons -->
-      <div class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
-        <a href="#" class="text-primary m-3 fs-4"><i class="fab fa-facebook"></i></a>
-        <a href="#" class="text-danger m-3 fs-4"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="text-info m-3 fs-4"><i class="fab fa-twitter"></i></a>
-      </div>
-
-      <!-- Copyright Text -->
-      <div class="col-12 col-md-4 text-center">
-        <small>&copy; 2025 Barangay Pet Welfare. <i>All Rights Reserved.</i></small>
-      </div>
-
-      <!-- Links and Sponsor -->
-      <div class="col-12 col-md-4 text-center text-md-end">
-        <a href="#" class="text-primary fw-bold me-2">Terms of Use</a>
-        <a href="#" class="text-primary fw-bold me-2">Privacy Policy</a>
-        <a href="#" class="text-primary fw-bold">Sitemap</a>
-        <p class="d-inline-block text-muted ms-2">
-          Website sponsored by <a href="#" class="text-primary fw-bold">BPWS</a>
-        </p>
-      </div>
-
-    </div>
-  </div>
-</footer>
-
-<!-- Font Awesome for Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        
-        </main>
-        
+        </div>
     </div>
 
-
-    <!-- Success Modal (Compact & Styled) -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <!-- Success Modal (Compact & Styled) -->
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-sm">
                 <div class="modal-header bg-white border-0 p-2">
@@ -188,45 +198,53 @@ include('./dbconn/authentication.php');
     <?php include('./script.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('submitForm').addEventListener('click', function () {
-            if (validateForm()) {
-                const form = document.getElementById('regForm');
-                const formData = new FormData(form);
+      document.getElementById('submitForm').addEventListener('click', function () {
+    if (validateForm()) {
+        const form = document.getElementById('regForm');
+        const formData = new FormData(form);
 
-                fetch('missing-process.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const feedback = document.getElementById('submitFeedback');
-                        feedback.classList.remove('d-none');
-                        feedback.classList.remove('d-none', 'alert-success', 'alert-danger');
-                        feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
-                        feedback.textContent = data.message;
-                        feedback.style.opacity = "1";
+        fetch('missing-process.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                const feedback = document.getElementById('submitFeedback');
+                feedback.classList.remove('d-none', 'alert-success', 'alert-danger');
+                feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
+                feedback.textContent = data.message;
 
-                        if (data.status === 'success') {
-                            // Show the success modal
-                            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                            successModal.show();
+                if (data.status === 'success') {
+                    // Close the form modal
+                    const reportPetModal = bootstrap.Modal.getInstance(document.getElementById('reportPetModal'));
+                    reportPetModal.hide();
 
-                            // Reset the form
-                            form.reset();
-                        }
+                    // Show success modal
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
 
-                        setTimeout(function () {
-                            feedback.classList.add('d-none');
-                        }, 3000);
-                    })
-                    .catch(error => {
-                        const feedback = document.getElementById('submitFeedback');
-                        feedback.classList.remove('d-none');
-                        feedback.classList.add('alert-danger');
-                        feedback.textContent = 'An error occurred during the submit process';
-                    });
-            }
-        });
+                    // Reset the form
+                    form.reset();
+
+                    // Redirect after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'missing_pet.php'; // Change to your desired page
+                    }, 3000);
+                }
+
+                setTimeout(() => {
+                    feedback.classList.add('d-none');
+                }, 3000);
+            })
+            .catch(error => {
+                const feedback = document.getElementById('submitFeedback');
+                feedback.classList.remove('d-none');
+                feedback.classList.add('alert-danger');
+                feedback.textContent = 'An error occurred during the submit process';
+            });
+    }
+});
+
 
 
         function validateForm() {
@@ -340,5 +358,4 @@ include('./dbconn/authentication.php');
 
     </script>
 </body>
-
 </html>

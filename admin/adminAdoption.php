@@ -231,15 +231,12 @@
                         <tr>
                             <th>No.</th>
                             <th>Name</th>
-                            <th>Phone</th>
                             <th>Email</th>
-                            <th>Address</th>
                             <th>Pet</th>
                             <th>Age</th>
                             <th>Breed</th>
                             <th>Information</th>
                             <th>Pet Image</th>
-                            <th>Pet Vaccine</th>
                             <th>Created At</th>
                         </tr>
                     </thead>
@@ -250,25 +247,31 @@
                         $sql = "SELECT * FROM adoption";
                         $result = $conn->query($sql);
 
+                    
+                    
+
                         if ($result && $result->num_rows > 0) {
                             $index = 1;
                             while ($row = $result->fetch_assoc()) {
+                                $petImage = !empty($row['pet_image']) 
+            ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_image']) 
+            : 'default.jpg';
+                            
                                 echo "<tr>
                                     <td>{$index}</td>
-                                    <td>" . htmlspecialchars($row['name']) . "</td>
-                                    <td>" . htmlspecialchars($row['phone']) . "</td>
+                                    <td>" . htmlspecialchars($row['owner']) . "</td>
                                     <td>" . htmlspecialchars($row['email']) . "</td>
-                                    <td>" . htmlspecialchars($row['address']) . "</td>
                                     <td>" . htmlspecialchars($row['pet_name']) . "</td>
-                                    <td>" . htmlspecialchars($row['pet_type']) . "</td>
+                                    <td>" . htmlspecialchars($row['pet_age']) . "</td>
                                     <td>" . htmlspecialchars($row['pet_breed']) . "</td>
-                                    <td>" . htmlspecialchars($row['info']) . "</td>
-                                    <td>" . htmlspecialchars($row['reason']) . "</td>
-                                    <td>" . htmlspecialchars($row['experience']) . "</td>
+                                    <td>" . htmlspecialchars($row['pet_info']) . "</td>
+                                      <td>  <img src='{$petImage}' alt='Pet Image' width='50' height='50' style='border-radius: 5px;'>
+                          
                                     <td>" . htmlspecialchars($row['created_at']) . "</td>
-                                  </tr>";
+                                </tr>";
                                 $index++;
                             }
+                            
                         } else {
                             echo '<tr><td colspan="12">No records found.</td></tr>';
                         }

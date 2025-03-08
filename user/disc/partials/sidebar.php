@@ -16,7 +16,7 @@
         </div>
 
         <!-- Sidebar -->
-        <ul class="navbar-nav active flex-fill w-100 mb-2">
+        <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item dropdown">
                 <a class="nav-link" href="dashboard.php">
                     <i class="fas fa-chart-line"></i> <!-- Chart Icon for Dashboard -->
@@ -32,9 +32,9 @@
         <ul class="navbar-nav flex-fill w-100 mb-2">
 
             <li class="nav-item w-100">
-                <a class="nav-link" href="testdetect.php">
-                    <i class="fa-solid fa-list"></i> <!-- List Icon for List Adoption -->
-                    <span class="ml-3 item-text">Pet recognition</span>
+                <a class="nav-link" href="Pet_recognition.php">
+                    <i class="fas fa-camera-retro"></i> <!-- List Icon for List Adoption -->
+                    <span class="ml-3 item-text">Pet Identification</span>
                 </a>
             </li>
         </ul>
@@ -79,7 +79,7 @@
 
         <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item w-100">
-                <a class="nav-link" href="missing.php">
+                <a class="nav-link" href="missing_pet.php">
                     <i class="fa-solid fa-magnifying-glass"></i> <!-- Search Icon for Missing Animal -->
                     <span class="ml-3 item-text">Report missing pet</span>
                 </a>
