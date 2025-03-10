@@ -372,7 +372,7 @@ h1, h2, h3, h4, h5, h6,
   margin-bottom: 0.5rem;
   font-weight: 500;
   line-height: 1.2;
-  color: #1B4965; }
+ }
 
 h1, .h1 {
   font-size: 2.1875rem; }
@@ -1280,15 +1280,13 @@ pre {
         white-space: nowrap;
         vertical-align: middle;
         cursor: pointer;
-        background-image: none;
         border: 1px solid transparent;
         border-radius: 4px;
       }
       
       .btn-primary {
         color: #fff;
-        background-color: #337ab7;
-        border-color: #2e6da4;
+        background-color: green;
       }
       
       .btn-danger {
@@ -1628,9 +1626,8 @@ textarea.form-control {
   text-align: center;
   vertical-align: middle;
   user-select: none;
-  background-color: transparent;
   border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
+  padding: 2rem 0.75rem;
   font-size: 0.80rem;
   line-height: 1.2;
   border-radius: 0.25rem;
@@ -1655,8 +1652,7 @@ fieldset:disabled a.btn {
 
 .btn-primary {
   color: #ffffff;
-  background-color: #1B4965;
-  border-color: #1B4965; 
+  border-color: green; 
  
 }
   .btn-primary:hover {
@@ -2048,7 +2044,10 @@ fieldset:disabled a.btn {
   padding: 0.5rem 1rem;
   font-size: 1.09375rem;
   line-height: 1.5;
-  border-radius: 0.3rem; }
+  border-radius: 0.3rem; 
+
+  
+}
 
 .btn-sm, .btn-group-sm > .btn {
   padding: 0.25rem 0.5rem;
@@ -3178,7 +3177,7 @@ input[type="button"].btn-block {
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: #e1e7ff;
+  background-color:white;
   background-clip: border-box;
   align-items: center;
   border-radius: 0.25rem; 
@@ -3231,6 +3230,7 @@ input[type="button"].btn-block {
   flex: 1  auto;
   min-height: 120px;
   padding: 1.25rem; 
+  background-color: white ;
   
 
 }
@@ -3246,8 +3246,8 @@ input[type="button"].btn-block {
 .card-title {
   margin-bottom: 0.75rem; 
   overflow: hidden;
- 
   text-overflow: ellipsis;
+  text-align: center;
   
   
 }
@@ -3268,7 +3268,7 @@ input[type="button"].btn-block {
 .card-header {
   padding: 0.75rem 1.25rem;
   margin-bottom: 0;
-  background-color: #1b4965;
+  background-color: #0077B6;
   color: #f0f0f0;
   }
   .card-header-section{
@@ -4098,7 +4098,7 @@ a.close.disabled {
 
 .modal {
   position: fixed;
-  top: 0;
+  top: 0; 
   left: 0;
   z-index: 1050;
   display: none;
@@ -4180,7 +4180,7 @@ a.close.disabled {
 .modal-header {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content:space-between;
   padding: 1rem 1rem;
   border-bottom: 1px solid #e9ecef;
   border-top-left-radius: calc(0.3rem - 1px);
@@ -4193,6 +4193,7 @@ a.close.disabled {
   margin-bottom: 0;
   line-height: 1.5; 
   font-size: 12px;
+  justify-content: center;
 }
 
 .modal-body {
@@ -4202,7 +4203,7 @@ a.close.disabled {
 }
 
 .modal-footer {
-  display: flex;
+ 
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
@@ -5652,6 +5653,24 @@ button.bg-dark:focus {
 .mx-5 {
   margin-left: 3rem !important; }
 
+.m-6 {
+  margin: 4rem !important; 
+}
+
+.mt-6,
+.my-6 {
+  margin-top: 4rem !important; }
+ 
+.mr-6, .mx-6 {
+  margin-right: 4rem !important; }
+
+.mb-6, .my-6 {
+  margin-bottom: 4rem !important; }
+
+.ml-6, .mx-6 {
+  margin-left: 4rem !important; }
+
+  
 .p-0 {
   padding: 0 !important; }
 
@@ -7428,6 +7447,7 @@ button:focus {
 
   .form-control {
     border-radius: 4px; /* Rounded corners */
+    padding:3px; /* Add some padding */
     transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
 }
 
@@ -11890,7 +11910,7 @@ body.dark-mode .box-wrapper{
 #profile-picture-editor-zoom-in, #profile-picture-editor-zoom-out, #profile-picture-editor-rotate-left, #profile-picture-editor-rotate-right {
   margin-right: 10px;
 }
-
+-
 
 
 
