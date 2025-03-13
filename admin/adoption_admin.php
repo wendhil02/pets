@@ -56,6 +56,17 @@
         max-width: 100%;
         border-radius: 5px;
         }
+        .card {
+            background-color: white;
+        }
+        .card-header {
+            background-color: white;
+        }
+        .input-group-text {
+            background-color: white;
+            border-radius: 2px;
+            border-right: 20px;
+        }
     </style>
     </head>
     <body class='vertical light'>
@@ -63,13 +74,12 @@
         <?php include('./disc/partial/navbar.php'); ?>
         <?php include('./disc/partial/sidebar.php'); ?>
         <main class='main-content'>
-        <div class="card shadow">
             <!-- Updated Header: White text with blue background -->
             <div class="card-header d-flex justify-content-between align-items-center  text-white">
-                <h4 class="mb-0 text-white">Adoption Management</h4> <!-- Ensure text remains white -->
+                <h3 class="mb-0 ">Adoption Management</h3> <!-- Ensure text remains white -->
                 <div class="d-flex">
                     <div class="input-group me-2">
-                        <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                        <span class="input-group-text "><i class="fa-solid fa-search"></i></span>
                         <input type="text" id="search-bar" class="form-control" placeholder="Search by Pet Name, Email..." onkeyup="filterTable()">
                     </div>
 
@@ -146,7 +156,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+      
  
 
 

@@ -10,11 +10,11 @@ include('./dbconn/authentication.php');
     <?php include('./disc/partials/header.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
-<style>
-
- body {
+    <style>
+        body {
             background-color: #f8f9fa;
         }
+
         .form-container {
             max-width: 800px;
             margin: auto;
@@ -23,14 +23,17 @@ include('./dbconn/authentication.php');
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .form-title {
             text-align: center;
             font-weight: bold;
             margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .btn-submit {
             display: block;
             width: auto;
@@ -43,11 +46,11 @@ include('./dbconn/authentication.php');
 
 
 <div class="loader-mask">
-        <div class="loader">
-            <div></div>
-            <div></div>
-        </div>
+    <div class="loader">
+        <div></div>
+        <div></div>
     </div>
+</div>
 
 <body class='vertical  light'>
     <div class='wrapper'>
@@ -57,7 +60,7 @@ include('./dbconn/authentication.php');
         <?php include('./disc/partials/sidebar.php');
         ?>
 
-<main role='main' class='main-content'>
+        <main role='main' class='main-content'>
             <div class='container'>
                 <div class='form-container'>
                     <h4 class='form-title'>Pet Registration Form</h4>
@@ -107,14 +110,31 @@ include('./dbconn/authentication.php');
                             </div>
                             <div class='col-md-6 form-group'>
                                 <label for='petImage' class='form-label'>Pet Image</label>
-                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*' required>
+                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*'
+                                    required>
                                 <div id='petImageError' class='text-danger d-none'>Please upload is required.</div>
                             </div>
                             <div class='col-md-6 form-group'>
-                                <label for='vaccineImage' class='form-label'>Vaccine Record Image</label>
-                                <input type='file' class='form-control' id='vaccineImage' name='vaccineImage' accept='image/*' required>
-                                <div id='vaccineImageError' class='text-danger d-none'>Upload is required.</div>
+                                <label>Vaccination Status</label><br>
+                                <label><input type="radio" name="vaccinationStatus" value="Vaccinated" required>
+                                    Vaccinated</label>
+                                <label><input type="radio" name="vaccinationStatus" value="Not Vaccinated" required> Not
+                                    Vaccinated</label>
                             </div>
+                            <div id="vaccineRecordSection" class='col-md-12 form-group '>
+                                <label for="vaccineType">Vaccine Type:</label>
+                                <input type="text" name="vaccineType" id="vaccineType" class="form-control">
+
+                                <label for="vaccineProduct">Product Name:</label>
+                                <input type="text" name="vaccineProduct" id="vaccineProduct" class="form-control">
+
+                                <label for="vaccineDate">Vaccination Date:</label>
+                                <input type="date" name="vaccineDate" id="vaccineDate" class="form-control">
+
+                                <label for="administeredBy">Administered By:</label>
+                                <input type="text" name="administeredBy" id="administeredBy" class="form-control">
+                            </div>
+
                             <div class='col-md-12 form-group text-center'>
                                 <button type='button' id='submitForm' class='btn btn-primary btn-submit'>Submit</button>
                             </div>
@@ -125,38 +145,39 @@ include('./dbconn/authentication.php');
             </div>
 
             <footer class=" text-dark py-4 border-top mt-3">
-  <div class="container">
-    <div class="row align-items-center text-center text-md-start">
-      
-      <!-- Social Media Icons -->
-      <div class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
-        <a href="#" class="text-primary m-3 fs-4"><i class="fab fa-facebook"></i></a>
-        <a href="#" class="text-danger m-3 fs-4"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="text-info m-3 fs-4"><i class="fab fa-twitter"></i></a>
-      </div>
+                <div class="container">
+                    <div class="row align-items-center text-center text-md-start">
 
-      <!-- Copyright Text -->
-      <div class="col-12 col-md-4 text-center">
-        <small>&copy; 2025 Barangay Pet Welfare. <i>All Rights Reserved.</i></small>
-      </div>
+                        <!-- Social Media Icons -->
+                        <div
+                            class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
+                            <a href="#" class="text-primary m-3 fs-4"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="text-danger m-3 fs-4"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-info m-3 fs-4"><i class="fab fa-twitter"></i></a>
+                        </div>
 
-      <!-- Links and Sponsor -->
-      <div class="col-12 col-md-4 text-center text-md-end">
-        <a href="#" class="text-primary fw-bold me-2">Terms of Use</a>
-        <a href="#" class="text-primary fw-bold me-2">Privacy Policy</a>
-        <a href="#" class="text-primary fw-bold">Sitemap</a>
-        <p class="d-inline-block text-muted ms-2">
-          Website sponsored by <a href="#" class="text-primary fw-bold">BPWS</a>
-        </p>
-      </div>
+                        <!-- Copyright Text -->
+                        <div class="col-12 col-md-4 text-center">
+                            <small>&copy; 2025 Barangay Pet Welfare. <i>All Rights Reserved.</i></small>
+                        </div>
 
-    </div>
-  </div>
-</footer>
+                        <!-- Links and Sponsor -->
+                        <div class="col-12 col-md-4 text-center text-md-end">
+                            <a href="#" class="text-primary fw-bold me-2">Terms of Use</a>
+                            <a href="#" class="text-primary fw-bold me-2">Privacy Policy</a>
+                            <a href="#" class="text-primary fw-bold">Sitemap</a>
+                            <p class="d-inline-block text-muted ms-2">
+                                Website sponsored by <a href="#" class="text-primary fw-bold">BPWS</a>
+                            </p>
+                        </div>
 
-<!-- Font Awesome for Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        
+                    </div>
+                </div>
+            </footer>
+
+            <!-- Font Awesome for Icons -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
         </main>
 
         <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
@@ -185,72 +206,94 @@ include('./dbconn/authentication.php');
     <script>
         // Form Submission
         document.getElementById('submitForm').addEventListener('click', function () {
-    if (validateForm()) {
-        const form = document.getElementById('regForm');
-        const formData = new FormData(form);
+            if (validateForm()) {
+                const form = document.getElementById('regForm');
+                const formData = new FormData(form);
 
-        fetch('register-process.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                const feedback = document.getElementById('submitFeedback');
-                feedback.classList.remove('d-none', 'alert-success', 'alert-danger');
-                feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
-                feedback.textContent = data.message;
-                feedback.style.opacity = "1";
+                fetch('register-process.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedback = document.getElementById('submitFeedback');
+                        feedback.classList.remove('d-none', 'alert-success', 'alert-danger');
+                        feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
+                        feedback.textContent = data.message;
+                        feedback.style.opacity = "1";
 
-                // Fade out effect after 3 seconds
-                setTimeout(() => {
-                    feedback.style.transition = "opacity 1s ease-out";
-                    feedback.style.opacity = "0";
+                        // Fade out effect after 3 seconds
+                        setTimeout(() => {
+                            feedback.style.transition = "opacity 1s ease-out";
+                            feedback.style.opacity = "0";
 
-                    // Hide after transition
-                    setTimeout(() => {
-                        feedback.classList.add('d-none');
-                    }, 1000);
-                }, 3000);
+                            // Hide after transition
+                            setTimeout(() => {
+                                feedback.classList.add('d-none');
+                            }, 1000);
+                        }, 3000);
 
-                if (data.status === 'success') {
-                    form.reset();
-                    const qrCodeCanvas = document.getElementById('qrcodeCanvas');
-                    QRCode.toCanvas(qrCodeCanvas, data.qrUrl, function (error) {
-                        if (error) {
-                            console.error('QR Code Generation Error:', error);
+                        if (data.status === 'success') {
+                            form.reset();
+                            const qrCodeCanvas = document.getElementById('qrcodeCanvas');
+                            QRCode.toCanvas(qrCodeCanvas, data.qrUrl, function (error) {
+                                if (error) {
+                                    console.error('QR Code Generation Error:', error);
+                                }
+                            });
+
+                            const downloadQR = document.getElementById('downloadQR');
+                            const viewContents = document.getElementById('viewContents');
+
+                            downloadQR.href = qrCodeCanvas.toDataURL();
+                            viewContents.href = data.qrUrl;
+
+                            // Show the modal
+                            const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+                            qrModal.show();
                         }
+                    })
+                    .catch(error => {
+                        const feedback = document.getElementById('submitFeedback');
+                        feedback.classList.remove('d-none');
+                        feedback.classList.add('alert-danger');
+                        feedback.textContent = 'An error occurred during the submit process';
+                        feedback.style.opacity = "1";
+
+                        // Fade out effect after 3 seconds
+                        setTimeout(() => {
+                            feedback.style.transition = "opacity 1s ease-out";
+                            feedback.style.opacity = "0";
+
+                            setTimeout(() => {
+                                feedback.classList.add('d-none');
+                            }, 1000);
+                        }, 3000);
                     });
+            }
+        });
 
-                    const downloadQR = document.getElementById('downloadQR');
-                    const viewContents = document.getElementById('viewContents');
+        document.addEventListener("DOMContentLoaded", function () {
+            const vaccinationStatusRadios = document.querySelectorAll('input[name="vaccinationStatus"]');
+            const vaccineRecordSection = document.getElementById("vaccineRecordSection");
 
-                    downloadQR.href = qrCodeCanvas.toDataURL();
-                    viewContents.href = data.qrUrl;
-
-                    // Show the modal
-                    const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
-                    qrModal.show();
+            function toggleVaccineSection() {
+                const selectedStatus = document.querySelector('input[name="vaccinationStatus"]:checked');
+                if (selectedStatus && selectedStatus.value === "Vaccinated") {
+                    vaccineRecordSection.style.display = "block";
+                } else {
+                    vaccineRecordSection.style.display = "none";
                 }
-            })
-            .catch(error => {
-                const feedback = document.getElementById('submitFeedback');
-                feedback.classList.remove('d-none');
-                feedback.classList.add('alert-danger');
-                feedback.textContent = 'An error occurred during the submit process';
-                feedback.style.opacity = "1";
+            }
 
-                // Fade out effect after 3 seconds
-                setTimeout(() => {
-                    feedback.style.transition = "opacity 1s ease-out";
-                    feedback.style.opacity = "0";
-
-                    setTimeout(() => {
-                        feedback.classList.add('d-none');
-                    }, 1000);
-                }, 3000);
+            vaccinationStatusRadios.forEach(radio => {
+                radio.addEventListener("change", toggleVaccineSection);
             });
-    }
-});
+
+            // Initialize on page load
+            toggleVaccineSection();
+        });
+
 
 
 

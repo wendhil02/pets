@@ -192,35 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
             </div>
 
             
-            <footer class=" text-dark py-4 border-top mt-3">
-  <div class="container">
-    <div class="row align-items-center text-center text-md-start">
       
-      <!-- Social Media Icons -->
-      <div class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
-        <a href="#" class="text-primary m-3 fs-4"><i class="fab fa-facebook"></i></a>
-        <a href="#" class="text-danger m-3 fs-4"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="text-info m-3 fs-4"><i class="fab fa-twitter"></i></a>
-      </div>
-
-      <!-- Copyright Text -->
-      <div class="col-12 col-md-4 text-center">
-        <small>&copy; 2025 Barangay Pet Welfare. <i>All Rights Reserved.</i></small>
-      </div>
-
-      <!-- Links and Sponsor -->
-      <div class="col-12 col-md-4 text-center text-md-end">
-        <a href="#" class="text-primary fw-bold me-2">Terms of Use</a>
-        <a href="#" class="text-primary fw-bold me-2">Privacy Policy</a>
-        <a href="#" class="text-primary fw-bold">Sitemap</a>
-        <p class="d-inline-block text-muted ms-2">
-          Website sponsored by <a href="#" class="text-primary fw-bold">BPWS</a>
-        </p>
-      </div>
-
-    </div>
-  </div>
-</footer>
 
         </main>
 
@@ -274,11 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
     </div>
 </div>
 
-<!-- Fullscreen Image Viewer -->
-<div id="fullSizeImageViewer" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center" style="z-index: 1050;">
-    <img id="fullSizeImage" src="" alt="Full Size Image" class="img-fluid rounded shadow-lg">
-    <button class="btn btn-danger position-absolute top-0 end-0 m-3 " onclick="closeFullSize()">X</button>
-</div>
+
 
 
 <!-- Error Modal (Compact & Styled) -->
