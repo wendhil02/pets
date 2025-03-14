@@ -1,57 +1,41 @@
 <?php
-// process_approval.php
+include('./dbconn/config.php');
 
-// Database connection settings
-$servername = "localhost:3306";
-$username   = "root";
-$password   = "";
-$database   = "bpa_system";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-
-}
-
-
-
-// Check for POST request with a valid post_id and action
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['pet_id'], $_POST['action'])) {
-    $postId = intval($_POST['pet_id']);
+// Check that the form is submitted via POST and that required fields are present.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pet_id'], $_POST['action'])) {
+    // Sanitize pet_id and action.
+    $pet_id = (int) $_POST['pet_id'];
     $action = $_POST['action'];
 
-    // Determine status based on action:
-    // 'approve' sets approved = 1, 'reject' sets approved = 2
+    // Determine new approval status based on the action.
     if ($action === 'approve') {
-        $status = 1;
-        // Example: get admin name from session or set a default value
-        $adminName = "admin"; // Replace with actual admin username from session if available.
-        $updateQuery = "UPDATE adoption SET approved = ?, approved_by = ?, approved_at = NOW() WHERE pet_id = ?";
+        $approved = 1;
     } elseif ($action === 'reject') {
-        $status = 2;
-        $adminName = "admin"; // You can also store who rejected it if desired.
-        $updateQuery = "UPDATE adoption SET approved = ?, approved_by = ?, approved_at = NOW() WHERE pet_id = ?";
+        $approved = 2;
     } else {
-        die("Invalid action.");
+        header("Location: adoption_approval_admin.php?error=" . urlencode("Invalid action."));
+        exit;
     }
 
-    // Prepare and execute the update statement with additional approval information
-    $stmt = $conn->prepare($updateQuery);
-    $stmt->bind_param("isi", $status, $adminName, $postId);
-    
-    if ($stmt->execute()) {
-        // Redirect back to adminAdoptionApproval.php with a corresponding flag
-        if($action === 'approve'){
-            header("Location: adoption_approval_admin.php");
+    // Prepare the UPDATE statement to update the adoption record.
+    $query = "UPDATE adoption SET approved = ? WHERE pet_id = ?";
+    if ($stmt = $conn->prepare($query)) {
+        $stmt->bind_param("ii", $approved, $pet_id);
+        if ($stmt->execute()) {
+            header("Location: adoption_approval_admin.php?success=" . urlencode("Process completed successfully."));
+            exit;
         } else {
-            header("Location: adoption_approval_admin.php");
+            header("Location: adoption_approval_admin.php?error=" . urlencode("Error executing statement: " . $stmt->error));
+            exit;
         }
-        exit();
+        $stmt->close();
+        
     } else {
-        echo "Error updating record: " . $conn->error;
+        header("Location: adoption_approval_admin.php?error=" . urlencode("Error preparing statement: " . $conn->error));
+        exit;
     }
 } else {
-    echo "Invalid request.";
+    header("Location: adoption_approval_admin.php?error=" . urlencode("Invalid request."));
+    exit;
 }
 ?>

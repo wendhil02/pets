@@ -36,7 +36,7 @@ include('./dbconn/authentication.php');
         <?php include('./disc/partials/navbar.php'); ?>
         <?php include('./disc/partials/sidebar.php'); ?>
         <main role="main" class="main-content">
-    <?php include('./disc/partials/modal-notif.php'); ?>
+
     <div class="container-fluid">
         <?php if (isset($message)): ?>
             <div class="alert alert-success text-center fw-bold" role="alert">
@@ -62,7 +62,6 @@ include('./dbconn/authentication.php');
                         <div class="card shadow-sm border-0" data-bs-toggle="modal" data-bs-target="#adoptModal"
                             data-pet-id="<?php echo $row['id']; ?>"
                             data-pet-name="<?php echo htmlspecialchars($row['pet_name']); ?>"
-                            data-pet-type="<?php echo htmlspecialchars($row['pet_type']); ?>"
                             data-pet-breed="<?php echo htmlspecialchars($row['pet_breed']); ?>"
                             data-pet-info="<?php echo htmlspecialchars($row['pet_info']); ?>"
                             data-pet-image="<?php echo htmlspecialchars($row['pet_image']); ?>"

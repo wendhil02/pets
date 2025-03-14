@@ -75,8 +75,8 @@
         <?php include('./disc/partial/sidebar.php'); ?>
         <main class='main-content'>
             <!-- Updated Header: White text with blue background -->
-            <div class="card-header d-flex justify-content-between align-items-center  text-white">
-                <h3 class="mb-0 ">Adoption Management</h3> <!-- Ensure text remains white -->
+            <div class=" d-flex justify-content-between align-items-center ">
+                <h3 class="card-title">Adoption Management</h3> <!-- Ensure text remains white -->
                 <div class="d-flex">
                     <div class="input-group me-2">
                         <span class="input-group-text "><i class="fa-solid fa-search"></i></span>
@@ -124,20 +124,17 @@
         while ($row = $result->fetch_assoc()) {
             $petImage = !empty($row['pet_image']) 
             ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_image']) 
-            : 'default.jpg';
-            $petVaccine = !empty($row['pet_image']) 
-                            ? 'data:image/jpeg;base64,' . htmlspecialchars($row['pet_image']) 
-                            : 'default.jpg';
+            : 'default.jpg';    
 
             echo "<tr>
                     <td>{$index}</td>
                     <td>{$row['owner']}</td>
                     <td>{$row['phone']}</td>
                     <td>{$row['email']}</td>
-                    <td>{$row['pet']}</td>
-                    <td>{$row['age']}</td>
-                    <td>{$row['breed']}</td>
-                    <td>{$row['info']}</td>
+                    <td>{$row['pet_name']}</td>
+                    <td>{$row['pet_age']}</td>
+                    <td>{$row['pet_breed']}</td>
+                    <td>{$row['pet_info']}</td>
                     <td> <a href='{$petImage}' target='_blank'>
                             <img src='{$petImage}' alt='Pet Image' width='50' height='50' style='border-radius: 5px;'>
                         </a></td>

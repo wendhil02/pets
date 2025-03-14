@@ -1,3 +1,11 @@
+<?php
+
+// Count unread notifications
+$notif_count_query = "SELECT COUNT(*) AS unread_count FROM notifications WHERE status = 'unread'";
+$notif_count_result = mysqli_query($conn, $notif_count_query);
+$notif_count = mysqli_fetch_assoc($notif_count_result)['unread_count'];
+?>
+
 <nav class="topnav navbar navbar-light">
         <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
           <i class="fe fe-menu navbar-toggler-icon"></i>
@@ -6,33 +14,8 @@
 
         <ul class="nav">
     
-          
-          <li class="nav-item">
-            <section class="nav-link text-muted my-2 circle-icon" href="#" data-toggle="modal" data-target=".modal-shortcut">
-              <span class="fe fe-message-circle fe-16"></span>
-            </section>
-          </li>
+        
 
-
-          <li class="nav-item nav-notif">
-  <section class="nav-link text-muted my-2 circle-icon" href="#" data-toggle="modal" data-target=".modal-notif">
-    <span class="fe fe-bell fe-16"></span>
-   
-      <span id="notification-count" style="
-        position: absolute; 
-        top: 12px; right: 5px; 
-        font-size:13px; color: white;
-        background-color: red;
-        width:8px;
-        height: 8px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 50px;
-      ">
-      
-  </section>
-</li>
 
           <li class="nav-item dropdown">
             <span class="nav-link text-muted pr-0 avatar-icon" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -10,6 +10,11 @@ include('./dbconn/authentication.php');
     <?php include('./disc/partials/header.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
+<!-- Bootstrap JS (for modal functionality) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -41,6 +46,203 @@ include('./dbconn/authentication.php');
             border-radius: 5px;
             margin: 0 auto;
         }
+
+        /* Improve the vaccine status selection design */
+.form-group select.form-select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+ 
+    background-color: #fff;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.form-group select.form-select:focus {
+
+    outline: none;
+ 
+}
+
+/* Styling the vaccine section */
+#vaccine_section {
+    background: #f1f8e9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+
+}
+
+.vaccine_entry {
+    background: #e9f5e9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  
+}
+
+.vaccine_entry input {
+    border-radius: 5px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+}
+
+.vaccine_entry button {
+    margin-top: 10px;
+}
+
+/* Vaccine section visibility */
+#vaccine_section.hidden {
+    display: none;
+}
+
+/* General button styling */
+.btn {
+    font-size: 16px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Styling for the "Add Vaccine" button */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Styling for the "Remove" button */
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #bd2130;
+}
+
+/* Improved vaccine section design */
+#vaccine_section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: 1px solid #ddd;
+}
+
+.vaccine_entry {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.vaccine_entry input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.vaccine_entry button {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    align-self: center;
+}
+
+/* Aligns the vaccine section for better readability */
+#vaccine_entries {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Responsive Design Fixes */
+@media (max-width: 768px) {
+    .vaccine_entry {
+        flex-direction: column;
+    }
+}
+/* General button styling */
+.btn {
+    font-size: 16px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Styling for the "Add Vaccine" button */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Styling for the "Remove" button */
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #bd2130;
+}
+
+/* Improved vaccine section design */
+#vaccine_section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: 1px solid #ddd;
+}
+
+.vaccine_entry {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.vaccine_entry input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.vaccine_entry button {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    align-self: center;
+}
+
+/* Aligns the vaccine section for better readability */
+#vaccine_entries {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Responsive Design Fixes */
+@media (max-width: 768px) {
+    .vaccine_entry {
+        flex-direction: column;
+    }
+}
+
     </style>
 </head>
 
@@ -61,86 +263,87 @@ include('./dbconn/authentication.php');
         ?>
 
         <main role='main' class='main-content'>
+        <?php
+$successMsg = isset($_GET['success']) ? $_GET['success'] : '';
+$errorMsg = isset($_GET['error']) ? $_GET['error'] : '';
+?>
+
             <div class='container'>
                 <div class='form-container'>
                     <h4 class='form-title'>Pet Registration Form</h4>
-                    <form id='regForm' enctype='multipart/form-data' method='POST'>
-                        <div class='row'>
-                            <div class='col-md-6 form-group'>
-                                <label for='name' class='form-label'>Name</label>
-                                <input type='text' class='form-control' id='name' name='name' required>
-                                <div id='nameError' class='text-danger d-none'>Name is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='phone' class='form-label'>Phone Number</label>
-                                <input type='text' class='form-control' id='phone' name='phone' required>
-                                <div id='phoneError' class='text-danger d-none'>Phone Number is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='email' class='form-label'>Email</label>
-                                <input type='email' class='form-control' id='email' name='email' required>
-                                <div id='emailError' class='text-danger d-none'>Email is required.
-                                </div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='address' class='form-label'>Address</label>
-                                <textarea class='form-control' id='address' name='address' required></textarea>
-                                <div id='addressError' class='text-danger d-none'>Address is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='petName' class='form-label'>Pet Name</label>
-                                <input type='text' class='form-control' id='petName' name='petName' required>
-                                <div id='petNameError' class='text-danger d-none'>Pet name is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='petAge' class='form-label'>Pet Age</label>
-                                <input type='number' class='form-control' id='petAge' name='petAge' required>
-                                <div id='petAgeError' class='text-danger d-none'>Pet age is required.
-                                </div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='petBreed' class='form-label'>Breed</label>
-                                <input type='text' class='form-control' id='petBreed' name='petBreed' required>
-                                <div id='petBreedError' class='text-danger d-none'>Pet Breed is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='info' class='form-label'>Additional Information</label>
-                                <textarea class='form-control' id='info' name='info'></textarea>
-                                <div id='infoError' class='text-danger d-none'>additional information is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label for='petImage' class='form-label'>Pet Image</label>
-                                <input type='file' class='form-control' id='petImage' name='petImage' accept='image/*'
-                                    required>
-                                <div id='petImageError' class='text-danger d-none'>Please upload is required.</div>
-                            </div>
-                            <div class='col-md-6 form-group'>
-                                <label>Vaccination Status</label><br>
-                                <label><input type="radio" name="vaccinationStatus" value="Vaccinated" required>
-                                    Vaccinated</label>
-                                <label><input type="radio" name="vaccinationStatus" value="Not Vaccinated" required> Not
-                                    Vaccinated</label>
-                            </div>
-                            <div id="vaccineRecordSection" class='col-md-12 form-group '>
-                                <label for="vaccineType">Vaccine Type:</label>
-                                <input type="text" name="vaccineType" id="vaccineType" class="form-control">
-
-                                <label for="vaccineProduct">Product Name:</label>
-                                <input type="text" name="vaccineProduct" id="vaccineProduct" class="form-control">
-
-                                <label for="vaccineDate">Vaccination Date:</label>
-                                <input type="date" name="vaccineDate" id="vaccineDate" class="form-control">
-
-                                <label for="administeredBy">Administered By:</label>
-                                <input type="text" name="administeredBy" id="administeredBy" class="form-control">
-                            </div>
-
-                            <div class='col-md-12 form-group text-center'>
-                                <button type='button' id='submitForm' class='btn btn-primary btn-submit'>Submit</button>
-                            </div>
+                    <form id="petForm" name="petForm" action="register-process.php" method="post" enctype="multipart/form-data">
+                   <div class="row">
+                   <div class="col-md-6 form-group ">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control">
+                            <span class="error"></span>
                         </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Address</label>
+                            <input type="text" name="address" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pet Name</label>
+                            <input type="text" name="pet_name" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pet Age</label>
+                            <input type="text" name="pet_age" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pet Type</label>
+                            <input type="text" name="pet_type" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pet Breed</label>
+                            <input type="text" name="pet_breed" class="form-control">
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pet Info</label>
+                            <textarea name="pet_info" class="form-control"></textarea>
+                            <span class="error"></span>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="form-label">Pet Image</label>
+                            <input type="file" name="pet_image" class="form-control">
+                            <span class="error"></span>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                            <label class="form-label">Vaccine Status</label>
+                            <select name="vaccine_status" id="vaccine_status" class="form-select"
+                                onchange="toggleVaccineForm()">
+                                <option value="Not Vaccinated">Not Vaccinated</option>
+                                <option value="Vaccinated">Vaccinated</option>
+                            </select>
+                        </div>
+
+                        <div id="vaccine_section" class="col-md-12 form-group" style="display:none;">
+                            <label class="form-label">Vaccine Details</label>
+                            <div id="vaccine_entries"></div>
+                            <button type="button" class="btn btn-primary mt-2" onclick="addVaccine()">Add
+                                Vaccine</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-submit">Submit</button>
+
+                   </div>
                     </form>
-                    <div id='submitFeedback' class='alert d-none mt-3'></div>
+
                 </div>
             </div>
 
@@ -150,7 +353,7 @@ include('./dbconn/authentication.php');
 
                         <!-- Social Media Icons -->
                         <div
-                            class="col-12 col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
+                            class="col-12 col-md-4 col-md-6 form-group mb-md-0 d-flex justify-content-center justify-content-md-start">
                             <a href="#" class="text-primary m-3 fs-4"><i class="fab fa-facebook"></i></a>
                             <a href="#" class="text-danger m-3 fs-4"><i class="fab fa-instagram"></i></a>
                             <a href="#" class="text-info m-3 fs-4"><i class="fab fa-twitter"></i></a>
@@ -178,241 +381,164 @@ include('./dbconn/authentication.php');
             <!-- Font Awesome for Icons -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        </main>
-
-        <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <canvas id="qrcodeCanvas" class="mb-3"></canvas>
-                        <div id="qrActions">
-                            <a id="downloadQR" class="btn btn-success me-2 my-2" download="qrcode.png">Download QR
-                                Code</a>
-                            <a id="viewContents" class="btn btn-info me-2 my-2" target="_blank">View Uploaded Data</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+<!-- Success Modal -->
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="successModalLabel">Success</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+      </div>
+      <div class="modal-body">
+        <?php echo htmlspecialchars($successMsg); ?>
+      </div>
+     
     </div>
-    <?php include('./script.php'); ?>
+  </div>
+</div>
+       
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <?php echo htmlspecialchars($errorMsg); ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        </main>
+    </div>
+    <?php include('script.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        // Form Submission
-        document.getElementById('submitForm').addEventListener('click', function () {
-            if (validateForm()) {
-                const form = document.getElementById('regForm');
-                const formData = new FormData(form);
+document.addEventListener("DOMContentLoaded", function () {
+    // Function to validate the form
+    function validateForm(event) {
+        event.preventDefault(); // Prevent form submission
 
-                fetch('register-process.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const feedback = document.getElementById('submitFeedback');
-                        feedback.classList.remove('d-none', 'alert-success', 'alert-danger');
-                        feedback.classList.add(data.status === 'success' ? 'alert-success' : 'alert-danger');
-                        feedback.textContent = data.message;
-                        feedback.style.opacity = "1";
+        let isValid = true;
+        let form = document.forms["petForm"];
 
-                        // Fade out effect after 3 seconds
-                        setTimeout(() => {
-                            feedback.style.transition = "opacity 1s ease-out";
-                            feedback.style.opacity = "0";
+        // Validation messages for general fields
+        let errorMessages = {
+            "name": "Please enter your name.",
+            "phone": "Please enter a valid phone number.",
+            "email": "Please enter a valid email address.",
+            "address": "Please enter your address.",
+            "pet_name": "Please enter your pet's name.",
+            "pet_age": "Please enter a valid pet age.",
+            "pet_type": "Please enter the pet type.",
+            "pet_breed": "Please enter the pet breed.",
+            "pet_info": "Please provide some details about your pet.",
+            "pet_image": "Please upload an image of your pet."
+        };
 
-                            // Hide after transition
-                            setTimeout(() => {
-                                feedback.classList.add('d-none');
-                            }, 1000);
-                        }, 3000);
+        // Validate General Fields
+        Object.keys(errorMessages).forEach(field => {
+            let input = form[field];
+            let errorSpan = input.nextElementSibling; 
 
-                        if (data.status === 'success') {
-                            form.reset();
-                            const qrCodeCanvas = document.getElementById('qrcodeCanvas');
-                            QRCode.toCanvas(qrCodeCanvas, data.qrUrl, function (error) {
-                                if (error) {
-                                    console.error('QR Code Generation Error:', error);
-                                }
-                            });
+            if (!errorSpan || !errorSpan.classList.contains("error")) return;
 
-                            const downloadQR = document.getElementById('downloadQR');
-                            const viewContents = document.getElementById('viewContents');
-
-                            downloadQR.href = qrCodeCanvas.toDataURL();
-                            viewContents.href = data.qrUrl;
-
-                            // Show the modal
-                            const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
-                            qrModal.show();
-                        }
-                    })
-                    .catch(error => {
-                        const feedback = document.getElementById('submitFeedback');
-                        feedback.classList.remove('d-none');
-                        feedback.classList.add('alert-danger');
-                        feedback.textContent = 'An error occurred during the submit process';
-                        feedback.style.opacity = "1";
-
-                        // Fade out effect after 3 seconds
-                        setTimeout(() => {
-                            feedback.style.transition = "opacity 1s ease-out";
-                            feedback.style.opacity = "0";
-
-                            setTimeout(() => {
-                                feedback.classList.add('d-none');
-                            }, 1000);
-                        }, 3000);
-                    });
+            if (input.value.trim() === "") {
+                errorSpan.textContent = errorMessages[field];
+                errorSpan.style.color = "red";
+                isValid = false;
+            } else {
+                errorSpan.textContent = "";
             }
         });
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const vaccinationStatusRadios = document.querySelectorAll('input[name="vaccinationStatus"]');
-            const vaccineRecordSection = document.getElementById("vaccineRecordSection");
+        // Validate Vaccine Section if "Vaccinated" is selected
+        let vaccineStatus = document.getElementById("vaccine_status").value;
+        if (vaccineStatus === "Vaccinated") {
+            let vaccineEntries = document.querySelectorAll(".vaccine_entry");
 
-            function toggleVaccineSection() {
-                const selectedStatus = document.querySelector('input[name="vaccinationStatus"]:checked');
-                if (selectedStatus && selectedStatus.value === "Vaccinated") {
-                    vaccineRecordSection.style.display = "block";
-                } else {
-                    vaccineRecordSection.style.display = "none";
+            if (vaccineEntries.length === 0) {
+                alert("Please add at least one vaccine entry.");
+                isValid = false;
+            }
+
+            vaccineEntries.forEach(entry => {
+                let vaccineType = entry.querySelector('input[name="vaccine_type[]"]');
+                let vaccineName = entry.querySelector('input[name="vaccine_name[]"]');
+                let vaccineDate = entry.querySelector('input[name="vaccine_date[]"]');
+                let administeredBy = entry.querySelector('input[name="administered_by[]"]');
+
+                if (!vaccineType.value.trim() || !vaccineName.value.trim() || !vaccineDate.value.trim() || !administeredBy.value.trim()) {
+                    alert("All vaccine details must be filled out.");
+                    isValid = false;
                 }
-            }
-
-            vaccinationStatusRadios.forEach(radio => {
-                radio.addEventListener("change", toggleVaccineSection);
             });
-
-            // Initialize on page load
-            toggleVaccineSection();
-        });
-
-
-
-
-        function validateForm() {
-            let isValid = true;
-
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const address = document.getElementById('address').value.trim();
-            const petName = document.getElementById('petName').value.trim();
-            const petAge = document.getElementById('petAge').value.trim();
-            const petBreed = document.getElementById('petBreed').value.trim();
-            const info = document.getElementById('info').value.trim();
-            const petImage = document.getElementById('petImage').files[0];
-            const vaccineImage = document.getElementById('vaccineImage').files[0];
-
-            const nameError = document.getElementById('nameError');
-            if (!name || /\d/.test(name)) {
-
-                nameError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                nameError.classList.add('d-none');
-            }
-
-            // Phone Validation
-            const phoneError = document.getElementById('phoneError');
-            if (!/^[0-9]{11}$/.test(phone)) {
-
-                phoneError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                phoneError.classList.add('d-none');
-            }
-
-            // Email Validation
-            const emailError = document.getElementById('emailError');
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(email)) {
-
-                emailError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                emailError.classList.add('d-none');
-            }
-
-            // Address Validation
-            const addressError = document.getElementById('addressError');
-            if (!address) {
-
-                addressError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                addressError.classList.add('d-none');
-            }
-
-            // Pet Name Validation
-            const petNameError = document.getElementById('petNameError');
-            if (!petName) {
-
-                petNameError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                petNameError.classList.add('d-none');
-            }
-
-            // Pet Age Validation
-            const petAgeError = document.getElementById('petAgeError');
-            if (petAge <= 0) {
-
-                petAgeError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                petAgeError.classList.add('d-none');
-            }
-            // Breed Validation
-            const petBreedError = document.getElementById('petBreedError');
-            if (!petBreed) {
-
-                petBreedError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                petBreedError.classList.add('d-none');
-            }
-
-            const infoError = document.getElementById('infoError');
-            if (!info) {
-
-                infoError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                infoError.classList.add('d-none');
-            }
-            // File Validation
-            const petImageError = document.getElementById('petImageError');
-            const vaccineImageError = document.getElementById('vaccineImageError');
-
-            if (!petImage || !petImage.type.startsWith('image/')) {
-
-                petImageError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                petImageError.classList.add('d-none');
-            }
-
-            if (!vaccineImage || !vaccineImage.type.startsWith('image/')) {
-
-                vaccineImageError.classList.remove('d-none');
-                isValid = false;
-            } else {
-                vaccineImageError.classList.add('d-none');
-            }
-
-            return isValid;
-
-
         }
-    </script>
+
+        // Submit form if valid
+        if (isValid) {
+            form.submit();
+        }
+    }
+
+    // Attach event listener to the form submission
+    document.getElementById("petForm").addEventListener("submit", validateForm);
+
+    // Toggle Vaccine Form Visibility
+    document.getElementById("vaccine_status").addEventListener("change", function () {
+        document.getElementById("vaccine_section").style.display = (this.value === "Vaccinated") ? "block" : "none";
+    });
+
+    // Function to add a vaccine entry dynamically
+    window.addVaccine = function () {
+        let div = document.createElement("div");
+        div.classList.add("vaccine_entry", "border", "p-3", "mb-2", "rounded");
+        div.innerHTML = `
+            <div class="mb-2">
+                <label class="form-label">Vaccine Type</label>
+                <input type="text" name="vaccine_type[]" class="form-control">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Vaccine Name</label>
+                <input type="text" name="vaccine_name[]" class="form-control">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Vaccine Date</label>
+                <input type="date" name="vaccine_date[]" class="form-control">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Administered By</label>
+                <input type="text" name="administered_by[]" class="form-control">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Remove</button>
+        `;
+        document.getElementById("vaccine_entries").appendChild(div);
+    };
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    var successMsg = "<?php echo $successMsg; ?>";
+    var errorMsg = "<?php echo $errorMsg; ?>";
+
+    if (successMsg) {
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+    }
+
+    if (errorMsg) {
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+    }
+});
+</script>
 </body>
 
 </html>

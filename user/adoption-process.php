@@ -1,54 +1,34 @@
 <?php
-include('./dbconn/config.php');
-include('./dbconn/authentication.php');
+require 'dbconn/config.php';
 
-$errorMessage = "";
-$successMessage = "";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'];
+    $phone = $_POST['phone'];
+    $email = $_POST['email'];
+    $address = $_POST['address'];
+    $occupation = $_POST['occupation'];
+    $homeType = $_POST['homeType'];
+    $adoptReason = $_POST['adoptReason'];
+    $petExperience = $_POST['petExperience'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['petId'])) {
-    // Sanitize and validate inputs
-    $petId    = (int) $_POST['petId'];
-    $petName  = trim($_POST['petName']);
-    $petAge   = (int) $_POST['petAge'];
-    $petBreed = trim($_POST['petBreed']);
-    $petInfo  = trim($_POST['petInfo']);
-    $mail     = filter_var($_POST['mail'], FILTER_SANITIZE_EMAIL);
-    $petImage = trim($_POST['petImage']);
+    // Save the adoption request in the database
+    $sql = "INSERT INTO adoption_requests (name, phone, email, address, occupation, home_type, adopt_reason, pet_experience, status) 
+            VALUES ('$name', '$phone', '$email', '$address', '$occupation', '$homeType', '$adoptReason', '$petExperience', 'pending')";
 
-    // Check for duplicates: if the same pet_id and email already exist
-    $checkQuery = "SELECT id FROM adoption WHERE pet_id = ? AND mail = ?";
-    if ($checkStmt = $conn->prepare($checkQuery)) {
-        $checkStmt->bind_param("is", $petId, $mail);
-        $checkStmt->execute();
-        $checkStmt->store_result();
-        
-        if ($checkStmt->num_rows > 0) {
-            // Duplicate found—set an error message.
-            $errorMessage = "This adoption record already exists.";
-        }
-        $checkStmt->close();
+    if (mysqli_query($conn, $sql)) {
+        $last_id = mysqli_insert_id($conn); // Get the last inserted request ID
+
+        // Insert a notification into the database
+        $notif_sql = "INSERT INTO notifications (adoption_id, message, status) 
+                      VALUES ('$last_id', 'New adoption request from $name', 'unread')";
+        mysqli_query($conn, $notif_sql);
+
+        // Redirect to confirmation page
+        header("Location: adoption_confirmation.php?success=true");
+        exit;
     } else {
-        $errorMessage = "Error preparing duplicate check: " . $conn->error;
-    }
-
-    // If no error, proceed with insertion.
-    if (empty($errorMessage)) {
-        $query = "INSERT INTO adoption (pet_id, pet_name, pet_age, pet_breed, pet_info,owner, mail, pet_image, approved ) VALUES (?, ?, ?, ?, ?, ?, ?,?, 0)";
-        if ($stmt = $conn->prepare($query)) {
-            $stmt->bind_param("isisssss", $petId, $petName, $petAge, $petBreed, $petInfo, $owner, $mail, $petImage);
-            
-            if ($stmt->execute()) {
-                $successMessage = "Adoption record successfully created.";
-                // Optionally, you could redirect the user here.
-                header("Location: mypet.php");
-                // exit;
-            } else {
-                $errorMessage = "Error executing statement: " . $stmt->error;
-            }
-            $stmt->close();
-        } else {
-            $errorMessage = "Error preparing statement: " . $conn->error;
-        }
+        header("Location: adoption_form.php?error=db_failed");
+        exit;
     }
 }
 ?>

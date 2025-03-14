@@ -104,14 +104,13 @@
                                 <th>Breed</th>
                                 <th>Information</th>
                                 <th>Pet Image</th>
-                                <th>Vaccine Image</th>
                                 <th>Created At</th>
                             </tr>
                         </thead>
                         <tbody>
     <?php
     include('./dbconn/config.php');
-    $sql = "SELECT * FROM register";
+    $sql = "SELECT * FROM pets";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $index = 1;
@@ -125,19 +124,16 @@
 
             echo "<tr>
                     <td>{$index}</td>
-                    <td>{$row['owner']}</td>
+                    <td>{$row['name']}</td>
                     <td>{$row['phone']}</td>
                     <td>{$row['email']}</td>
                     <td>{$row['address']}</td>
-                    <td>{$row['pet']}</td>
-                    <td>{$row['age']}</td>
-                    <td>{$row['breed']}</td>
-                    <td>{$row['info']}</td>
+                    <td>{$row['pet_name']}</td>
+                    <td>{$row['pet_age']}</td>
+                    <td>{$row['pet_breed']}</td>
+                    <td>{$row['pet_info']}</td>
                     <td> <a href='{$petImage}' target='_blank'>
                             <img src='{$petImage}' alt='Pet Image' width='50' height='50' style='border-radius: 5px;'>
-                        </a></td>
-                    <td> <a href='{$petVaccine}' target='_blank'>
-                            <img src='{$petVaccine}' alt='Pet Image' width='50' height='50' style='border-radius: 5px;'>
                         </a></td>
                     <td>{$row['created_at']}</td>
                   </tr>";

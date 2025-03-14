@@ -1,6 +1,11 @@
-<htm?php
+<?php
 include('./dbconn/config.php');
 include('./dbconn/authentication.php');
+
+// Count unread notifications
+$notif_count_query = "SELECT COUNT(*) AS unread_count FROM notifications WHERE status = 'unread'";
+$notif_count_result = mysqli_query($conn, $notif_count_query);
+$notif_count = mysqli_fetch_assoc($notif_count_result)['unread_count'];
 ?>
 
 
