@@ -1,58 +1,161 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="relative flex flex-col items-center justify-center min-h-screen bg-gray-100">
+<?php 
+session_start();
+include 'design/top.php';
+include 'design/mid.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-   <!-- Background Image with Overlay -->
-   <div class="absolute inset-0 bg-cover bg-center z-[-2]" style="background-image: url('backone.jpg');"></div>
-   <div class="absolute inset-0 bg-black/60 z-[-1]"></div> <!-- Overlay added here -->
+include 'internet/connect_ka.php.php';
 
-   <!-- Centered Login Form with Highlight Effect -->
-   <div class="form w-full max-w-sm rounded-md shadow-2xl overflow-hidden z-[100] relative cursor-pointer snap-start shrink-0 py-6 px-8 bg-[#DFA16A] flex flex-col items-center justify-center gap-5 transition-all duration-300">
-      <p class="text-[#A15A3E] text-xl font-semibold flex items-center justify-center gap-2">
-        <i class="fa-solid fa-paw"></i> Pet Sign In Account
-      </p>
+// ✅ Check if email & session_token are provided
+if (!isset($_GET['email']) || !isset($_GET['session_token'])) {
+    header("Location: https://smartbarangayconnect.com");
+    exit();
+}
 
-      <form action="" class="flex flex-col gap-4 w-full">
-        <div class="flex flex-col">
-          <label for="email" class="text-sm text-[#7F3D27] font-semibold">Email</label>
-          <input
-            type="email"
-            placeholder="Enter Your Email"
-            class="w-full py-2 px-3 bg-transparent outline-none border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] text-[#7F3D27]"
-          />
+$email = $_GET['email'];
+$session_token = $_GET['session_token'];
+
+// ✅ Fetch registerlanding data from Main Domain API
+$api_url = "https://smartbarangayconnect.com/api_get_registerlanding.php";
+$response = file_get_contents($api_url);
+$data = json_decode($response, true);
+
+if (!$data || !is_array($data)) {
+    die("❌ Failed to fetch data from Main Domain.");
+}
+
+// ✅ Clear old data in subdomain database
+$conn->query("TRUNCATE TABLE registerlanding");
+
+// ✅ Insert new data into subdomain database (Now includes additional fields)
+$stmt = $conn->prepare("INSERT INTO registerlanding 
+    (id, email, first_name, last_name, session_token, picture_pic, birth_date, sex, mobile, working, occupation, house, street, barangay, city) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+if (!$stmt) {
+    die("❌ Query Preparation Failed: " . $conn->error);
+}
+
+foreach ($data as $row) {
+    $picture_pic = !empty($row['picture_pic']) ? $row['picture_pic'] : null;
+
+    $stmt->bind_param("issssssssssssss", 
+        $row['id'], $row['email'], $row['first_name'], $row['last_name'], $row['session_token'], $picture_pic,
+        $row['birth_date'], $row['sex'], $row['mobile'], $row['working'], $row['occupation'],
+        $row['house'], $row['street'], $row['barangay'], $row['city']
+    );
+    $stmt->execute();
+}
+
+// ✅ Verify session token in subdomain database (Now selects all fields)
+$sql = "SELECT id, email, first_name, last_name, picture_pic, birth_date, sex, mobile, working, occupation, house, street, barangay, city 
+        FROM registerlanding WHERE email = ? AND session_token = ?";
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    die("❌ Query Preparation Failed: " . $conn->error);
+}
+
+$stmt->bind_param("ss", $email, $session_token);
+if (!$stmt->execute()) {
+    die("❌ Query Execution Failed: " . $stmt->error);
+}
+
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    die("❌ Invalid session token or email!");
+}
+
+$row = $result->fetch_assoc();
+
+// ✅ Store all data in session
+$_SESSION['id'] = $row['id'];
+$_SESSION['email'] = $email;
+$_SESSION['first_name'] = $row['first_name'];
+$_SESSION['last_name'] = $row['last_name'];
+$_SESSION['session_token'] = $session_token;
+$_SESSION['picture_pic'] = !empty($row['picture_pic']) ? $row['picture_pic'] : 'https://smartbarangayconnect.com/uploads/default-profile.png';
+
+//  Additional session data
+$_SESSION['birth_date'] = $row['birth_date'];
+$_SESSION['sex'] = $row['sex'];
+$_SESSION['mobile'] = $row['mobile'];
+$_SESSION['working'] = $row['working'];
+$_SESSION['occupation'] = $row['occupation'];
+$_SESSION['house'] = $row['house'];
+$_SESSION['street'] = $row['street'];
+$_SESSION['barangay'] = $row['barangay'];
+$_SESSION['city'] = $row['city'];
+
+// ✅ Debugging: Uncomment to check if session data is correct before redirecting
+// var_dump($_SESSION);
+// exit();
+
+// ✅ Redirect to dashboard
+header("Location: user/sarilingpet.php");
+exit();
+?>
+
+<body class="flex bg-gray-100">
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content flex-1 transition-all">
+        <!-- Navbar -->
+        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+            <!-- ☰ Button (For PC and Mobile) -->
+            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+                ☰
+            </button>
+            <span class="font-bold text-white text-sm md:text-base lg:text-lg">Welcome, Wendhil Himarangan</span>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="p-6 bg-white">
+        <h2 class="text-lg font-semibold mb-4">Registered Pets</h2>
+
+<?php if ($result->num_rows > 0): ?> 
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <div class="border rounded-lg p-4 shadow">
+                <img src="../uploads/<?php echo htmlspecialchars($row['image']); ?>" alt="Pet Image" class="w-full h-32 object-cover rounded">
+                <h3 class="text-lg font-bold mt-2"><?php echo htmlspecialchars($row['petname']); ?></h3>
+                <p class="text-sm text-gray-600"><?php echo htmlspecialchars($row['breed']); ?> - <?php echo htmlspecialchars($row['type']); ?></p>
+                <p class="text-sm">Age: <?php echo htmlspecialchars($row['age']); ?> years</p>
+                <p class="text-sm">Vaccine: <?php echo htmlspecialchars($row['vaccine_status']); ?></p>
+            </div>
+        <?php endwhile; ?>
+    </div>
+<?php else: ?>
+    <p class="text-center text-gray-500">No registered pets yet.</p>
+<?php endif; ?>
+
         </div>
 
-        <div class="flex flex-col">
-          <label for="password" class="text-sm text-[#7F3D27] font-semibold">Password</label>
-          <input
-            type="password"
-            placeholder="Enter Your Password"
-            class="w-full py-2 px-3 bg-transparent outline-none border-b-2 border-[#7F3D27] placeholder:text-[#A15A3E] text-[#7F3D27]"
-          />
-        </div>
 
-        <div class="flex items-center gap-2 text-[#A15A3E]">
-          <input type="checkbox" class="w-4 h-4 accent-[#A15A3E]" checked />
-          <p class="text-xs">By signing in, you agree to the <span class="font-semibold">Terms & Policy</span></p>
-        </div>
 
-        <button class="w-full px-6 font-semibold text-sm py-3 rounded-md hover:scale-105 transition-all text-[#7F3D27] bg-[#D9D9D9] shadow-lg">
-          Sign In
-        </button>
-      </form>
-   </div>
+        <script>
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("mainContent");
+            const toggleSidebar = document.getElementById("toggleSidebar");
+            const closeSidebarMobile = document.getElementById("closeSidebarMobile");
 
-   <!-- Copyright Section -->
-   <footer class="absolute bottom-4 text-center text-sm text-gray-200 z-[100]">
-     &copy; 2025 Pet Login System. All Rights Reserved.
-   </footer>
+            // Toggle Sidebar for PC & Mobile
+            toggleSidebar.addEventListener("click", function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle("open"); // Mobile Mode
+                } else {
+                    sidebar.classList.toggle("closed"); // PC Mode
+                    mainContent.classList.toggle("shrink");
+                }
+            });
+
+            // Close Sidebar on Mobile when "✖" is clicked
+            closeSidebarMobile.addEventListener("click", function() {
+                sidebar.classList.remove("open");
+            });
+        </script>
 
 </body>
+
 </html>
