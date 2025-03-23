@@ -3,29 +3,71 @@ session_start();
 include 'design/top.php';
 include 'design/mid.php';
 include '../internet/connect_ka.php';
+include '../phpqrcode-master/qrlib.php'; // QR Code Library
 
+if (!isset($_SESSION['email'])) {
+    $_SESSION['notification'] = "❌ Please log in first.";
+    header("Location: auth.php");
+    exit();
+}
+
+$user_email = $_SESSION['email']; // Get user email from session
 $notification = "";
+
+$result = $conn->query("SELECT COUNT(*) AS total FROM pet");
+$row = $result->fetch_assoc();
+if ($row['total'] == 0) {
+    $conn->query("ALTER TABLE pet AUTO_INCREMENT = 1");
+}
+
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+    // ✅ Function to Clean User Input
     function cleanInput($input)
     {
-        return !empty($input) ? htmlspecialchars(trim($input)) : null;
+        return (isset($input) && trim($input) !== '') ? htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8') : null;
     }
 
+    // ✅ Collect and Sanitize Input Data
     $petname = cleanInput($_POST['petname']);
-    $age = is_numeric($_POST['age']) ? (int) $_POST['age'] : null;
+    $age = isset($_POST['age']) && is_numeric($_POST['age']) ? (int) $_POST['age'] : null;
     $type = cleanInput($_POST['type']);
     $breed = cleanInput($_POST['breed']);
     $info = cleanInput($_POST['info']);
     $vaccine_status = cleanInput($_POST['vaccine']);
 
-    // ✅ Handle vaccine_type array properly
-    $vaccine_type = isset($_POST['vaccineType'])
-        ? (is_array($_POST['vaccineType']) ? implode(", ", $_POST['vaccineType']) : $_POST['vaccineType'])
-        : null;
+    // ✅ Handle Vaccine Type (Ensure it works for both array and string)
+    $vaccine_type = isset($_POST['vaccineType']) ? (is_array($_POST['vaccineType']) ? implode(", ", $_POST['vaccineType']) : cleanInput($_POST['vaccineType'])) : null;
+    // ✅ Handle Vaccine Card Image Upload
 
-    // Image Upload Processing
+    // ✅ Handle Vaccine Card Upload
+    $vaccine_card_filename = null;
+    if (!empty($_FILES['vaccine_card']['name'])) {
+        $vaccine_card = $_FILES['vaccine_card']['name'];
+        $target_dir = "../uploads/vaccine_cards/";
+        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+
+        $fileType = strtolower(pathinfo($vaccine_card, PATHINFO_EXTENSION));
+        $vaccine_card_filename = uniqid("vaccine_", true) . "." . $fileType;
+        $target_file = $target_dir . $vaccine_card_filename;
+
+        // ✅ Validate File Type and Size (Only jpg, jpeg, png & max size 2MB)
+        if (!in_array($fileType, ['jpg', 'jpeg', 'png']) || $_FILES["vaccine_card"]["size"] > 2000000) {
+            $_SESSION['notification'] = "❌ Invalid vaccine card file. Please upload a JPG, JPEG, or PNG file (max 2MB).";
+            header("Location: parehistro.php");
+            exit();
+        }
+
+        // ✅ Move Uploaded File
+        if (!move_uploaded_file($_FILES["vaccine_card"]["tmp_name"], $target_file)) {
+            $vaccine_card_filename = null;
+        }
+    }
+
+
+    // ✅ Handle Image Upload
     $unique_filename = null;
     if (!empty($_FILES['image']['name'])) {
         $image = $_FILES['image']['name'];
@@ -36,27 +78,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $unique_filename = uniqid("pet_", true) . "." . $imageFileType;
         $target_file = $target_dir . $unique_filename;
 
+        // ✅ Validate Image (Only jpg, jpeg, png & max size 2MB)
         if (!in_array($imageFileType, ['jpg', 'jpeg', 'png']) || $_FILES["image"]["size"] > 2000000) {
-            $_SESSION['notification'] = "❌ Invalid image file.";
+            $_SESSION['notification'] = "❌ Invalid image file. Please upload a JPG, JPEG, or PNG file (max 2MB).";
             header("Location: parehistro.php");
             exit();
         }
 
+        // ✅ Move Uploaded File
         if (!move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
             $unique_filename = null;
         }
     }
 
-    // Database Insert
-    if ($conn) {
-        $sql = "INSERT INTO registerlanding (petname, age, type, breed, info, vaccine_status, vaccine_type, image) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // ✅ Generate Unique Pet ID
+    $pet_id = uniqid("pet_");
 
+    // ✅ Generate QR Code
+    $qrData = "localhost/userside/user/petprofile.php?id=" . $pet_id;
+    $qr_dir = "../qrcodes/";
+    if (!is_dir($qr_dir)) mkdir($qr_dir, 0777, true);
+
+    $qr_filename = "qr_" . $pet_id . ".png";
+    $qr_file = $qr_dir . $qr_filename;
+    QRcode::png($qrData, $qr_file, QR_ECLEVEL_L, 6); // Generate and save QR code
+
+
+    // ✅ Insert Pet Data Into Database
+    if ($conn) {
+        $sql = "INSERT INTO pet (email, petname, age, type, breed, info, vaccine_status, vaccine_type, image, qr_code, vaccine_card) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sissssss", $petname, $age, $type, $breed, $info, $vaccine_status, $vaccine_type, $unique_filename);
+        $stmt->bind_param("ssissssssss", $user_email, $petname, $age, $type, $breed, $info, $vaccine_status, $vaccine_type, $unique_filename, $qr_filename, $vaccine_card_filename);
+
 
         if ($stmt->execute()) {
-            $_SESSION['notification'] = "✅ Pet successfully registered!";
+            $_SESSION['notification'] = "✅ Pet successfully registered with a QR code!";
         } else {
             $_SESSION['notification'] = "❌ Error: " . $stmt->error;
         }
@@ -65,13 +122,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['notification'] = "❌ Database connection error.";
     }
 
+    // ✅ Redirect to Registration Page After Submission
     header("Location: parehistro.php");
     exit();
 }
+
 ?>
-
-
-
 
 <body class="flex bg-gray-100">
     <!-- Main Content -->
@@ -82,11 +138,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
                 ☰
             </button>
-            <span class="font-bold text-white text-sm md:text-base lg:text-lg">Welcome, Wendhil Himarangan</span>
+
+            <div class="flex items-center gap-4">
+                <!-- 🟢 Real-time Time Display -->
+                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+
+                <!-- Welcome Message -->
+                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+                    Welcome, <?= htmlspecialchars($user_email) ?>
+                </span>
+            </div>
         </nav>
 
         <!-- Dashboard Content -->
-        <div class="p-6 bg-white shadow-lg rounded-lg">
+        <div class="p-4 bg-white mt-3 mr-2 ml-2 rounded-lg shadow-lg">
             <h1 class="text-2xl font-bold text-black mb-4">🐾 Pet Registration</h1>
             <form action="#" method="POST" enctype="multipart/form-data" class="bg-gray-100  p-6 rounded-lg shadow-md space-y-6 max-w-lg mx-auto">
                 <!-- Error Message Container -->
@@ -158,6 +223,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="file" id="image" name="image"
                             class="w-full px-3 py-2 border rounded-lg shadow-sm file:mr-2 file:py-2 file:px-4 file:border file:rounded-lg file:bg-blue-100 file:text-blue-700 file:hover:bg-blue-200">
                     </div>
+                    
+                    <div>
+                        <label for="vaccine_card" class="block text-sm font-semibold text-black mb-1">Upload Vaccine Card</label>
+                        <input type="file" id="vaccine_card" name="vaccine_card"
+                            class="w-full px-3 py-2 border rounded-lg shadow-sm file:mr-2 file:py-2 file:px-4 file:border file:rounded-lg file:bg-blue-100 file:text-blue-700 file:hover:bg-blue-200">
+                    </div>
+
                     <div>
                         <label for="info" class="block text-sm font-semibold text-black mb-1">Pet Info</label>
                         <textarea id="info" name="info" rows="3" placeholder="Enter details about the pet"
@@ -212,14 +284,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </button>
                 </div>
             </form>
-
         </div>
-
     </div>
 
     <script>
         document.querySelector("form").addEventListener("submit", function(e) {
-            let name = document.getElementById("name").value.trim();
+            let petname = document.getElementById("petname").value.trim();
             let age = document.getElementById("age").value.trim();
             let type = document.getElementById("type").value;
             let breed = document.getElementById("breed").value.trim();
@@ -230,7 +300,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             let errors = [];
 
-            if (!name) errors.push("⚠️ Pet name is required.");
+            if (!petname) errors.push("⚠️ Pet name is required.");
             if (!age || isNaN(age) || age <= 0) errors.push("⚠️ Age must be a positive number.");
             if (!type) errors.push("⚠️ Pet type is required.");
             if (!breed) errors.push("⚠️ Breed is required.");
@@ -243,7 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             if (errors.length > 0) {
-                e.preventDefault(); // Stop form submission
+                e.preventDefault(); // ❗❗ Stop form submission ❗❗
 
                 // Show errors in the error container
                 errorContainer.innerHTML = errors.join("<br>");
@@ -255,6 +325,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }, 3000);
             }
         });
+
 
         document.getElementById("confirmVaccineBtn").addEventListener("click", confirmVaccineSelection);
         let selectedVaccine = ""; // Store only one selected vaccine
@@ -300,6 +371,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             let vaccineType = document.getElementById("vaccineType");
             vaccineType.innerHTML = ""; // Clear previous options
 
+            // Default "None" option
+            let noneOption = document.createElement("option");
+            noneOption.value = "None";
+            noneOption.textContent = "None";
+            vaccineType.appendChild(noneOption);
+
             let vaccines = {
                 dog: ["anti-Rabies", "Distemper", "Parvovirus", "Leptospirosis", "Canine Influenza"],
                 cat: ["anti-Rabies", "Feline Leukemia", "FVRCP", "Chlamydia", "Bordetella"],
@@ -323,21 +400,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // Function to confirm vaccine selection (Fix: No auto-register)
+        // Function to confirm vaccine selection
         function confirmVaccineSelection(event) {
             event.preventDefault(); // Prevent any form submission
 
             let chosenVaccine = document.getElementById("vaccineType").value;
 
-            if (chosenVaccine && !selectedVaccine) {
+            if (chosenVaccine === "None") {
+                selectedVaccine = ""; // Clear selection if "None" is chosen
+            } else if (chosenVaccine && !selectedVaccine) {
                 selectedVaccine = chosenVaccine;
-                updateSelectedVaccineDisplay();
             } else {
                 alert("You can only select one vaccine.");
             }
 
-            // Close modal
-            document.getElementById("vaccineModal").classList.add("hidden");
+            updateSelectedVaccineDisplay();
+            document.getElementById("vaccineModal").classList.add("hidden"); // Close modal
         }
 
         // Function to update the displayed selected vaccine
@@ -352,9 +430,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             document.getElementById("vaccineDisplay").classList.remove("hidden");
         }
     </script>
-
-
-
 
 
     <script>
@@ -377,6 +452,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         closeSidebarMobile.addEventListener("click", function() {
             sidebar.classList.remove("open");
         });
+
+        function updateTime() {
+            let now = new Date();
+            let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
+            document.getElementById("currentTime").textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime(); // Call once to display immediately
     </script>
 
 </body>

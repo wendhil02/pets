@@ -5,7 +5,7 @@ include 'design/mid.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-include 'internet/connect_ka.php.php';
+include 'internet/connect_ka.php';
 
 // ✅ Check if email & session_token are provided
 if (!isset($_GET['email']) || !isset($_GET['session_token'])) {
@@ -25,31 +25,37 @@ if (!$data || !is_array($data)) {
     die("❌ Failed to fetch data from Main Domain.");
 }
 
-// ✅ Clear old data in subdomain database
-$conn->query("TRUNCATE TABLE registerlanding");
+// ✅ Remove only the existing record of the logged-in user instead of truncating all data
+$stmt = $conn->prepare("DELETE FROM registerlanding WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->close();
 
-// ✅ Insert new data into subdomain database (Now includes additional fields)
-$stmt = $conn->prepare("INSERT INTO registerlanding 
-    (id, email, first_name, last_name, session_token, picture_pic, birth_date, sex, mobile, working, occupation, house, street, barangay, city) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-if (!$stmt) {
-    die("❌ Query Preparation Failed: " . $conn->error);
-}
-
+// ✅ Insert only the current user's data
 foreach ($data as $row) {
-    $picture_pic = !empty($row['picture_pic']) ? $row['picture_pic'] : null;
+    if ($row['email'] === $email) { // ✅ Filter only the email of the current user
+        $stmt = $conn->prepare("INSERT INTO registerlanding 
+            (id, email, first_name, last_name, session_token, birth_date, sex, mobile, working, occupation, house, street, barangay, city) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        if (!$stmt) {
+            die("❌ Query Preparation Failed: " . $conn->error);
+        }
 
-    $stmt->bind_param("issssssssssssss", 
-        $row['id'], $row['email'], $row['first_name'], $row['last_name'], $row['session_token'], $picture_pic,
-        $row['birth_date'], $row['sex'], $row['mobile'], $row['working'], $row['occupation'],
-        $row['house'], $row['street'], $row['barangay'], $row['city']
-    );
-    $stmt->execute();
+        $stmt->bind_param("isssssssssssss", 
+            $row['id'], $row['email'], $row['first_name'], $row['last_name'], $row['session_token'],
+            $row['birth_date'], $row['sex'], $row['mobile'], $row['working'], $row['occupation'],
+            $row['house'], $row['street'], $row['barangay'], $row['city']
+        );
+
+        $stmt->execute();
+        $stmt->close();
+        break; // ✅ Stop looping after inserting the current user's data
+    }
 }
 
-// ✅ Verify session token in subdomain database (Now selects all fields)
-$sql = "SELECT id, email, first_name, last_name, picture_pic, birth_date, sex, mobile, working, occupation, house, street, barangay, city 
+// ✅ Verify session token in subdomain database
+$sql = "SELECT id, email, first_name, last_name, birth_date, sex, mobile, working, occupation, house, street, barangay, city 
         FROM registerlanding WHERE email = ? AND session_token = ?";
 $stmt = $conn->prepare($sql);
 
@@ -76,7 +82,6 @@ $_SESSION['email'] = $email;
 $_SESSION['first_name'] = $row['first_name'];
 $_SESSION['last_name'] = $row['last_name'];
 $_SESSION['session_token'] = $session_token;
-$_SESSION['picture_pic'] = !empty($row['picture_pic']) ? $row['picture_pic'] : 'https://smartbarangayconnect.com/uploads/default-profile.png';
 
 //  Additional session data
 $_SESSION['birth_date'] = $row['birth_date'];
@@ -89,15 +94,19 @@ $_SESSION['street'] = $row['street'];
 $_SESSION['barangay'] = $row['barangay'];
 $_SESSION['city'] = $row['city'];
 
-// ✅ Debugging: Uncomment to check if session data is correct before redirecting
-// var_dump($_SESSION);
-// exit();
-
 // ✅ Redirect to dashboard
-header("Location: user/sarilingpet.php");
+header("Location: user/parehistro.php");
 exit();
 ?>
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
 <body class="flex bg-gray-100">
     <!-- Main Content -->
     <div id="mainContent" class="main-content flex-1 transition-all">
@@ -157,5 +166,4 @@ exit();
         </script>
 
 </body>
-
 </html>

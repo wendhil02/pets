@@ -1,0 +1,17 @@
+Array
+(
+    [id] => 4
+    [action] => approve
+    [email] => wendhil10@gmail.com
+    [petname] => yeah
+)
+Error: Email failed to send
+Received POST Data: Array
+(
+    [id] => 5
+    [action] => approve
+    [email] => wendhil10@gmail.com
+    [petname] => yeah
+)
+
+Error: Email failed to send
