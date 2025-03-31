@@ -12,10 +12,12 @@ if (!isset($_SESSION['email'])) {
 
 $user_email = $_SESSION['email']; // Get user email from session
 
-// ✅ Fetch pets EXCLUDING "approved"
+// ✅ Fetch only Fully Vaccinated pets EXCLUDING "approved"
 $sql = "SELECT id, petname, breed, type, age, vaccine_status, status, email, image 
         FROM pet 
-        WHERE email = ? AND status != 'approved'
+        WHERE email = ? 
+        AND vaccine_status = 'Fully Vaccinated' 
+        AND status != 'approved'
         ORDER BY FIELD(status, 'pending', 'rejected', 'available'), id DESC";
 
 $stmt = $conn->prepare($sql);
@@ -28,6 +30,7 @@ $stmt->bind_param("s", $user_email);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
+
 
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -79,6 +82,10 @@ $result = $stmt->get_result();
         <button onclick="openGuideModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600">
             📖 Guide
         </button>
+         <!-- 🟢 Schedule Surrender Button -->
+        <a href="unvaccinepet.php" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-red-600">
+            Not vaccinated
+        </a>
 
         <!-- 🟢 Schedule Surrender Button -->
         <a href="schedule_surrender.php" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-red-600">
@@ -123,7 +130,7 @@ $result = $stmt->get_result();
                             <p class="text-sm text-gray-600">
                                 <?php echo htmlspecialchars($row['breed']); ?> - <?php echo htmlspecialchars($row['type']); ?>
                             </p>
-                            <p class="text-sm">Age: <?php echo htmlspecialchars($row['age']); ?> years</p>
+                            <p class="text-sm">Age: <?php echo htmlspecialchars($row['age']); ?> years old</p>
                             <p class="text-sm">Vaccine: <?php echo htmlspecialchars($row['vaccine_status']); ?></p>
 
                             <?php

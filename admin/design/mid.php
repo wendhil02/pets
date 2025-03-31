@@ -27,7 +27,7 @@ include '../internet/connect_ka.php';
 
     <!-- REGISTRATION MANAGEMENT -->
     <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Registration Management</li>
-    <li><a href="" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🐾 Pet Register</a></li>
+    <li><a href="regispet.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🐾 Pet Register</a></li>
 
 
     <!-- ADOPTION MANAGEMENT -->

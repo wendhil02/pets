@@ -12,7 +12,7 @@ include '../internet/connect_ka.php';
     <style>
         /* Sidebar Styles */
         .sidebar {
-            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+            transition: transform 0.4s ease-in-out, width 0.4s ease-in-out;
             width: 16rem;
             overflow: hidden;
         }
@@ -38,7 +38,7 @@ include '../internet/connect_ka.php';
             }
 
             .main-content {
-                transition: margin-left 0.3s ease-in-out;
+                transition: margin-left 0.4s ease-in-out;
                 margin-left: 16rem;
             }
 

@@ -1,54 +1,64 @@
 <?php
 session_start();
-include 'design/mid.php';
 include 'design/top.php';
+include 'design/mid.php';
 include '../internet/connect_ka.php';
 
-// ✅ Check if user is logged in
+
+// ✅ Ensure user is logged in
 if (!isset($_SESSION['email'])) {
     die("<p class='text-red-500'>❌ You must be logged in to view your pet profile.</p>");
 }
 
-// ✅ Kunin ang email mula sa session
 $user_email = $_SESSION['email'];
+$pet = null; // Default pet data
 
-// ✅ Kunin ang pet details gamit ang email
-$sql = "SELECT id, petname, breed, type, age, vaccine_status, vaccine_type, info, image, qr_code 
-        FROM pet WHERE email = ? LIMIT 1";
-$stmt = $conn->prepare($sql);
+// ✅ Check if `qr_id` is provided from the QR Code scan
+if (isset($_GET['id'])) {
+    $qr_id_value = $_GET['id']; // This should be the `qr_id` stored in the database
 
-if (!$stmt) {
-    die("<p class='text-red-500'>❌ SQL Error: " . $conn->error . "</p>");
+    // ✅ Find pet using `qr_id` instead of `qr_code`
+    $sql = "SELECT id, petname, breed, type, age, vaccine_status, vaccine_type, info, image, qr_code, qr_id 
+            FROM pet 
+            WHERE qr_id = ? AND email = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $qr_id_value, $user_email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $pet = $result->fetch_assoc();
+    }
 }
 
-$stmt->bind_param("s", $user_email);
-$stmt->execute();
-$result = $stmt->get_result();
+// ✅ If no pet is found using `qr_id`, get the first pet of the user
+if (!$pet) {
+    $sql = "SELECT id, petname, breed, type, age, vaccine_status, vaccine_type, info, image, qr_code, qr_id 
+            FROM pet 
+            WHERE email = ? 
+            LIMIT 1";
 
-// ✅ Check kung may pet o wala
-if ($result === false || $result->num_rows == 0) {
-    $pet = null;
-} else {
-    $pet = $result->fetch_assoc();
-    $img_path = "../uploads/" . $pet['image'];
-    $qr_path = "../qrcodes/" . $pet['qr_code'];
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $user_email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $pet = $result->fetch_assoc();
+    }
 }
-
 ?>
 
 <body class="flex bg-gray-100">
     <div id="mainContent" class="main-content flex-1 transition-all">
-        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <!-- ☰ Button (For PC and Mobile) -->
-            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg">
+            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md">
                 ☰
             </button>
 
             <div class="flex items-center gap-4">
-                <!-- 🟢 Real-time Time Display -->
                 <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
-
-                <!-- Welcome Message -->
                 <span class="font-bold text-white text-sm md:text-base lg:text-lg">
                     Welcome, <?= htmlspecialchars($user_email) ?>
                 </span>
@@ -56,66 +66,89 @@ if ($result === false || $result->num_rows == 0) {
         </nav>
 
         <div class="max-w-2xl mx-auto bg-white p-8 mt-6 rounded-2xl shadow-xl">
-    <?php if ($pet): ?>
-        <!-- ✅ Pet Profile Header -->
-        <h1 class="text-3xl font-bold text-gray-900 text-center"><?= htmlspecialchars($pet['petname']) ?>'s Profile</h1>
+        <?php if ($pet): ?>
+    <h1 class="text-3xl font-bold text-gray-900 text-center">
+        <span id="petNameDisplay"><?= htmlspecialchars($pet['petname']) ?>'s Profile</span>
+    </h1>
 
-        <div class="flex flex-col items-center mt-6">
-            <!-- ✅ Pet Image -->
-            <?php if (!empty($pet['image']) && file_exists($img_path)): ?>
-                <img src="<?= $img_path ?>" alt="Pet Image" class="w-48 h-48 object-cover rounded-full shadow-lg border-4 border-blue-400">
-            <?php else: ?>
-                <p class="text-red-500 mt-2">❌ Image file not found.</p>
-            <?php endif; ?>
+    <!-- 🔄 Pet Selector -->
+    <div class="flex justify-center mt-4">
+        <select id="petSelector" class="p-2 border border-gray-300 rounded-lg">
+            <?php
+            $sql_pets = "SELECT id, petname, breed, type, age, vaccine_status, vaccine_type, info, image, qr_code 
+                         FROM pet 
+                         WHERE email = ? 
+                         ORDER BY id ASC";
+            $stmt_pets = $conn->prepare($sql_pets);
+            $stmt_pets->bind_param("s", $user_email);
+            $stmt_pets->execute();
+            $result_pets = $stmt_pets->get_result();
 
-            <!-- ✅ Pet Details -->
-            <div class="mt-4 text-gray-700 text-center space-y-2">
-                <p><strong class="text-gray-900">Type:</strong> <?= htmlspecialchars($pet['type']) ?></p>
-                <p><strong class="text-gray-900">Breed:</strong> <?= htmlspecialchars($pet['breed']) ?></p>
-                <p><strong class="text-gray-900">Age:</strong> <?= htmlspecialchars($pet['age']) ?> years</p>
-                <p><strong class="text-gray-900">Vaccine Status:</strong> <?= htmlspecialchars($pet['vaccine_status']) ?></p>
-                <p><strong class="text-gray-900">Vaccine Type:</strong> <?= htmlspecialchars($pet['vaccine_type']) ?></p>
-                <p><strong class="text-gray-900">Additional Info:</strong> <?= nl2br(htmlspecialchars($pet['info'])) ?></p>
-            </div>
-
-            <!-- ✅ QR Code Section -->
-            <div class="mt-6 p-4 bg-gray-100 rounded-lg shadow-md w-full text-center">
-                <h2 class="text-lg font-semibold text-gray-900">QR Code</h2>
-                <?php if (!empty($pet['qr_code']) && file_exists($qr_path)): ?>
-                    <img src="<?= $qr_path ?>" alt="Pet QR Code" class="w-32 h-32 mt-3 mx-auto border-2 border-gray-300 shadow">
-                    
-                    <!-- 🟢 Download QR Code Button -->
-                    <a href="<?= $qr_path ?>" download="<?= htmlspecialchars($pet['petname']) ?>_qrcode.png"
-                       class="mt-4 inline-block px-5 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
-                        📥 Download QR Code
-                    </a>
-                <?php else: ?>
-                    <p class="text-red-500 mt-2">❌ QR Code file not found.</p>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php else: ?>
-        <!-- ✅ Message for No Pets -->
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">No pets registered yet.</h1>
-            <p class="text-gray-600">You haven't registered any pets. Please register your pet to view their profile.</p>
-            
-            <div class="flex justify-center mt-5">
-                <a href="parehistro.php" class="px-5 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition">
-                    ➕ Register a Pet
-                </a>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
+            while ($p = $result_pets->fetch_assoc()): ?>
+                <option value="<?= htmlspecialchars(json_encode($p)) ?>" <?= $p['id'] == $pet['id'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($p['petname']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
     </div>
+
+    <!-- ✅ Pet Profile Section -->
+    <div class="flex flex-col items-center mt-6">
+        <img id="petImage" src="../uploads/<?= htmlspecialchars($pet['image']) ?>" alt="Pet Image" 
+             class="w-48 h-48 object-cover rounded-full shadow-lg border-4 border-blue-400">
+
+        <div class="mt-4 text-gray-700 text-center space-y-2">
+            <p><strong class="text-gray-900">Type:</strong> <span id="petType"><?= htmlspecialchars($pet['type']) ?></span></p>
+            <p><strong class="text-gray-900">Breed:</strong> <span id="petBreed"><?= htmlspecialchars($pet['breed']) ?></span></p>
+            <p><strong class="text-gray-900">Age:</strong> <span id="petAge"><?= htmlspecialchars($pet['age']) ?></span> years</p>
+            <p><strong class="text-gray-900">Vaccine Status:</strong> <span id="petVaccineStatus"><?= htmlspecialchars($pet['vaccine_status']) ?></span></p>
+            <p><strong class="text-gray-900">Vaccine Type:</strong> <span id="petVaccineType"><?= htmlspecialchars($pet['vaccine_type']) ?></span></p>
+            <p><strong class="text-gray-900">Pet Information:</strong> <span id="petInfo"><?= nl2br(htmlspecialchars($pet['info'])) ?></span></p>
+        </div>
+
+        <!-- ✅ QR Code Section -->
+        <div class="mt-6 p-4 bg-gray-100 rounded-lg shadow-md w-full text-center">
+            <h2 class="text-lg font-semibold text-gray-900">QR Code</h2>
+            <img id="qrCodeImage" src="../qrcodes/<?= htmlspecialchars($pet['qr_code']) ?>" 
+                 alt="Pet QR Code" class="w-32 h-32 mt-3 mx-auto border-2 border-gray-300 shadow">
+
+            <a id="downloadQRCode" href="../qrcodes/<?= htmlspecialchars($pet['qr_code']) ?>" download="<?= htmlspecialchars($pet['petname']) ?>_qrcode.png"
+               class="mt-4 inline-block px-5 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
+                📥 Download QR Code
+            </a>
+        </div>
+    </div>
+<?php else: ?>
+    <h1 class="text-3xl font-bold text-gray-900 text-center">No Pets Found</h1>
+<?php endif; ?>
+
+<!-- ✅ JavaScript for Switching Pet Profile -->
+<script>
+document.getElementById("petSelector").addEventListener("change", function() {
+    let petData = JSON.parse(this.value);
+
+    // Update pet profile details dynamically
+    document.getElementById("petNameDisplay").textContent = petData.petname + "'s Profile";
+    document.getElementById("petImage").src = "../uploads/" + petData.image;
+    document.getElementById("petType").textContent = petData.type;
+    document.getElementById("petBreed").textContent = petData.breed;
+    document.getElementById("petAge").textContent = petData.age + " years";
+    document.getElementById("petVaccineStatus").textContent = petData.vaccine_status;
+    document.getElementById("petVaccineType").textContent = petData.vaccine_type;
+    document.getElementById("petInfo").textContent = petData.info;
+
+    // Update QR Code and Download Link
+    document.getElementById("qrCodeImage").src = "../qrcodes/" + petData.qr_code;
+    document.getElementById("downloadQRCode").href = "../qrcodes/" + petData.qr_code;
+    document.getElementById("downloadQRCode").download = petData.petname + "_qrcode.png";
+});
+</script>
+
+
 
 
 
     <script>
-        
-
         const sidebar = document.getElementById("sidebar");
         const mainContent = document.getElementById("mainContent");
         const toggleSidebar = document.getElementById("toggleSidebar");
@@ -148,3 +181,4 @@ if ($result === false || $result->num_rows == 0) {
     </script>
 
 </body>
+</html>

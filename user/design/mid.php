@@ -9,20 +9,22 @@ include '../internet/connect_ka.php';
     </div>
 <!-- Logo Section -->
     <div class="p-2 flex flex-col items-center space-y-3 px-4">
-        <img src="logo/logo.png" alt="LGU Logo" class="w-12 h-12 rounded-full mb-2">
+        <img src="logo/logo.png" alt="LGU Logo" class="w-12 h-12 rounded-full mb-2 border border-yellow-500 rounded-full">
         <span class="text-sm font-bold text-center">LGU - Pet Animal Welfare Protection System</span>
     </div>
 
 
     <ul class="space-y-3 px-4">
     <!-- Dashboard -->
+    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Dashboard</li>
     <li>
         <a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🏠 Dashboard</a>
     </li>
 
     <!-- NEW MANAGEMENT -->
-    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Dashboard</li>
-    <li><a href="petprofile.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">📷 Pet Identification</a></li>
+    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Profile</li>
+    <li><a href="petprofile.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🏡 Pet Profile</a></li>
+    <li><a href="petai.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🔍 Pet Image Recognition</a></li>
 
     <!-- REGISTRATION MANAGEMENT -->
     <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Registration</li>
@@ -36,7 +38,7 @@ include '../internet/connect_ka.php';
 
     <!-- REPORT MANAGEMENT -->
     <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Report Servies</li>
-    <li><a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🔍 Report Missing Pet</a></li>
+    <li><a href="missingpet.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🔍 Report Missing Pet</a></li>
     <li><a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">📄 Pet Missing List</a></li>
     <li><a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">⚠️ Report Animal Cruelty</a></li>
 </ul>

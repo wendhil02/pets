@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'design/mid.php';
 include 'design/top.php';
+include 'design/mid.php';
 include '../internet/connect_ka.php';
 
 if (!isset($_SESSION['email'])) {
