@@ -70,6 +70,8 @@ if (!$pet) {
     <h1 class="text-3xl font-bold text-gray-900 text-center">
         <span id="petNameDisplay"><?= htmlspecialchars($pet['petname']) ?>'s Profile</span>
     </h1>
+    
+
 
     <!-- 🔄 Pet Selector -->
     <div class="flex justify-center mt-4">
@@ -116,6 +118,8 @@ if (!$pet) {
                class="mt-4 inline-block px-5 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
                 📥 Download QR Code
             </a>
+
+            <!-- 📌 Public Profile Link -->
         </div>
     </div>
 <?php else: ?>

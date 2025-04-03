@@ -16,37 +16,92 @@ include '../internet/connect_ka.php';
  
 
     <ul class="space-y-3 px-4">
-    <!-- Dashboard -->
-    <li>
-        <a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🏠Admin Dashboard</a>
-    </li>
+    <?php
+$current_page = basename($_SERVER['PHP_SELF']); // Get current file name
+?>
 
-    <!-- NEW MANAGEMENT -->
-    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Admin Management</li>
-    <li><a href="pending_surrender.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">📷 Approval Pet Adoption</a></li>
+<ul class="space-y-3 px-4">
+    <!-- Dashboard -->
+    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Dashboard</li>
+    <li>
+        <a href="#" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'dashboard.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            🏠 Dashboard
+        </a>
+    </li>
 
     <!-- REGISTRATION MANAGEMENT -->
     <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Registration Management</li>
-    <li><a href="regispet.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🐾 Pet Register</a></li>
-
+    <li>
+        <a href="regispet.php" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'parehistro.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            🐾 Pet Register
+        </a>
+    </li>
+   
 
     <!-- ADOPTION MANAGEMENT -->
     <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Adoption Management</li>
-    <li><a href="manage_adoptions.php" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🏡 Adopt a Pet</a></li>
-
+    <li>
+        <a href="manage_adoptions.php" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'iwantadopt.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            🔍  Adoption
+        </a>
+    </li>
+    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Adopted Management</li>
+    <li>
+        <a href="pending_surrender.php" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'missingpet.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            🔍 Adopted
+        </a>
+    </li>
+    
 
     <!-- REPORT MANAGEMENT -->
-    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Report Management</li>
-    <li><a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">🔍 Report Missing Pet</a></li>
-    <li><a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">📄 Pet Missing List</a></li>
-    <li><a href="#" class="block text-sm py-3 px-3 rounded hover:bg-blue-700">⚠️ Report Animal Cruelty</a></li>
+    <li class="mt-5 text-xs font-bold text-gray-300 uppercase">Report Services</li>
+   
+    <li>
+        <a href="admin_reports.php" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'admin_reports.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            ⚠️ Report Animal Cruelty
+        </a>
+    </li>
+      
+    <li>
+        <a href="archive_reports.php" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'archive_reports.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            Archived Reports
+        </a>
+    </li>
+    <li>
+        <a href="census_admin.php" class="block text-sm py-3 px-3 rounded transition-all duration-300 
+            <?= $current_page == 'archive_reports.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            census verification
+        </a>
+    </li>
 </ul>
+
+
 
 
 </div>
 
 <!-- Custom CSS -->
 <style>
+    @keyframes slideRight {
+    0% {
+        transform: translateX(-5px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slideRight {
+    animation: slideRight 0.3s ease-in-out;
+}
     /* Auto-hide scrollbar */
     .scrollbar-hide::-webkit-scrollbar {
         width: 6px;

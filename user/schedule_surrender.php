@@ -35,13 +35,13 @@ $user_email = $_SESSION['email'];
             </div>
         </nav>
         <div class="max-w-2xl mx-auto bg-white p-6 mt-4 rounded-lg shadow-lg">
-      
-        <div class="flex items-center justify-between mt-1">
-    <h2 class="text-lg font-semibold">Your Pending Pets Schedule Set</h2>
-    <button id="openGuideModal" class="px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-        Guide
-    </button>
-</div>
+
+            <div class="flex items-center justify-between mt-1">
+                <h2 class="text-lg font-semibold">Your Pending Pets Schedule Set</h2>
+                <button id="openGuideModal" class="px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                    Guide
+                </button>
+            </div>
 
             <!-- ✅ Alert Notification -->
             <div id="notification" class="fixed top-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-md shadow-md hidden transition-opacity duration-300">
@@ -74,7 +74,7 @@ $user_email = $_SESSION['email'];
                 <button id="openScheduleModal" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Set Schedule</button>
             </div>
 
-         
+
         </div>
 
         <!-- ✅ Modal for Scheduling -->
@@ -91,15 +91,15 @@ $user_email = $_SESSION['email'];
         </div>
 
         <div id="confirmScheduleModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h3 class="text-lg font-bold mb-2">Confirm Schedule</h3>
-        <p class="text-gray-700">Are you sure you want to set this schedule?</p>
-        <div class="flex justify-end gap-2 mt-4">
-            <button id="cancelFinalSchedule" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">No</button>
-            <button id="confirmFinalSchedule" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Yes</button>
+            <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+                <h3 class="text-lg font-bold mb-2">Confirm Schedule</h3>
+                <p class="text-gray-700">Are you sure you want to set this schedule?</p>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button id="cancelFinalSchedule" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">No</button>
+                    <button id="confirmFinalSchedule" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Yes</button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <div id="guideModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
             <div class="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -129,43 +129,43 @@ $user_email = $_SESSION['email'];
             });
 
             document.addEventListener("DOMContentLoaded", function() {
-    let selectedPets = new Set();
-    let scheduledPets = new Set();
-    let scheduleDate = "";
+                let selectedPets = new Set();
+                let scheduledPets = new Set();
+                let scheduleDate = "";
 
-    function showNotification(message, type) {
-        let notif = document.getElementById("notification");
-        let notifMessage = document.getElementById("notifMessage");
+                function showNotification(message, type) {
+                    let notif = document.getElementById("notification");
+                    let notifMessage = document.getElementById("notifMessage");
 
-        notifMessage.innerText = message;
-        notif.classList.remove("hidden", "bg-red-500", "bg-green-500");
-        notif.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
+                    notifMessage.innerText = message;
+                    notif.classList.remove("hidden", "bg-red-500", "bg-green-500");
+                    notif.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
 
-        notif.style.opacity = "1";
-        setTimeout(() => {
-            notif.style.opacity = "0";
-            setTimeout(() => notif.classList.add("hidden"), 300);
-        }, 3000);
-    }
-
-    function loadPendingPets() {
-        fetch("fetch_pending_pets.php")
-            .then(response => response.json())
-            .then(data => {
-                const petsList = document.getElementById("pendingPetsList");
-                petsList.innerHTML = "";
-
-                if (data.length === 0) {
-                    petsList.innerHTML = "<tr><td colspan='6' class='text-center p-4 text-gray-500'>No pending pets.</td></tr>";
-                    return;
+                    notif.style.opacity = "1";
+                    setTimeout(() => {
+                        notif.style.opacity = "0";
+                        setTimeout(() => notif.classList.add("hidden"), 300);
+                    }, 3000);
                 }
 
-                data.forEach(pet => {
-                    let isScheduled = pet.schedule_date && pet.schedule_date !== "Not Scheduled";
-                    let disabledAttr = isScheduled ? "disabled" : "";
+                function loadPendingPets() {
+                    fetch("fetch_pending_pets.php")
+                        .then(response => response.json())
+                        .then(data => {
+                            const petsList = document.getElementById("pendingPetsList");
+                            petsList.innerHTML = "";
 
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
+                            if (data.length === 0) {
+                                petsList.innerHTML = "<tr><td colspan='6' class='text-center p-4 text-gray-500'>No pending pets.</td></tr>";
+                                return;
+                            }
+
+                            data.forEach(pet => {
+                                let isScheduled = pet.schedule_date && pet.schedule_date !== "Not Scheduled";
+                                let disabledAttr = isScheduled ? "disabled" : "";
+
+                                const row = document.createElement("tr");
+                                row.innerHTML = `
                         <td class="border p-2">
                             <input type="checkbox" class="select-pet" data-id="${pet.id}" ${disabledAttr}>
                         </td>
@@ -177,75 +177,80 @@ $user_email = $_SESSION['email'];
                         <td class="border p-2">${pet.email}</td>
                         <td class="border p-2">${isScheduled ? pet.schedule_date : "—"}</td>
                     `;
-                    petsList.appendChild(row);
-                });
+                                petsList.appendChild(row);
+                            });
 
-                document.querySelectorAll(".select-pet").forEach(checkbox => {
-                    checkbox.addEventListener("change", function() {
-                        if (this.checked) {
-                            selectedPets.add(this.dataset.id);
-                        } else {
-                            selectedPets.delete(this.dataset.id);
-                        }
-                    });
-                });
-            })
-            .catch(error => console.error("Error loading pending pets:", error));
-    }
-
-    loadPendingPets();
-
-    document.getElementById("openScheduleModal").addEventListener("click", function() {
-        if (selectedPets.size === 0) {
-            showNotification("⚠️ Please select at least one pet!", "error");
-            return;
-        }
-        document.getElementById("scheduleModal").classList.remove("hidden");
-    });
-
-    document.getElementById("cancelSchedule").addEventListener("click", function() {
-        document.getElementById("scheduleModal").classList.add("hidden");
-    });
-
-    document.getElementById("saveSchedule").addEventListener("click", function() {
-        scheduleDate = document.getElementById("scheduleDate").value;
-
-        if (!scheduleDate) {
-            showNotification("⚠️ Please select a date and time!", "error");
-            return;
-        }
-
-        document.getElementById("scheduleModal").classList.add("hidden");
-        document.getElementById("confirmScheduleModal").classList.remove("hidden");
-    });
-
-    document.getElementById("cancelFinalSchedule").addEventListener("click", function() {
-        document.getElementById("confirmScheduleModal").classList.add("hidden");
-    });
-
-    document.getElementById("confirmFinalSchedule").addEventListener("click", function() {
-        fetch("save_schedule.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ pet_ids: Array.from(selectedPets), schedule_date: scheduleDate })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification("✅ Schedule saved successfully!", "success");
-                    document.getElementById("confirmScheduleModal").classList.add("hidden");
-
-                    selectedPets.forEach(id => scheduledPets.add(id));
-                    selectedPets.clear();
-
-                    loadPendingPets();
-                } else {
-                    showNotification("❌ Failed to save schedule.", "error");
+                            document.querySelectorAll(".select-pet").forEach(checkbox => {
+                                checkbox.addEventListener("change", function() {
+                                    if (this.checked) {
+                                        selectedPets.add(this.dataset.id);
+                                    } else {
+                                        selectedPets.delete(this.dataset.id);
+                                    }
+                                });
+                            });
+                        })
+                        .catch(error => console.error("Error loading pending pets:", error));
                 }
-            })
-            .catch(error => console.error("Error saving schedule:", error));
-    });
-});
+
+                loadPendingPets();
+
+                document.getElementById("openScheduleModal").addEventListener("click", function() {
+                    if (selectedPets.size === 0) {
+                        showNotification("⚠️ Please select at least one pet!", "error");
+                        return;
+                    }
+                    document.getElementById("scheduleModal").classList.remove("hidden");
+                });
+
+                document.getElementById("cancelSchedule").addEventListener("click", function() {
+                    document.getElementById("scheduleModal").classList.add("hidden");
+                });
+
+                document.getElementById("saveSchedule").addEventListener("click", function() {
+                    scheduleDate = document.getElementById("scheduleDate").value;
+
+                    if (!scheduleDate) {
+                        showNotification("⚠️ Please select a date and time!", "error");
+                        return;
+                    }
+
+                    document.getElementById("scheduleModal").classList.add("hidden");
+                    document.getElementById("confirmScheduleModal").classList.remove("hidden");
+                });
+
+                document.getElementById("cancelFinalSchedule").addEventListener("click", function() {
+                    document.getElementById("confirmScheduleModal").classList.add("hidden");
+                });
+
+                document.getElementById("confirmFinalSchedule").addEventListener("click", function() {
+                    fetch("save_schedule.php", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                pet_ids: Array.from(selectedPets),
+                                schedule_date: scheduleDate
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showNotification("✅ Schedule saved successfully!", "success");
+                                document.getElementById("confirmScheduleModal").classList.add("hidden");
+
+                                selectedPets.forEach(id => scheduledPets.add(id));
+                                selectedPets.clear();
+
+                                loadPendingPets();
+                            } else {
+                                showNotification("❌ Failed to save schedule.", "error");
+                            }
+                        })
+                        .catch(error => console.error("Error saving schedule:", error));
+                });
+            });
         </script>
 
 

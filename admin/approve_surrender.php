@@ -41,6 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
 
+    // ✅ Update status for all pets with status 'own' to 'pending' before performing action
+    $sql_update_all_own = "UPDATE pet SET status = 'pending' WHERE status = 'own'";
+    $conn->query($sql_update_all_own); // Update all pets with status 'own' to 'pending'
+
     // ✅ Update pet status, reason, and schedule_date (set to NULL for both approve and reject)
     if ($action === 'approve') {
         $sql_update = "UPDATE pet SET status = ?, reason = NULL, schedule_date = NULL WHERE id = ?";

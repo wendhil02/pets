@@ -47,13 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Move uploaded file to the destination
     if (move_uploaded_file($fileTmpPath, $destination)) {
-        // Update the database
-        $updateSql = "UPDATE pet SET vaccine_card = ?, vaccine_type = ?, status = 'Fully Vaccinated' WHERE id = ? AND email = ?";
+        // Update the vaccine_status and set status to 'own'
+        $updateSql = "UPDATE pet SET vaccine_card = ?, vaccine_type = ?, vaccine_status = 'Fully Vaccinated', status = 'own' WHERE id = ? AND email = ?";
         $stmt = $conn->prepare($updateSql);
         $stmt->bind_param("ssis", $newFileName, $vaccine_type, $pet_id, $user_email);
 
         if ($stmt->execute()) {
-            echo json_encode(["status" => "success", "message" => "Vaccine card uploaded successfully."]);
+            echo json_encode([
+                "status" => "success", 
+                "message" => "Vaccine card uploaded successfully.", 
+                "vaccine_status" => "Fully Vaccinated", 
+                "status_updated" => "own"
+            ]);
         } else {
             echo json_encode(["status" => "error", "message" => "Database update failed."]);
         }
@@ -68,4 +73,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $conn->close();
 ?>
+
 

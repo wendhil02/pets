@@ -9,9 +9,8 @@ if (!isset($_SESSION['email'])) {
 
 $user_email = $_SESSION['email'];
 
-// ✅ Kunin lang ang mga hindi pa nakikitang approved pets
-$sql = "SELECT id, petname, status, status_changed_at FROM pet 
-        WHERE email = ? AND status = 'Approved' AND seen = 0 ORDER BY status_changed_at DESC";
+$sql = "SELECT id, petname, status, status_changed_at, seen FROM pet 
+        WHERE email = ? AND status = 'Approved' ORDER BY status_changed_at DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $user_email);
@@ -23,9 +22,11 @@ while ($row = $result->fetch_assoc()) {
     $pets[] = [
         "id" => $row["id"],
         "petname" => $row["petname"],
-        "approved_at" => date("F j, Y g:i A", strtotime($row["status_changed_at"])) // Format date & time
+        "approved_at" => date("F j, Y g:i A", strtotime($row["status_changed_at"])),
+        "seen" => $row["seen"] // Track whether it is new or already seen
     ];
 }
 
 echo json_encode($pets);
 ?>
+

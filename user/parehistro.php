@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Start output buffering
+
 session_start();
 include 'design/top.php';
 include 'design/mid.php';
@@ -7,10 +9,22 @@ include '../phpqrcode-master/qrlib.php'; // ✅ Include QR Code Library
 
 // ✅ Ensure user is logged in
 if (!isset($_SESSION['email'])) {
-    $_SESSION['notification'] = "❌ Please log in first.";
-    header("Location: auth.php");
+    // If not logged in, redirect to login page
+    header("Location: ../index.php"); // or the file where login form is
     exit();
 }
+
+// You can also check if the session_key exists to make sure the session is valid
+if (!isset($_SESSION['session_key'])) {
+    // If session_key is missing, log the user out
+    header("Location: ../logout.php"); // or the logout handler
+    exit();
+}
+
+$first_name = $_SESSION['first_name'];
+$middle_name = $_SESSION['middle_name'];
+$last_name = $_SESSION['last_name'];
+$session_key = $_SESSION['session_key'];
 
 $user_email = $_SESSION['email']; // Get user email from session
 
@@ -88,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $qr_id = uniqid("qr_");
 
     // ✅ Generate QR Code (Using qr_id)
-    $qrData = "http://localhost/userside/user/petprofile.php?id=" . $qr_id;
+    $qrData = "http://bpa.smartbarangayconnect.com/userside/user/public_pet.php?id=" . $qr_id;
     $qr_dir = "../qrcodes/";
     if (!is_dir($qr_dir)) mkdir($qr_dir, 0777, true);
 
@@ -112,6 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: parehistro.php");
     exit();
 }
+ob_end_flush(); // Send the output at the end
 
 ?>
 
@@ -140,8 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <!-- Dashboard Content -->
         <div class="p-4 bg-white mt-1 mr-2 ml-2 rounded-lg shadow-lg">
-            <h1 class="text-2xl font-bold text-black mb-4">🐾 Pet Registration</h1>
-
+           
             <div class="mt-4">
                 <button id="openGuide" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     🛈 Guide
@@ -158,159 +172,183 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Pet Registration Guide</h2>
                     <p class="text-sm text-gray-700">
-                        🐾 **Step 1:** Fill in the pet’s name, age, type, and breed. <br>
-                        📷 **Step 2:** Upload a clear photo of your pet. <br>
-                        💉 **Step 3:** If your pet's vaccine type is not listed, kindly upload the vaccine card instead. This will serve as the basis for vaccination status verification. <br>
-                        📝 **Step 4:** Add important pet information. <br>
-                        ✅ **Step 5:** Click "Register Pet" to complete the process.
+                        🐾 Step 1:Fill in the pet’s name, age, type, and breed. <br>
+                        📷 Step 2:Upload a clear photo of your pet. <br>
+                        💉 Step 3:If your pet's vaccine type is not listed, kindly upload the vaccine card instead. This will serve as the basis for vaccination status verification. <br>
+                        📝 Step 4:Add important pet information. <br>
+                        ✅ Step 5:Click "Register Pet" to complete the process.
                     </p>
                 </div>
             </div>
 
-            <form action="#" method="POST" enctype="multipart/form-data" class="bg-gray-100  p-6 rounded-lg shadow-md space-y-6 max-w-lg mx-auto">
-                <!-- Error Message Container -->
-                <div id="errorContainer" class="hidden p-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded"></div>
-                <div id="vaccineNotification" class="hidden fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
-                    Vaccine selection updated successfully!
-                </div>
+            <form action="#" method="POST" enctype="multipart/form-data" class="bg-gray-100 p-6 rounded-lg shadow-md space-y-6 max-w-lg mx-auto">
+        <!-- Error Message Container -->
+        <div id="errorContainer" class="hidden p-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded"></div>
+        <div id="vaccineNotification" class="hidden fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
+            Vaccine selection updated successfully!
+        </div>
 
-                <?php if (isset($_SESSION['notification'])): ?>
-                    <div id="notification" class="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transition transform translate-x-20 opacity-0"
-                        style="animation: slide-in 0.5s forwards, fade-out 0.5s 2.5s forwards;">
-                        <?= $_SESSION['notification']; ?>
-                    </div>
-                    <style>
-                        @keyframes slide-in {
-                            to {
-                                transform: translateX(0);
-                                opacity: 1;
-                            }
-                        }
+        <?php if (isset($_SESSION['notification'])): ?>
+            <div id="notification" class="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transition transform translate-x-20 opacity-0"
+                style="animation: slide-in 0.5s forwards, fade-out 0.5s 2.5s forwards;">
+                <?= $_SESSION['notification']; ?>
+            </div>
+            <style>
+                @keyframes slide-in {
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
 
-                        @keyframes fade-out {
-                            to {
-                                opacity: 0;
-                            }
-                        }
-                    </style>
-                    <?php unset($_SESSION['notification']); ?>
-                <?php endif; ?>
+                @keyframes fade-out {
+                    to {
+                        opacity: 0;
+                    }
+                }
+            </style>
+            <?php unset($_SESSION['notification']); ?>
+        <?php endif; ?>
 
-                <h2 class="text-xl font-semibold text-black text-center">🐾 Pet Registration</h2>
+     <h2 class="text-2xl font-semibold text-black text-center mb-6">   <span class="text-2xl font-semibold text-whie uppercase text-center">
+                    <i class="fa-solid fa-shield-dog text-yellow-500"></i> LGU - Pet Registration
+                </span></h2>
 
-                <!-- Pet Name -->
-                <div>
-                    <label for="name" class="block text-sm font-semibold text-black mb-1">Pet Name</label>
-                    <input type="text" id="petname" name="petname" placeholder="Enter pet name"
+        <!-- Pet Name -->
+        <div>
+            <label for="petname" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                <i class="fas fa-paw text-blue-600 mr-2"></i> Pet Name
+            </label>
+            <input type="text" id="petname" name="petname" placeholder="Enter pet name"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
+        </div>
+
+        <!-- Age, Type, Breed -->
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <label for="age" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-calendar-alt text-blue-600 mr-2"></i> Age
+                </label>
+                <input type="number" id="age" name="age" placeholder="Age in years"
+                    class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="type" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-paw text-blue-600 mr-2"></i> Type
+                </label>
+                <select id="type" name="type" onchange="updateVaccineOptions()"
+                    class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
+                    <option value="">-- Select Pet Type --</option>
+                    <option value="dog">Dog</option>
+                    <option value="cat">Cat</option>
+                </select>
+            </div>
+            <div>
+                <label for="breed" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-paw text-blue-600 mr-2"></i> Breed
+                </label>
+                <input type="text" id="breed" name="breed" placeholder="Pet breed"
+                    class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
+            </div>
+        </div>
+
+        <!-- Pet Image & Info -->
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="image" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-camera text-blue-600 mr-2"></i> Pet Image
+                </label>
+                <input type="file" id="image" name="image"
+                    class="w-full px-3 py-2 border rounded-lg shadow-sm file:mr-2 file:py-2 file:px-4 file:border file:rounded-lg file:bg-blue-100 file:text-blue-700 file:hover:bg-blue-200">
+            </div>
+
+            <div>
+                <label for="vaccine_card" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-file-medical-alt text-blue-600 mr-2"></i> Upload Vaccine Card
+                </label>
+                <input type="file" id="vaccine_card" name="vaccine_card" disabled
+                    class="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-300 text-gray-500 file:mr-2 file:py-2 file:px-4 file:border file:rounded-lg file:bg-blue-100 file:text-blue-700 file:hover:bg-blue-200">
+                <p id="vaccineWarning" class="text-red-500 text-sm hidden">You can only upload a vaccine card if the pet is fully vaccinated.</p>
+            </div>
+
+            <div>
+                <label for="info" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i> Pet Information
+                </label>
+                <textarea id="info" name="info" rows="3" placeholder="Enter details about the pet"
+                    class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"></textarea>
+            </div>
+        </div>
+
+        <!-- Vaccine Status -->
+        <div>
+            <label for="vaccine" class="block text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                <i class="fas fa-syringe text-blue-600 mr-2"></i> Vaccine Status
+            </label>
+            <select id="vaccine" name="vaccine" onchange="checkVaccineStatus()"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
+                <option value="Not Vaccinated" >Not Vaccinated</option>
+                <option value="Fully Vaccinated">Fully Vaccinated</option>
+            </select>
+        </div>
+
+        <!-- Vaccine Display -->
+        <div id="vaccineDisplay" class="hidden mt-3">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Selected Vaccine Type:</label>
+            <div id="selectedVaccines" class="bg-gray-200 p-2 rounded-lg text-sm text-gray-800"></div>
+        </div>
+
+        <!-- Vaccine Modal -->
+        <div id="vaccineModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
+                <!-- Close Button -->
+                <button id="closeVaccineModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl">
+                    &times;
+                </button>
+
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Select Vaccine Type</h2>
+
+                <!-- Vaccine Type Selection -->
+                <div id="vaccineTypeContainer">
+                    <label for="vaccineType" class="block text-sm font-semibold text-gray-700">Vaccine Type</label>
+                    <select id="vaccineType" name="vaccineType"
                         class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
-
-                </div>
-
-                <!-- Age, Type, Breed -->
-                <div class="grid grid-cols-3 gap-4">
-                    <div>
-                        <label for="age" class="block text-sm font-semibold text-black mb-1">Age</label>
-                        <input type="number" id="age" name="age" placeholder="Age in years"
-                            class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
-                    </div>
-                    <div>
-                        <label for="type" class="block text-sm font-semibold text-black mb-1">Type</label>
-                        <select id="type" name="type" onchange="updateVaccineOptions()"
-                            class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
-                            <option value="">-- Select Pet Type --</option>
-                            <option value="dog">Dog</option>
-                            <option value="cat">Cat</option>
-                          
-                        </select>
-                    </div>
-                    <div>
-                        <label for="breed" class="block text-sm font-semibold text-black mb-1">Breed</label>
-                        <input type="text" id="breed" name="breed" placeholder="Pet breed"
-                            class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
-                    </div>
-                </div>
-
-                <!-- Pet Image & Info -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="image" class="block text-sm font-semibold text-black mb-1">Pet Image</label>
-                        <input type="file" id="image" name="image"
-                            class="w-full px-3 py-2 border rounded-lg shadow-sm file:mr-2 file:py-2 file:px-4 file:border file:rounded-lg file:bg-blue-100 file:text-blue-700 file:hover:bg-blue-200">
-                    </div>
-
-                    <div>
-                        <label for="vaccine_card" class="block text-sm font-semibold text-black mb-1">Upload Vaccine Card</label>
-                        <input type="file" id="vaccine_card" name="vaccine_card" disabled
-                            class="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-300 text-gray-500 file:mr-2 file:py-2 file:px-4 file:border file:rounded-lg file:bg-blue-100 file:text-blue-700 file:hover:bg-blue-200">
-                        <p id="vaccineWarning" class="text-red-500 text-sm hidden">You can only upload a vaccine card if the pet is fully vaccinated.</p>
-                    </div>
-
-                    <div>
-                        <label for="info" class="block text-sm font-semibold text-black mb-1">Pet Information</label>
-                        <textarea id="info" name="info" rows="3" placeholder="Enter details about the pet"
-                            class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"></textarea>
-                    </div>
-                </div>
-
-
-                <!-- Vaccine Status -->
-                <div>
-                    <label for="vaccine" class="block text-sm font-semibold text-black mb-1">Vaccine Status</label>
-                    <select id="vaccine" name="vaccine" onchange="checkVaccineStatus()"
-                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
-                        <option value="Not Vaccinated" >Not Vaccinated</option>
-                        <option value="Fully Vaccinated">Fully Vaccinated</option>
+                        <!-- Options will be added dynamically -->
                     </select>
                 </div>
 
-
-                <!-- Vaccine Display -->
-                <div id="vaccineDisplay" class="hidden mt-3">
-                    <label class="block text-sm font-semibold text-black mb-1">Selected Vaccine Type:</label>
-                    <div id="selectedVaccines" class="bg-gray-200 p-2 rounded-lg text-sm text-gray-800"></div>
-                </div>
-
-                <!-- Vaccine Modal -->
-                <div id="vaccineModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
-                        <!-- Close Button -->
-                        <button id="closeVaccineModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl">
-                            &times;
-                        </button>
-
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Select Vaccine Type</h2>
-
-                        <!-- Vaccine Type Selection -->
-                        <div id="vaccineTypeContainer">
-                            <label for="vaccineType" class="block text-sm font-semibold text-gray-700">Vaccine Type</label>
-                            <select id="vaccineType" name="vaccineType"
-                                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300">
-                                <!-- Options will be added dynamically -->
-                            </select>
-                        </div>
-
-                        <!-- Confirm Button -->
-                        <div class="mt-4 flex justify-end">
-                            <button id="confirmVaccineBtn"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                Confirm
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div>
-                    <button type="submit"
-                        class="w-full bg-blue-600 text-white py-2 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-200">
-                        Register Pet 🐶
+                <!-- Confirm Button -->
+                <div class="mt-4 flex justify-end">
+                    <button id="confirmVaccineBtn"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Confirm
                     </button>
                 </div>
-            </form>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+    <button type="submit" id="registerBtn"
+        class="w-full bg-blue-600 text-white py-2 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+        <span id="btnText">Register Pet 🐶</span>
+        
+    </button>
+</div>
+
+
+   
+
+
+    </form>
         </div>
     </div>
 
     <script>
+
+
+
+
         document.getElementById("openGuide").addEventListener("click", function() {
             document.getElementById("guideModal").classList.remove("hidden");
         });

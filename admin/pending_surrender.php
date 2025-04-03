@@ -1,4 +1,5 @@
 <?php
+
 include 'design/top.php';
 include 'design/mid.php';
 include '../internet/connect_ka.php';
@@ -76,18 +77,17 @@ $result = $stmt->get_result();
 
                                 <td class="border border-transparent p-2 text-center">
                                     <div class="flex justify-center space-x-2">
-                                    <button 
-    onclick="updateStatus(
+                                        <button
+                                            onclick="updateStatus(
         <?php echo $row['id']; ?>, 
         'approve', 
         '<?php echo addslashes(htmlspecialchars($row['email'])); ?>', 
         '<?php echo addslashes(htmlspecialchars($row['petname'])); ?>'
-    )" 
-    class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-    <?php echo empty($row['schedule_date']) ? 'disabled' : ''; ?>
->
-    O
-</button>
+    )"
+                                            class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            <?php echo empty($row['schedule_date']) ? 'disabled' : ''; ?>>
+                                            O
+                                        </button>
 
                                         <button onclick="updateStatus(
                                             <?php echo $row['id']; ?>, 
@@ -110,114 +110,115 @@ $result = $stmt->get_result();
     </div>
 
     <!-- Rejection Modal -->
-<div id="rejectionModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white p-5 rounded-lg shadow-lg w-96">
-        <h2 class="text-lg font-semibold mb-3">Reject Pet Surrender</h2>
-        <p class="text-sm text-gray-600 mb-2">Please provide a reason for rejecting <span id="rejectPetName" class="font-semibold"></span>.</p>
-        <textarea id="rejectReason" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter reason..."></textarea>
-        <div class="flex justify-end mt-3">
-            <button onclick="closeModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg mr-2">Cancel</button>
-            <button id="confirmReject" class="px-4 py-2 bg-red-600 text-white rounded-lg">Reject</button>
+    <div id="rejectionModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white p-5 rounded-lg shadow-lg w-96">
+            <h2 class="text-lg font-semibold mb-3">Reject Pet Surrender</h2>
+            <p class="text-sm text-gray-600 mb-2">Please provide a reason for rejecting <span id="rejectPetName" class="font-semibold"></span>.</p>
+            <textarea id="rejectReason" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter reason..."></textarea>
+            <div class="flex justify-end mt-3">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg mr-2">Cancel</button>
+                <button id="confirmReject" class="px-4 py-2 bg-red-600 text-white rounded-lg">Reject</button>
+            </div>
         </div>
     </div>
-</div>
 
 
     <script>
-        function showNotification(message, type) {
-            let notif = document.getElementById("notification");
-            let notifMessage = document.getElementById("notifMessage");
+        
+        document.addEventListener("DOMContentLoaded", function () {
+    let currentPetId = null;
+    let currentEmail = null;
+    let currentPetName = null;
 
-            notifMessage.innerText = message;
-            notif.classList.remove("hidden", "bg-red-500", "bg-green-500");
-            notif.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
+    function showNotification(message, type) {
+        let notif = document.getElementById("notification");
+        let notifMessage = document.getElementById("notifMessage");
 
-            notif.style.opacity = "1";
-            setTimeout(() => {
-                notif.style.opacity = "0";
-                setTimeout(() => notif.classList.add("hidden"), 300);
-            }, 3000);
-        }
+        notifMessage.innerText = message;
+        notif.classList.remove("hidden", "bg-red-500", "bg-green-500");
+        notif.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
 
-        function showConfirmation(message, onConfirm) {
-            let modal = document.getElementById("confirmModal");
-            let confirmText = document.getElementById("confirmText");
-            let confirmYes = document.getElementById("confirmYes");
-            let confirmNo = document.getElementById("confirmNo");
-
-            confirmText.innerText = message;
-            modal.classList.remove("hidden");
-
-            confirmYes.onclick = function() {
-                modal.classList.add("hidden");
-                onConfirm();
-            };
-
-            confirmNo.onclick = function() {
-                modal.classList.add("hidden");
-            };
-        }
-
-
-        let currentPetId = null;
-let currentEmail = null;
-let currentPetName = null;
-
-function updateStatus(id, action, email, petname) {
-    if (action === 'reject') {
-        // Open Modal for Rejection
-        currentPetId = id;
-        currentEmail = email;
-        currentPetName = petname;
-        document.getElementById("rejectPetName").textContent = petname;
-        document.getElementById("rejectionModal").classList.remove("hidden");
-    } else {
-        sendStatusUpdate(id, action, email, petname, null);
+        notif.style.opacity = "1";
+        setTimeout(() => {
+            notif.style.opacity = "0";
+            setTimeout(() => notif.classList.add("hidden"), 300);
+        }, 3000);
     }
-}
 
-// Close Modal
-function closeModal() {
-    document.getElementById("rejectionModal").classList.add("hidden");
-    document.getElementById("rejectReason").value = ""; // Clear input
-}
+    function showConfirmation(message, onConfirm) {
+        let modal = document.getElementById("confirmModal");
+        let confirmText = document.getElementById("confirmText");
+        let confirmYes = document.getElementById("confirmYes");
+        let confirmNo = document.getElementById("confirmNo");
 
-// Confirm Rejection
-document.getElementById("confirmReject").addEventListener("click", function () {
-    let reason = document.getElementById("rejectReason").value.trim();
-    if (!reason) {
-        alert("Please enter a reason."); // Optional: Gusto mo bang palitan ito ng UI error message?
-        return;
+        confirmText.innerText = message;
+        modal.classList.remove("hidden");
+
+        confirmYes.onclick = function () {
+            modal.classList.add("hidden");
+            onConfirm();
+        };
+
+        confirmNo.onclick = function () {
+            modal.classList.add("hidden");
+        };
     }
-    sendStatusUpdate(currentPetId, "reject", currentEmail, currentPetName, reason);
-    closeModal();
-});
 
-// Send Status Update
-function sendStatusUpdate(id, action, email, petname, reason) {
-    let formData = new URLSearchParams();
-    formData.append("id", id);
-    formData.append("action", action);
-    formData.append("email", email);
-    formData.append("petname", petname);
-    if (reason) formData.append("reason", reason);
-
-    fetch('approve_surrender.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString()
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById("row-" + id)?.remove();
+    function updateStatus(id, action, email, petname) {
+        if (action === 'reject') {
+            currentPetId = id;
+            currentEmail = email;
+            currentPetName = petname;
+            document.getElementById("rejectPetName").textContent = petname;
+            document.getElementById("rejectionModal").classList.remove("hidden");
         } else {
-            alert("Error: " + data.message);
+            sendStatusUpdate(id, action, email, petname, null);
         }
-    })
-    .catch(error => console.error('Error:', error));
-}
+    }
 
+    function closeModal() {
+        document.getElementById("rejectionModal").classList.add("hidden");
+        document.getElementById("rejectReason").value = ""; // Clear input
+    }
+
+    document.getElementById("confirmReject").addEventListener("click", function () {
+        let reason = document.getElementById("rejectReason").value.trim();
+        if (!reason) {
+            showNotification("Please enter a rejection reason!", "error");
+            return;
+        }
+        sendStatusUpdate(currentPetId, "reject", currentEmail, currentPetName, reason);
+        closeModal();
+    });
+
+    function sendStatusUpdate(id, action, email, petname, reason) {
+        let formData = new URLSearchParams();
+        formData.append("id", id);
+        formData.append("action", action);
+        formData.append("email", email);
+        formData.append("petname", petname);
+        if (reason) formData.append("reason", reason);
+
+        fetch('approve_surrender.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`Pet ${action}ed successfully!`, "success");
+                document.getElementById("row-" + id)?.remove();
+            } else {
+                showNotification("Error: " + data.message, "error");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    window.updateStatus = updateStatus;
+    window.closeModal = closeModal;
+});
     </script>
 
 

@@ -5,7 +5,7 @@ include 'design/mid.php';
 include '../internet/connect_ka.php';
 
 if (!isset($_SESSION['email'])) {
-    header("Location: auth.php"); // Redirect to login page
+    header("Location: index.php"); // Redirect to login page
     exit();
 }
 
@@ -50,108 +50,133 @@ if (isset($_SESSION['notif'])) {
         </div>
 
         <!-- Form -->
-        <form action="submit_adoption.php" method="POST" class="mt-6">
-            <!-- Pet Selection -->
-            <label for="pet_id" class="block text-sm font-medium text-gray-700 mb-1">Select a Pet:</label>
-            <select id="pet_id" name="pet_id" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" required onchange="updatePetDetails(this)">
-                <option value="">-- Select a Pet --</option>
-                <?php
-              
-                $email = $_SESSION['email'];
+        <form action="submit_adoption.php" method="POST" class="mt-6" id="adoptionForm">
+        <!-- Pet Selection -->
+        <label for="pet_id" class="block text-sm font-medium text-gray-700 mb-1">Select a Pet:</label>
+        <select id="pet_id" name="pet_id" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" required onchange="updatePetDetails(this)">
+            <option value="">-- Select a Pet --</option>
+            <?php
+            $sql = "SELECT id, petname, image, breed, age, vaccine_status, vaccine_type 
+                    FROM pet 
+                    WHERE status = 'approved' AND email != ?";
 
-                // Fetch pets that do NOT belong to the logged-in user
-                $sql = "SELECT id, petname, image, breed, age, vaccine_status, vaccine_type 
-                        FROM pet 
-                        WHERE status = 'approved' AND email != ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("s", $email);
-                $stmt->execute();
-                $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()):
+            ?>
+                <option
+                    value="<?= htmlspecialchars($row['id']); ?>"
+                    data-image="<?= !empty($row['image']) ? "../uploads/" . htmlspecialchars($row['image']) : 'default_pet.png'; ?>"
+                    data-breed="<?= htmlspecialchars($row['breed']); ?>"
+                    data-age="<?= htmlspecialchars($row['age']); ?>"
+                    data-vaccine-status="<?= htmlspecialchars($row['vaccine_status']); ?>"
+                    data-vaccine-type="<?= htmlspecialchars($row['vaccine_type']); ?>">
+                    <?= htmlspecialchars($row['petname']); ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
 
-                while ($row = $result->fetch_assoc()):
-                ?>
-                    <option
-                        value="<?= htmlspecialchars($row['id']); ?>"
-                        data-image="<?= !empty($row['image']) ? "../uploads/" . htmlspecialchars($row['image']) : 'default_pet.png'; ?>"
-                        data-breed="<?= htmlspecialchars($row['breed']); ?>"
-                        data-age="<?= htmlspecialchars($row['age']); ?>"
-                        data-vaccine-status="<?= htmlspecialchars($row['vaccine_status']); ?>"
-                        data-vaccine-type="<?= htmlspecialchars($row['vaccine_type']); ?>">
-                        <?= htmlspecialchars($row['petname']); ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
-
-            <!-- Pet Details -->
-            <div id="petDetailsContainer" class="mt-6 hidden text-center border rounded-lg p-4 bg-gray-50">
-                <img id="petImage" src="default_pet.png" alt="Selected Pet" class="w-32 h-32 object-cover rounded-lg border mx-auto shadow-lg">
-                <div class="mt-3">
-                    <p class="text-sm text-gray-700"><strong>Breed:</strong> <span id="petBreed"></span></p>
-                    <p class="text-sm text-gray-700"><strong>Age:</strong> <span id="petAge"></span></p>
-                    <p class="text-sm text-gray-700"><strong>Vaccine Status:</strong> <span id="petVaccineStatus"></span></p>
-                    <p class="text-sm text-gray-700"><strong>Vaccine Type:</strong> <span id="petVaccineType"></span></p>
-                </div>
+        <!-- Pet Details -->
+        <div id="petDetailsContainer" class="mt-6 hidden text-center border rounded-lg p-4 bg-gray-50">
+            <img id="petImage" src="default_pet.png" alt="Selected Pet" class="w-32 h-32 object-cover rounded-lg border mx-auto shadow-lg">
+            <div class="mt-3">
+                <p class="text-sm text-gray-700"><strong>Breed:</strong> <span id="petBreed"></span></p>
+                <p class="text-sm text-gray-700"><strong>Age:</strong> <span id="petAge"></span></p>
+                <p class="text-sm text-gray-700"><strong>Vaccine Status:</strong> <span id="petVaccineStatus"></span></p>
+                <p class="text-sm text-gray-700"><strong>Vaccine Type:</strong> <span id="petVaccineType"></span></p>
             </div>
+        </div>
 
-            <!-- Email Input -->
-            <label for="email" class="block mt-6 text-sm font-medium text-gray-700">Your Email:</label>
-            <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" class="w-full p-3 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
+        <!-- Email Input -->
+        <label for="email" class="block mt-6 text-sm font-medium text-gray-700">Your Email:</label>
+        <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" class="w-full p-3 border rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
 
-            <!-- Contact Input -->
-            <label for="contact" class="block mt-4 text-sm font-medium text-gray-700">Additional Contact:</label>
-            <input type="text" id="contact" name="contact" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" placeholder="Enter your contact number" required>
+        <!-- Contact Input -->
+        <label for="contact" class="block mt-4 text-sm font-medium text-gray-700">Additional Contact:</label>
+        <input type="text" id="contact" name="contact" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" placeholder="Enter your contact number" required>
 
-            <!-- Submit Button -->
-            <button type="submit" class="mt-6 w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md">Submit Request</button>
-        </form>
+        <!-- Submit Button -->
+        <button type="button" onclick="showModal()" class="mt-6 w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md">Submit Request</button>
+    </form>
+</div>
+
+<!-- Popup Modal -->
+<div id="confirmationModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-lg font-semibold text-gray-800">Confirm Adoption Request</h2>
+        <p class="text-sm text-gray-600 mt-2">Are you sure you want to submit this request?</p>
+        <div class="mt-4 flex justify-end space-x-2">
+            <button type="button" onclick="hideModal()" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">No</button>
+            <button type="button" onclick="submitForm()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Yes</button>
+        </div>
     </div>
 </div>
 
-        <script>
- function updatePetDetails(select) {
-                let detailsContainer = document.getElementById('petDetailsContainer');
-                let imageElement = document.getElementById('petImage');
-                let breedElement = document.getElementById('petBreed');
-                let ageElement = document.getElementById('petAge');
-                let vaccineStatusElement = document.getElementById('petVaccineStatus');
-                let vaccineTypeElement = document.getElementById('petVaccineType');
+<script>
+function updatePetDetails(select) {
+    let detailsContainer = document.getElementById('petDetailsContainer');
+    let imageElement = document.getElementById('petImage');
+    let breedElement = document.getElementById('petBreed');
+    let ageElement = document.getElementById('petAge');
+    let vaccineStatusElement = document.getElementById('petVaccineStatus');
+    let vaccineTypeElement = document.getElementById('petVaccineType');
 
-                let selectedOption = select.options[select.selectedIndex];
+    let selectedOption = select.options[select.selectedIndex];
 
-                if (selectedOption.value === "") {
-                    detailsContainer.classList.add('hidden');
-                    imageElement.src = "default_pet.png"; // Reset to default
-                    breedElement.textContent = "";
-                    ageElement.textContent = "";
-                    vaccineStatusElement.textContent = "";
-                    vaccineTypeElement.textContent = "";
-                    return;
-                }
+    if (selectedOption.value === "") {
+        detailsContainer.classList.add('hidden');
+        imageElement.src = "default_pet.png"; // Reset to default
+        breedElement.textContent = "";
+        ageElement.textContent = "";
+        vaccineStatusElement.textContent = "";
+        vaccineTypeElement.textContent = "";
+        return;
+    }
 
-                let imageUrl = selectedOption.getAttribute('data-image') || "default_pet.png";
-                let breed = selectedOption.getAttribute('data-breed') || "N/A";
-                let age = selectedOption.getAttribute('data-age') || "N/A";
-                let vaccineStatus = selectedOption.getAttribute('data-vaccine-status') || "N/A";
-                let vaccineType = selectedOption.getAttribute('data-vaccine-type') || "N/A";
+    let imageUrl = selectedOption.getAttribute('data-image') || "default_pet.png";
+    let breed = selectedOption.getAttribute('data-breed') || "N/A";
+    let age = selectedOption.getAttribute('data-age') || "N/A";
+    let vaccineStatus = selectedOption.getAttribute('data-vaccine-status') || "N/A";
+    let vaccineType = selectedOption.getAttribute('data-vaccine-type') || "N/A";
 
-                detailsContainer.classList.remove('hidden');
-                imageElement.src = imageUrl;
-                breedElement.textContent = breed;
-                ageElement.textContent = age;
-                vaccineStatusElement.textContent = vaccineStatus;
-                vaccineTypeElement.textContent = vaccineType;
-            }
+    detailsContainer.classList.remove('hidden');
+    imageElement.src = imageUrl;
+    breedElement.textContent = breed;
+    ageElement.textContent = age;
+    vaccineStatusElement.textContent = vaccineStatus;
+    vaccineTypeElement.textContent = vaccineType;
+}
 
-            // Auto-hide notifications after 3 seconds
-            setTimeout(() => {
-                let notif = document.getElementById("notification");
-                if (notif) {
-                    notif.style.opacity = "0";
-                    setTimeout(() => notif.remove(), 500);
-                }
-            }, 3000);
-        </script>
+function showModal() {
+    document.getElementById("confirmationModal").classList.remove("hidden");
+}
+
+function hideModal() {
+    document.getElementById("confirmationModal").classList.add("hidden");
+}
+
+function submitForm() {
+    document.getElementById("adoptionForm").submit();
+}
+
+// Close modal on outside click
+document.getElementById("confirmationModal").addEventListener("click", function(event) {
+    if (event.target === this) {
+        hideModal();
+    }
+});
+
+// Close modal on ESC key
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        hideModal();
+    }
+});
+</script>
+
 
 
 

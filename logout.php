@@ -37,6 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ✅ If accessed directly, redirect to login page
-header("Location: auth.php");
+header("Location: index.php");
 exit();
 ?>
