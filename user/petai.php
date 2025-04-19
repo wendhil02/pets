@@ -1,6 +1,24 @@
 <?php
 session_start();
 include 'design/top.php';
+// ✅ Ensure user is logged in
+if (!isset($_SESSION['email'])) {
+    // If not logged in, redirect to login page
+    header("Location: ../index.php"); // or the file where login form is
+    exit();
+}
+
+// You can also check if the session_key exists to make sure the session is valid
+if (!isset($_SESSION['session_key'])) {
+    // If session_key is missing, log the user out
+    header("Location: ../logout.php"); // or the logout handler
+    exit();
+}
+
+$first_name = $_SESSION['first_name'];
+$middle_name = $_SESSION['middle_name'];
+$last_name = $_SESSION['last_name'];
+$session_key = $_SESSION['session_key'];
 
 ?>
 
@@ -34,9 +52,15 @@ include 'design/top.php';
 
 <body class="bg-white flex items-center justify-center min-h-screen">
     <div class="bg-gray-700 shadow-lg rounded-2xl p-6 max-w-md w-full text-center">
+                    <div class="relative">
+    <a href="dashboard.php" class="absolute top-0 left-0 mt-3 ml-3 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+        Back
+    </a>
+</div>
     <div class="p-2 flex flex-col items-center space-y-3 px-4 text-white">
         <img src="logo/logo.png" alt="LGU Logo" class="w-12 h-12 rounded-full mb-2 border-2 border-yellow-500">
         <span class="text-sm font-semibold text-whie  text-center">
+
                     <i class="fa-solid fa-shield-dog text-yellow-500"></i> LGU - Pet Animal Welfare Protection System
                      <p><i class="fa-solid fa-magnifying-glass mr-2"></i>Pet Image Recognition</p>
                 </span>
@@ -45,7 +69,8 @@ include 'design/top.php';
    
         <label class="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">
             Pet Image
-            <input type="file" id="imageUpload" accept="image/*" class="hidden">
+           <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff" class="hidden">
+
         </label>
 
         <!-- Image preview -->
@@ -81,184 +106,184 @@ include 'design/top.php';
 
                 // 🔹 List of breeds and their folder structure
                 const pets = [{
-                        "folder": "abyssinian",
+                        "folder": "Abyssinian",
                         "file": "Abyssinian",
-                        "count": 5
+                        "count": 10
                     },
                     {
                         "folder": "american",
                         "file": "american",
-                        "count": 224
+                        "count": 3
                     },
                     {
                         "folder": "Bengal",
                         "file": "bengal",
-                        "count": 200
+                        "count": 3
                     },
                     {
                         "folder": "basset",
                         "file": "basset",
-                        "count": 200
+                        "count": 3
                     },
                     {
                         "folder": "beagle",
                         "file": "beagle",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "birman",
                         "file": "birman",
-                        "count": 50
+                        "count": 3
                     },
                     {
                         "folder": "bombay",
                         "file": "bombay",
-                        "count": 50
+                        "count": 3
                     },
                     {
                         "folder": "boxer",
                         "file": "boxer",
-                        "count": 50
+                        "count": 3
                     },
                     {
                         "folder": "british",
                         "file": "British",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "chihuahua",
                         "file": "chihuahua",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "egyptian",
                         "file": "Egyptian",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "english",
                         "file": "english",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "german",
                         "file": "german",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "goldenretriever",
                         "file": "goldenretriever",
-                        "count": 100
+                        "count": 3
                     },
                     {
                         "folder": "great",
                         "file": "great",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "havanese",
                         "file": "havanese",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "japanese",
                         "file": "japanese",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "keeshond",
                         "file": "keeshond",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "leonberger",
                         "file": "leonberger",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "maine",
                         "file": "Maine",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "miniature",
                         "file": "miniature",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "newfoundland",
                         "file": "newfoundland",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "persian",
                         "file": "persian",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "pomeranian",
                         "file": "pomeranian",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "pug",
                         "file": "pug",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "ragdoll",
                         "file": "ragdoll",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "russian",
                         "file": "Russian",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "saint",
                         "file": "saint",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "samoyed",
                         "file": "samoyed",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "scottish",
                         "file": "Scottish",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "shiba",
                         "file": "shiba",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "siamese",
                         "file": "siamese",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "sphynx",
                         "file": "sphynx",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "staffordshire",
                         "file": "staffordshire",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "wheaten",
                         "file": "wheaten",
-                        "count": 50
+                        "count": 5
                     },
                     {
                         "folder": "yorkshire",
                         "file": "yorkshire",
-                        "count": 50
+                        "count": 5
                     }
                 ];
 
@@ -304,10 +329,10 @@ include 'design/top.php';
                 if (model) return;
                 try {
                     model = await tmImage.load(modelURL, metadataURL);
-                    console.log("✅ Model Loaded!");
+                    console.log(" Model Loaded!");
                 } catch (error) {
                     console.error("❌ Failed to load model:", error);
-                    document.getElementById("result").innerText = "❌ Failed to load model.";
+                    document.getElementById("result").innerText = " Failed to load model.";
                 }
             }
 
@@ -326,7 +351,7 @@ include 'design/top.php';
                 resultText.classList.add("hidden");
                 descriptionText.classList.add("hidden"); // Hide description initially
 
-                console.log("🔍 Predicting image...");
+                console.log(" Predicting image...");
                 const prediction = await model.predict(imageElement);
 
                 let maxProb = 0;

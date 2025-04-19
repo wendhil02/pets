@@ -5,14 +5,10 @@ include 'design/top.php';
 include 'design/mid.php';
 include '../internet/connect_ka.php';
 
-if (!isset($_SESSION['email']) || !isset($_SESSION['session_key'])) {
-    session_unset();
-    session_destroy();
-    header("Location: ../index.php");
-    exit(); // Make sure you call exit after header() to stop further execution
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user') {
+    header("Location: index.php");
+    exit();
 }
-
-// Now you can access the user data and session key in the protected file
 $email = $_SESSION['email'];
 $first_name = $_SESSION['first_name'];
 $middle_name = $_SESSION['middle_name'];
@@ -63,6 +59,7 @@ ob_end_flush();
 
 
 <head>
+    <title>My Pets</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 
@@ -71,38 +68,39 @@ ob_end_flush();
 <body class="flex bg-gray-100">
     <div id="mainContent" class="main-content flex-1 transition-all">
         <!-- Navbar -->
-        <!-- Navbar -->
-        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <!-- ☰ Button -->
-            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
-                ☰
+<nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+    <!--  Button -->
+    <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+        ☰
+    </button>
+
+    <div class="flex items-center gap-4 flex-grow">  
+        <!-- Current Time and Date -->
+        <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+        <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <!-- Welcome Message -->
+        <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+            Welcome, <?= htmlspecialchars($email) ?>
+        </span>
+
+        <!-- Notification Bell and Dropdown -->
+        <div class="relative">
+            <button id="notifButton" class="text-white text-lg relative">
+                <i class="fa-solid fa-bell fa-shake"></i> <!-- Font Awesome Icon -->
+                <span id="notifBadge" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
             </button>
-            
 
-            <div class="flex items-center gap-4">  
-                <!--  Notification Bell --><span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
-                <div class="relative">
-
-                    <button id="notifButton" class="text-white text-lg relative">
-                    <i class="fa-solid fa-bell fa-shake"></i> <!-- Font Awesome Icon -->
-                        <span id="notifBadge" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-                    </button>
-
-
-                    <!-- 📜 Notification Dropdown -->
-                    <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white border border-gray-300 shadow-lg rounded-lg p-2">
-                        <p class="text-gray-700 font-semibold mb-2">Approved Pets</p>
-                        <ul id="notifList" class="text-gray-600 text-sm"></ul>
-                    </div>
-
-                </div>
-
-                <!-- Welcome Message -->
-                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
-                    Welcome, <?= htmlspecialchars($email) ?>
-                </span>
+            <!-- Notification Dropdown -->
+            <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white border border-gray-300 shadow-lg rounded-lg p-2">
+                <p class="text-gray-700 font-semibold mb-2">Approved Pets</p>
+                <ul id="notifList" class="text-gray-600 text-sm"></ul>
             </div>
-        </nav>
+        </div>
+    </div>
+</nav>
 
 
         <div class="p-4 bg-gray-200 mt-3 mr-2 ml-2 rounded-lg shadow-lg">
@@ -114,7 +112,7 @@ ob_end_flush();
                     <button onclick="openGuideModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600">
                         📖 Guide
                     </button>
-                    <!-- 🟢 Schedule Surrender Button -->
+                    <!--  Schedule Surrender Button -->
                     <a href="unvaccinepet.php" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-red-600">
                         Not vaccinated
                     </a>
@@ -128,9 +126,9 @@ ob_end_flush();
             <div id="guideModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
 
                 <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                    <h3 class="text-xl font-bold mb-3">📖 Pet Surrender & Adoption Guide</h3>
+                    <h3 class="text-xl font-bold mb-3"> Pet Surrender & Adoption Guide</h3>
 
-                    <p class="text-gray-700 mb-2"><strong>🟢 Surrendering a Pet:</strong></p>
+                    <p class="text-gray-700 mb-2"><strong> Surrendering a Pet:</strong></p>
                     <ul class="list-disc list-inside text-gray-600 mb-4">
                         <li>Carefully consider your decision before surrendering your pet.</li>
                         <li>Ensure your pet is in good health and has up-to-date vaccinations.</li>
@@ -153,49 +151,49 @@ ob_end_flush();
                     </button>
                 </div>
             </div>
+  <?php if ($result->num_rows > 0): ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <div class="border rounded-lg p-4 shadow bg-gray-50 relative transform transition duration-300 hover:scale-105 hover:shadow-xl hover:bg-gray-100">
+                <img src="../uploads/<?php echo htmlspecialchars($row['image']); ?>"
+                    alt="Pet Image"
+                    class="w-full h-auto max-h-40 object-cover rounded transition duration-300 transform hover:scale-110">
 
-            <?php if ($result->num_rows > 0): ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <?php while ($row = $result->fetch_assoc()): ?>
-                        <div class="border rounded-lg p-4 shadow bg-gray-50 relative">
-                            <img src="../uploads/<?php echo htmlspecialchars($row['image']); ?>"
-                                alt="Pet Image"
-                                class="w-full h-auto max-h-40 object-cover rounded">
-
-                            <h3 class="text-lg font-bold mt-2">
-                                <?php echo htmlspecialchars($row['petname']); ?>
-                            </h3>
-                            <p class="text-sm text-gray-600">
-                                <?php echo htmlspecialchars($row['breed']); ?> - <?php echo htmlspecialchars($row['type']); ?>
-                            </p>
-                            <p class="text-sm">Age: <?php echo htmlspecialchars($row['age']); ?> years old</p>
-                            <p class="text-sm">Vaccine: <?php echo htmlspecialchars($row['vaccine_status']); ?></p>
-
-                            <?php
-                            $status = htmlspecialchars(trim($row['status']));
-                            $statusClass = ($status == 'pending') ? 'text-yellow-600' : (($status == 'rejected') ? 'text-red-600' : 'text-blue-600');
-                            ?>
-
-                            <p class="text-sm font-semibold">
-                                Status: <span id="status-<?php echo $row['id']; ?>" class="<?php echo $statusClass; ?>">
-                                    <?php echo ucfirst($status); ?>
-                                </span>
-                            </p>
-
-                            <?php if ($row['status'] === 'own'): ?>
-                                <button onclick="openModal(<?php echo $row['id']; ?>)"
-                                    class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 absolute top-2 right-2">
-                                    Surrender
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-            <?php else: ?>
-                <p class="text-center text-gray-500">
-                    No pets to display for this email: <strong><?php echo htmlspecialchars($email); ?></strong>
+                <h3 class="text-lg font-bold mt-2">
+                    <?php echo htmlspecialchars($row['petname']); ?>
+                </h3>
+                <p class="text-sm text-gray-600">
+                    <?php echo htmlspecialchars($row['breed']); ?> - <?php echo htmlspecialchars($row['type']); ?>
                 </p>
-            <?php endif; ?>
+                <p class="text-sm">Age: <?php echo htmlspecialchars($row['age']); ?> years old</p>
+                <p class="text-sm">Vaccine: <?php echo htmlspecialchars($row['vaccine_status']); ?></p>
+
+                <?php
+                $status = htmlspecialchars(trim($row['status']));
+                $statusClass = ($status == 'pending') ? 'text-yellow-600' : (($status == 'rejected') ? 'text-red-600' : 'text-blue-600');
+                ?>
+
+                <p class="text-sm font-semibold">
+                    Status: <span id="status-<?php echo $row['id']; ?>" class="<?php echo $statusClass; ?>">
+                        <?php echo ucfirst($status); ?>
+                    </span>
+                </p>
+
+                <?php if ($row['status'] === 'own'): ?>
+                    <button onclick="openModal(<?php echo $row['id']; ?>)"
+                        class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 absolute top-2 right-2">
+                        Re-Homing
+                    </button>
+                <?php endif; ?>
+            </div>
+        <?php endwhile; ?>
+    </div>
+<?php else: ?>
+    <p class="text-center text-gray-500">
+        No pets to display for this email: <strong><?php echo htmlspecialchars($email); ?></strong>
+    </p>
+<?php endif; ?>
+
         </div>
     </div>
 
@@ -383,7 +381,7 @@ ob_end_flush();
             }
         });
 
-        // Close Sidebar on Mobile when "✖" is clicked
+        // Close Sidebar on Mobile when "" is clicked
         closeSidebarMobile.addEventListener("click", function() {
             sidebar.classList.remove("open");
         });
@@ -397,6 +395,28 @@ ob_end_flush();
         // Update time every second
         setInterval(updateTime, 1000);
         updateTime(); // Call once to display immediately
+        
+        // JavaScript to update current time and date
+function updateTimeAndDate() {
+    // Get current date and time
+    const currentTime = new Date();
+    
+    // Format current time (e.g., 12:34 PM)
+    const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Format current date (e.g., April 4, 2025)
+    const formattedDate = currentTime.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Update the current time and date in the DOM
+    document.getElementById('currentTime').textContent = formattedTime;
+    document.getElementById('currentDate').textContent = formattedDate;
+}
+
+// Update time and date every minute
+setInterval(updateTimeAndDate, 60000);
+
+// Initial call to update the time and date immediately
+updateTimeAndDate();
     </script>
 
 </body>

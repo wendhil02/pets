@@ -1,133 +1,125 @@
 <?php
-// Include database connection
-include 'internet/connect_ka.php'; // Database connection
-
-// Start session
 session_start();
+include 'internet/connect_ka.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-// Logout functionality
+$message = '';
+
 if (isset($_GET['logout'])) {
-    session_unset();  // Unset all session variables
-    session_destroy(); // Destroy session
+    session_unset();
+    session_destroy();
+    setcookie('remember_me', '', time() - 3600, '/');
     header("Location: index.php");
     exit();
 }
 
-// Handle Registration
-if (isset($_POST['register'])) {
-    $email = trim($_POST['email']);
-    $first_name = trim($_POST['first_name']);
-    $middle_name = trim($_POST['middle_name']);
-    $last_name = trim($_POST['last_name']);
-    $password = 'pasworder';  // Using "pasworder" as the password for testing
-    $status = 'pending'; // Default status for new users (waiting for admin approval)
-    
-    // Hash the password before saving to the database
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Use a secure hashing algorithm
-
-    // Generate a unique session key (32 characters long hexadecimal string)
-    $session_key = bin2hex(random_bytes(16)); // Generate a unique session key
-
-    // Check if the email already exists in the database
-    $checkEmailSQL = "SELECT email FROM registerlanding WHERE email = ?";
-    $stmt = $conn->prepare($checkEmailSQL);
-    $stmt->bind_param("s", $email);
+if (isset($_COOKIE['remember_me'])) {
+    $session_key = $_COOKIE['remember_me'];
+    $sql = "SELECT email, first_name, middle_name, last_name, status, role, session_key FROM registerlanding WHERE session_key = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $session_key);
     $stmt->execute();
     $stmt->store_result();
-
     if ($stmt->num_rows > 0) {
-        // If the email already exists, show an error message
-        $message = "Email is already registered. Please use a different email.";
-    } else {
-        // Insert user into the database with a default role and pending status
-        $sql = "INSERT INTO registerlanding (email, first_name, middle_name, last_name, status, session_key, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssss", $email, $first_name, $middle_name, $last_name, $status, $session_key, $hashed_password);
+        $stmt->bind_result($email, $first_name, $middle_name, $last_name, $status, $role, $session_key_db);
+        $stmt->fetch();
+        $_SESSION['email'] = $email;
+        $_SESSION['first_name'] = $first_name;
+        $_SESSION['middle_name'] = $middle_name;
+        $_SESSION['last_name'] = $last_name;
+        $_SESSION['role'] = $role;
+        $_SESSION['session_key'] = $session_key_db;
 
-        if ($stmt->execute()) {
-            $message = "✅ Registration successful! Please wait for admin approval.";
-        } else {
-            $message = "An error occurred during registration. Please try again.";
-        }
+        header("Location: " . ($role === 'admin' ? "admin/admin_dashboard.php" : "user/dashboard.php"));
+        exit();
     }
-
-    $stmt->close();
 }
 
-// Handle Login (Email-Only, with Approval Check)
 if (isset($_POST['login'])) {
     $email = trim($_POST['email']);
-    $password = trim($_POST['password']);  // Get the entered password
-
-    // Check if the user exists and is approved
-    $sql = "SELECT email, first_name, middle_name, last_name, status, session_key, password FROM registerlanding WHERE email = ?";
+    $password = trim($_POST['password']);
+    $sql = "SELECT email, first_name, middle_name, last_name, status, role, session_key, password FROM registerlanding WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
-
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($email, $first_name, $middle_name, $last_name, $status, $session_key, $stored_password);
+        $stmt->bind_result($email, $first_name, $middle_name, $last_name, $status, $role, $session_key_db, $stored_password);
         $stmt->fetch();
-
-        // Verify if the entered password matches the stored password
         if (password_verify($password, $stored_password)) {
-            // Check if the account is approved
-            if ($status == 'approved') {
-                // Set session variables for the logged-in user
+            if ($status === 'approved') {
                 $_SESSION['email'] = $email;
                 $_SESSION['first_name'] = $first_name;
                 $_SESSION['middle_name'] = $middle_name;
                 $_SESSION['last_name'] = $last_name;
-                $_SESSION['session_key'] = $session_key; // Store the session key
-
-                // Redirect to user page or admin page depending on the role (role will need to be added if necessary)
-                header("Location: user/parehistro.php");
+                $_SESSION['role'] = $role;
+                $_SESSION['session_key'] = $session_key_db;
+                setcookie('remember_me', $session_key_db, time() + (30 * 24 * 60 * 60), '/');
+                header("Location: " . ($role === 'admin' ? "admin/admin_dashboard.php" : "user/dashboard.php"));
                 exit();
             } else {
-                $message = "Your account is not approved yet. Please wait for admin approval.";
+                $message = "Your account is not approved yet.";
             }
         } else {
-            $message = "Incorrect password. Please try again.";
+            $message = "Incorrect password.";
         }
     } else {
         $message = "Email not registered.";
     }
-    $stmt->close();
 }
 ?>
 
+<!-- ✅ HTML + Tailwind Design -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth System</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Pet Welfare | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex justify-center items-center h-screen">
-    <div class="bg-white p-6 rounded-lg shadow-md w-96">
-        <h2 class="text-xl font-semibold text-center mb-4">Login / Register</h2>
-        <?php if (isset($message)): ?>
-            <p class="text-red-500 text-center"><?php echo $message; ?></p>
+<body class="bg-gradient-to-br from-blue-800 to-blue-800 min-h-screen flex items-center justify-center px-4">
+
+    <div class="bg-white shadow-xl rounded-xl p-4 sm:p-6 w-full max-w-sm text-sm">
+        <div class="text-center mb-4">
+            <img src="logo/logo.png" alt="Pet Logo" class="mx-auto w-16 h-16 mb-2">
+            <h2 class="text-xl font-semibold text-emerald-600">Login to Pet Welfare</h2>
+            <p class="text-gray-600 text-xs">Protecting our furry friends ❤️</p>
+        </div>
+
+        <?php if (!empty($message)) : ?>
+            <div class="bg-red-100 text-red-600 p-2 mb-3 text-xs rounded">
+                <?= $message ?>
+            </div>
         <?php endif; ?>
 
-        <!-- Login Form -->
-        <form method="post" class="mb-4">
-            <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded mb-2">
-            <input type="password" name="password" placeholder="Password" required class="w-full p-2 border rounded mb-2">
-            <button type="submit" name="login" class="w-full bg-blue-500 text-white p-2 rounded">Login</button>
+        <form method="post" action="" class="space-y-3">
+            <div>
+                <label class="block text-gray-700 text-xs">Email</label>
+                <input type="email" name="email" required class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-xs">Password</label>
+                <input type="password" name="password" required class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+            </div>
+
+            <button type="submit" name="login" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-1.5 text-sm rounded transition duration-200">
+                Login
+            </button>
         </form>
 
-        <!-- Register Form -->
-        <form method="post">
-            <input type="text" name="first_name" placeholder="First Name" required class="w-full p-2 border rounded mb-2">
-            <input type="text" name="middle_name" placeholder="Middle Name" required class="w-full p-2 border rounded mb-2">
-            <input type="text" name="last_name" placeholder="Last Name" required class="w-full p-2 border rounded mb-2">
-            <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded mb-2">
-            <input type="password" name="password" placeholder="Password" value="pasworder" class="w-full p-2 border rounded mb-2" readonly>
-            <button type="submit" name="register" class="w-full bg-green-500 text-white p-2 rounded">Register</button>
-        </form>
+        <p class="mt-3 text-xs text-center text-gray-600">
+            Don’t have an account?
+            <a href="registerperson.php" class="text-emerald-600 hover:underline">Register here</a>
+        </p>
     </div>
+
 </body>
 </html>

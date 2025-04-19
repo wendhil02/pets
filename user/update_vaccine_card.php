@@ -5,6 +5,24 @@ include 'design/mid.php';
 // Include database connection
 include '../internet/connect_ka.php';
 
+// ✅ Ensure user is logged in
+if (!isset($_SESSION['email'])) {
+    // If not logged in, redirect to login page
+    header("Location: ../index.php"); // or the file where login form is
+    exit();
+}
+
+// You can also check if the session_key exists to make sure the session is valid
+if (!isset($_SESSION['session_key'])) {
+    // If session_key is missing, log the user out
+    header("Location: ../logout.php"); // or the logout handler
+    exit();
+}
+
+$first_name = $_SESSION['first_name'];
+$middle_name = $_SESSION['middle_name'];
+$last_name = $_SESSION['last_name'];
+$session_key = $_SESSION['session_key'];
 // Assuming the email of the logged-in user is stored in the session
 $user_email = $_SESSION['email'] ?? null;
 
@@ -22,7 +40,7 @@ if ($user_email) {
     }
 } else {
     // If no user is logged in, redirect to login page
-    header("Location: auth.php");
+    header("Location: index.php");
     exit;
 }
 ?>
@@ -34,7 +52,7 @@ if ($user_email) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet Information</title>
+    <title>Update VaccineCard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>

@@ -4,8 +4,8 @@ include 'design/top.php';
 include 'design/mid.php';
 include '../internet/connect_ka.php';
 
-if (!isset($_SESSION['email'])) {
-    header("Location: index.php"); // Redirect to login page
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user') {
+    header("Location: index.php");
     exit();
 }
 
@@ -21,25 +21,30 @@ if (isset($_SESSION['notif'])) {
     unset($_SESSION['notif']); // Remove after displaying
 }
 ?>
-
+<head>
+     <title>Adopt Pet</title>
+</head>
 <body class="flex bg-gray-100">
     <div id="mainContent" class="main-content flex-1 transition-all">
-        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <!-- ☰ Button (For PC and Mobile) -->
-            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
-                ☰
-            </button>
+   <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+    <!--  Button -->
+    <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+        ☰
+    </button>
 
-            <div class="flex items-center gap-4">
-                <!-- 🟢 Real-time Time Display -->
-                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+    <div class="flex items-center gap-4 flex-grow">  
+        <!-- Current Time and Date -->
+        <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+        <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+    </div>
 
-                <!-- Welcome Message -->
-                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
-                    Welcome, <?= htmlspecialchars($email) ?>
-                </span>
-            </div>
-        </nav>
+    <div class="flex items-center gap-4">
+        <!-- Welcome Message -->
+        <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+            Welcome, <?= htmlspecialchars($email) ?>
+        </span>
+    </div>
+</nav>
     
         <div class="flex justify-center items-center bg-gray-100 px-4">
     <div class="p-8 bg-white shadow-xl rounded-xl w-full max-w-md mt-6">
@@ -78,6 +83,7 @@ if (isset($_SESSION['notif'])) {
                 </option>
             <?php endwhile; ?>
         </select>
+        <p id="petError" class="text-red-500 text-sm mt-2 hidden">Please select a pet before submitting.</p>
 
         <!-- Pet Details -->
         <div id="petDetailsContainer" class="mt-6 hidden text-center border rounded-lg p-4 bg-gray-50">
@@ -151,8 +157,21 @@ function updatePetDetails(select) {
 }
 
 function showModal() {
-    document.getElementById("confirmationModal").classList.remove("hidden");
+    var petSelect = document.getElementById("pet_id");
+    var errorText = document.getElementById("petError");
+
+    if (petSelect.value === "") {
+        // Ipakita error message
+        errorText.classList.remove("hidden");
+        return; // Hindi magbubukas ng modal
+    } else {
+        // Itago ang error message kung meron na napili
+        errorText.classList.add("hidden");
+        document.getElementById("confirmationModal").classList.remove("hidden");
+    }
 }
+
+
 
 function hideModal() {
     document.getElementById("confirmationModal").classList.add("hidden");
@@ -200,8 +219,7 @@ document.addEventListener("keydown", function(event) {
             closeSidebarMobile.addEventListener("click", function() {
                 sidebar.classList.remove("open");
             });
-
-            function updateTime() {
+function updateTime() {
             let now = new Date();
             let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
             document.getElementById("currentTime").textContent = timeString;
@@ -210,6 +228,28 @@ document.addEventListener("keydown", function(event) {
         // Update time every second
         setInterval(updateTime, 1000);
         updateTime(); // Call once to display immediately
+        
+        // JavaScript to update current time and date
+function updateTimeAndDate() {
+    // Get current date and time
+    const currentTime = new Date();
+    
+    // Format current time (e.g., 12:34 PM)
+    const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Format current date (e.g., April 4, 2025)
+    const formattedDate = currentTime.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Update the current time and date in the DOM
+    document.getElementById('currentTime').textContent = formattedTime;
+    document.getElementById('currentDate').textContent = formattedDate;
+}
+
+// Update time and date every minute
+setInterval(updateTimeAndDate, 60000);
+
+// Initial call to update the time and date immediately
+updateTimeAndDate();
         </script>
 
 </body>

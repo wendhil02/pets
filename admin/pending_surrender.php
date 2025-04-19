@@ -1,8 +1,14 @@
 <?php
-
+ob_start();
+session_start();
 include 'design/top.php';
 include 'design/mid.php';
 include '../internet/connect_ka.php';
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
+$email = $_SESSION['email'];
 
 // Fetch pending surrender requests including schedule_date
 $sql = "SELECT id, petname, status, email, image, schedule_date FROM pet WHERE status = 'pending'";
@@ -13,9 +19,25 @@ $result = $stmt->get_result();
 
 <body class="flex bg-gray-100">
     <div id="mainContent" class="main-content flex-1 transition-all">
+
         <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">☰</button>
-            <span class="font-bold text-white text-sm md:text-base lg:text-lg">Welcome, Admin</span>
+            <!--  Button -->
+            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+                ☰
+            </button>
+
+            <div class="flex items-center gap-4 flex-grow">
+                <!-- Current Time and Date -->
+                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+                <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Welcome Message -->
+                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+                    Welcome, <?= htmlspecialchars($email) ?>
+                </span>
+            </div>
         </nav>
 
         <div class="p-6 bg-white rounded-lg shadow mt-5 mx-2">
@@ -32,7 +54,7 @@ $result = $stmt->get_result();
                 </div>
             </div>
 
-            <!-- ✅ Notification Popup -->
+            <!--  Notification Popup -->
             <div id="notification" class="fixed top-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-md shadow-md hidden transition-opacity duration-300">
                 <span id="notifMessage"></span>
             </div>
@@ -124,107 +146,113 @@ $result = $stmt->get_result();
 
 
     <script>
-        
-        document.addEventListener("DOMContentLoaded", function () {
-    let currentPetId = null;
-    let currentEmail = null;
-    let currentPetName = null;
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentPetId = null;
+            let currentEmail = null;
+            let currentPetName = null;
 
-    function showNotification(message, type) {
-        let notif = document.getElementById("notification");
-        let notifMessage = document.getElementById("notifMessage");
+            function showNotification(message, type) {
+                let notif = document.getElementById("notification");
+                let notifMessage = document.getElementById("notifMessage");
 
-        notifMessage.innerText = message;
-        notif.classList.remove("hidden", "bg-red-500", "bg-green-500");
-        notif.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
+                notifMessage.innerText = message;
+                notif.classList.remove("hidden", "bg-red-500", "bg-green-500");
+                notif.classList.add(type === "success" ? "bg-green-500" : "bg-red-500");
 
-        notif.style.opacity = "1";
-        setTimeout(() => {
-            notif.style.opacity = "0";
-            setTimeout(() => notif.classList.add("hidden"), 300);
-        }, 3000);
-    }
-
-    function showConfirmation(message, onConfirm) {
-        let modal = document.getElementById("confirmModal");
-        let confirmText = document.getElementById("confirmText");
-        let confirmYes = document.getElementById("confirmYes");
-        let confirmNo = document.getElementById("confirmNo");
-
-        confirmText.innerText = message;
-        modal.classList.remove("hidden");
-
-        confirmYes.onclick = function () {
-            modal.classList.add("hidden");
-            onConfirm();
-        };
-
-        confirmNo.onclick = function () {
-            modal.classList.add("hidden");
-        };
-    }
-
-    function updateStatus(id, action, email, petname) {
-        if (action === 'reject') {
-            currentPetId = id;
-            currentEmail = email;
-            currentPetName = petname;
-            document.getElementById("rejectPetName").textContent = petname;
-            document.getElementById("rejectionModal").classList.remove("hidden");
-        } else {
-            sendStatusUpdate(id, action, email, petname, null);
-        }
-    }
-
-    function closeModal() {
-        document.getElementById("rejectionModal").classList.add("hidden");
-        document.getElementById("rejectReason").value = ""; // Clear input
-    }
-
-    document.getElementById("confirmReject").addEventListener("click", function () {
-        let reason = document.getElementById("rejectReason").value.trim();
-        if (!reason) {
-            showNotification("Please enter a rejection reason!", "error");
-            return;
-        }
-        sendStatusUpdate(currentPetId, "reject", currentEmail, currentPetName, reason);
-        closeModal();
-    });
-
-    function sendStatusUpdate(id, action, email, petname, reason) {
-        let formData = new URLSearchParams();
-        formData.append("id", id);
-        formData.append("action", action);
-        formData.append("email", email);
-        formData.append("petname", petname);
-        if (reason) formData.append("reason", reason);
-
-        fetch('approve_surrender.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(`Pet ${action}ed successfully!`, "success");
-                document.getElementById("row-" + id)?.remove();
-            } else {
-                showNotification("Error: " + data.message, "error");
+                notif.style.opacity = "1";
+                setTimeout(() => {
+                    notif.style.opacity = "0";
+                    setTimeout(() => notif.classList.add("hidden"), 300);
+                }, 3000);
             }
-        })
-        .catch(error => console.error('Error:', error));
-    }
 
-    window.updateStatus = updateStatus;
-    window.closeModal = closeModal;
-});
+            function showConfirmation(message, onConfirm) {
+                let modal = document.getElementById("confirmModal");
+                let confirmText = document.getElementById("confirmText");
+                let confirmYes = document.getElementById("confirmYes");
+                let confirmNo = document.getElementById("confirmNo");
+
+                confirmText.innerText = message;
+                modal.classList.remove("hidden");
+
+                // ✅ Remove previous event listeners to avoid duplicate triggers
+                confirmYes.replaceWith(confirmYes.cloneNode(true));
+                confirmNo.replaceWith(confirmNo.cloneNode(true));
+
+                // ✅ Get the new elements
+                confirmYes = document.getElementById("confirmYes");
+                confirmNo = document.getElementById("confirmNo");
+
+                confirmYes.addEventListener("click", function() {
+                    modal.classList.add("hidden");
+                    onConfirm();
+                });
+
+                confirmNo.addEventListener("click", function() {
+                    modal.classList.add("hidden");
+                });
+            }
+
+            function updateStatus(id, action, email, petname) {
+                if (action === 'reject') {
+                    currentPetId = id;
+                    currentEmail = email;
+                    currentPetName = petname;
+                    document.getElementById("rejectPetName").textContent = petname;
+                    document.getElementById("rejectionModal").classList.remove("hidden");
+                } else {
+                    showConfirmation(`Are you sure you want to approve ${petname}?`, function() {
+                        sendStatusUpdate(id, action, email, petname, null);
+                    });
+                }
+            }
+
+            function closeModal() {
+                document.getElementById("rejectionModal").classList.add("hidden");
+                document.getElementById("rejectReason").value = ""; // Clear input
+            }
+
+            document.getElementById("confirmReject").addEventListener("click", function() {
+                let reason = document.getElementById("rejectReason").value.trim();
+                if (!reason) {
+                    showNotification("Please enter a rejection reason!", "error");
+                    return;
+                }
+                sendStatusUpdate(currentPetId, "reject", currentEmail, currentPetName, reason);
+                closeModal();
+            });
+
+            function sendStatusUpdate(id, action, email, petname, reason) {
+                let formData = new URLSearchParams();
+                formData.append("id", id);
+                formData.append("action", action);
+                formData.append("email", email);
+                formData.append("petname", petname);
+                if (reason) formData.append("reason", reason);
+
+                fetch('approve_surrender.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData.toString()
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showNotification(`Pet ${action}d successfully!`, "success");
+                            document.getElementById("row-" + id)?.remove();
+                        } else {
+                            showNotification("Error: " + data.message, "error");
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            window.updateStatus = updateStatus;
+            window.closeModal = closeModal;
+        });
     </script>
-
-
-
-
-
 
     <script>
         const sidebar = document.getElementById("sidebar");
@@ -246,6 +274,45 @@ $result = $stmt->get_result();
         closeSidebarMobile.addEventListener("click", function() {
             sidebar.classList.remove("open");
         });
+
+        function updateTime() {
+            let now = new Date();
+            let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
+            document.getElementById("currentTime").textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime(); // Call once to display immediately
+
+        // JavaScript to update current time and date
+        function updateTimeAndDate() {
+            // Get current date and time
+            const currentTime = new Date();
+
+            // Format current time (e.g., 12:34 PM)
+            const formattedTime = currentTime.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Format current date (e.g., April 4, 2025)
+            const formattedDate = currentTime.toLocaleDateString([], {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Update the current time and date in the DOM
+            document.getElementById('currentTime').textContent = formattedTime;
+            document.getElementById('currentDate').textContent = formattedDate;
+        }
+
+        // Update time and date every minute
+        setInterval(updateTimeAndDate, 60000);
+
+        // Initial call to update the time and date immediately
+        updateTimeAndDate();
     </script>
 
 </body>

@@ -1,10 +1,9 @@
 import os
-import tempfile
 
-# Set root directory kung saan nakalagay ang lahat ng pet folders
-root_folder = r"C:\xampp\htdocs\userside\newspetimage"
+# Root directory ng lahat ng pet breed folders
+root_folder = r"C:\xampp\htdocs\revise\newspetimage"
 
-# Listahan ng valid pet breeds na ire-rename lang
+# List of valid breeds
 valid_breeds = [
     "abyssinian", "american", "basset", "beagle", "bengal", "bird", "birman", "bombay", "boxer", "british",
     "chihuahua", "egyptian", "english", "german", "goldenretriever", "great", "havanese", "japanese",
@@ -13,33 +12,42 @@ valid_breeds = [
     "wheaten", "yorkshire"
 ]
 
-# Loop through each breed name in the list
+# Loop bawat breed folder
 for breed in valid_breeds:
     folder_path = os.path.join(root_folder, breed)
 
-    # Siguraduhin na existing folder ito bago iproseso
     if os.path.isdir(folder_path):
-        prefix = f"{breed}_"
+        # Kunin lang ang image files
+        image_files = [
+            f for f in os.listdir(folder_path)
+            if f.lower().endswith(('.jpg', '.jpeg', '.png'))
+        ]
 
-        # Kunin lahat ng image files sa folder
-        files = sorted([f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.png', '.jpeg'))])
+        # Temp rename para maiwasan ang name conflict
+        for i, filename in enumerate(image_files):
+            old_path = os.path.join(folder_path, filename)
+            temp_path = os.path.join(folder_path, f"tempfile_{i}.tmp")
+            os.rename(old_path, temp_path)
 
-        # Gamitin ang temp renaming method para maiwasan ang conflict
-        temp_files = []
-        for index, file in enumerate(files, start=1):
-            ext = os.path.splitext(file)[1]  # Kunin ang file extension (.jpg, .png, etc.)
-            new_name = f"{prefix}{index}{ext}"  # New filename (e.g., abyssinian_1.jpg)
+        # After temp, rename to final format
+        temp_files = sorted([
+            f for f in os.listdir(folder_path)
+            if f.startswith("tempfile_")
+        ])
 
-            old_path = os.path.join(folder_path, file)
-            temp_path = os.path.join(folder_path, f"temp_{index}{ext}")  # Temporary filename
+        for idx, temp_file in enumerate(temp_files, start=1):
+            ext = ".jpg"  # default ext
+            if temp_file.lower().endswith(".png"):
+                ext = ".png"
+            elif temp_file.lower().endswith(".jpeg"):
+                ext = ".jpeg"
 
-            os.rename(old_path, temp_path)  # Rename to temporary name
-            temp_files.append((temp_path, os.path.join(folder_path, new_name)))
+            final_name = f"{breed}_{idx}{ext}"
+            os.rename(
+                os.path.join(folder_path, temp_file),
+                os.path.join(folder_path, final_name)
+            )
 
-        # Now, rename from temp files to final names
-        for temp_path, final_path in temp_files:
-            os.rename(temp_path, final_path)
+        print(f"✔️ {breed} folder cleaned and renamed.")
 
-        print(f"✔️ {breed} folder: Lahat ng files ay na-rename na!")
-
-print("🎉 All specified folders processed successfully!")
+print("🎉 All folders done with clean format: breedname_#.ext")

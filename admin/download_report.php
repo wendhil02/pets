@@ -41,6 +41,11 @@ if (isset($_GET['id'])) {
         $pdf->SetFillColor(255, 255, 255); // Ensure white background
         $pdf->Cell(40, 8, 'Report Date:', 1, 0, 'L', 0);
         $pdf->Cell(120, 8, date('F d, Y', strtotime($row['archived_at'])), 1, 1, 'L', 0);
+        
+$pdf->SetFont('helvetica', '', 10);
+$pdf->Cell(40, 8, 'Reporter Name:', 1, 0, 'L', 1);
+$pdf->Cell(120, 8, $row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name'], 1, 1, 'L');
+
 
         // Reporter & Incident Details
         $pdf->SetFont('helvetica', '', 10);

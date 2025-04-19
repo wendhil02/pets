@@ -1,6 +1,9 @@
 <?php
 include '../internet/connect_ka.php';
-
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
 // Check if the table is empty
 $result = $conn->query("SELECT COUNT(*) AS count FROM census_data");
 $row = $result->fetch_assoc();

@@ -1,7 +1,14 @@
 <?php
 session_start();
+include 'design/top.php';
+include 'design/mid.php';
 include '../internet/connect_ka.php';
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
 
+$email = $_SESSION['email'];
 // Fetch reports
 $sql = "SELECT * FROM cruelty_reports_archive ORDER BY archived_at DESC";
 $result = $conn->query($sql);
@@ -15,8 +22,31 @@ $result = $conn->query($sql);
     <title>Archived Reports</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-poppins">
-    <div class="max-w-6xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+<body class="flex bg-gray-100 font-poppins">
+        <div id="mainContent" class="main-content flex-1 transition-all">
+        <!-- Navbar -->
+      <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+    <!--  Button -->
+    <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+        ☰
+    </button>
+
+    <div class="flex items-center gap-4 flex-grow">  
+        <!-- Current Time and Date -->
+        <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+        <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <!-- Welcome Message -->
+        <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+            Welcome, <?= htmlspecialchars($email) ?>
+        </span>
+    </div>
+</nav>
+
+
+    <div class="max-w-6xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md ml-2 mr-2">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">📦 Archived Reports</h2>
 
         <?php if ($result->num_rows > 0): ?>
@@ -59,6 +89,58 @@ $result = $conn->query($sql);
             <p class="text-gray-500 text-sm text-center">No archived reports.</p>
         <?php endif; ?>
     </div>
+    <script>
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("mainContent");
+            const toggleSidebar = document.getElementById("toggleSidebar");
+            const closeSidebarMobile = document.getElementById("closeSidebarMobile");
+
+            // Toggle Sidebar for PC & Mobile
+            toggleSidebar.addEventListener("click", function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle("open"); // Mobile Mode
+                } else {
+                    sidebar.classList.toggle("closed"); // PC Mode
+                    mainContent.classList.toggle("shrink");
+                }
+            });
+
+            // Close Sidebar on Mobile when "✖" is clicked
+            closeSidebarMobile.addEventListener("click", function() {
+                sidebar.classList.remove("open");
+            });
+            function updateTime() {
+            let now = new Date();
+            let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
+            document.getElementById("currentTime").textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime(); // Call once to display immediately
+        
+        // JavaScript to update current time and date
+function updateTimeAndDate() {
+    // Get current date and time
+    const currentTime = new Date();
+    
+    // Format current time (e.g., 12:34 PM)
+    const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Format current date (e.g., April 4, 2025)
+    const formattedDate = currentTime.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Update the current time and date in the DOM
+    document.getElementById('currentTime').textContent = formattedTime;
+    document.getElementById('currentDate').textContent = formattedDate;
+}
+
+// Update time and date every minute
+setInterval(updateTimeAndDate, 60000);
+
+// Initial call to update the time and date immediately
+updateTimeAndDate();
+        </script>
 </body>
 </html>
 

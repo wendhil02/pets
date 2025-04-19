@@ -5,10 +5,24 @@ include 'design/mid.php';
 include '../internet/connect_ka.php';
 
 // Siguraduhin na may naka-login
+// ✅ Ensure user is logged in
 if (!isset($_SESSION['email'])) {
-    echo "<p class='text-red-500'>Unauthorized access.</p>";
+    // If not logged in, redirect to login page
+    header("Location: ../index.php"); // or the file where login form is
     exit();
 }
+
+// You can also check if the session_key exists to make sure the session is valid
+if (!isset($_SESSION['session_key'])) {
+    // If session_key is missing, log the user out
+    header("Location: ../logout.php"); // or the logout handler
+    exit();
+}
+
+$first_name = $_SESSION['first_name'];
+$middle_name = $_SESSION['middle_name'];
+$last_name = $_SESSION['last_name'];
+$session_key = $_SESSION['session_key'];
 
 $user_email = $_SESSION['email'];
 

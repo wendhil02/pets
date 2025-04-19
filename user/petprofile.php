@@ -5,11 +5,11 @@ include 'design/mid.php';
 include '../internet/connect_ka.php';
 
 
-// ✅ Ensure user is logged in
-if (!isset($_SESSION['email'])) {
-    die("<p class='text-red-500'>❌ You must be logged in to view your pet profile.</p>");
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user') {
+    header("Location: ../index.php");
+    exit();
 }
-
+$email = $_SESSION['email'];
 $user_email = $_SESSION['email'];
 $pet = null; // Default pet data
 
@@ -49,21 +49,30 @@ if (!$pet) {
     }
 }
 ?>
-
+<head>
+     <title>Pet Profile</title>
+</head>
 <body class="flex bg-gray-100">
     <div id="mainContent" class="main-content flex-1 transition-all">
-        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg">
-            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md">
-                ☰
-            </button>
+    <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+    <!--  Button -->
+    <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+        ☰
+    </button>
 
-            <div class="flex items-center gap-4">
-                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
-                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
-                    Welcome, <?= htmlspecialchars($user_email) ?>
-                </span>
-            </div>
-        </nav>
+    <div class="flex items-center gap-4 flex-grow">  
+        <!-- Current Time and Date -->
+        <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+        <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <!-- Welcome Message -->
+        <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+            Welcome, <?= htmlspecialchars($email) ?>
+        </span>
+    </div>
+</nav>
 
         <div class="max-w-2xl mx-auto bg-white p-8 mt-6 rounded-2xl shadow-xl">
         <?php if ($pet): ?>
@@ -73,7 +82,7 @@ if (!$pet) {
     
 
 
-    <!-- 🔄 Pet Selector -->
+    <!--  Pet Selector -->
     <div class="flex justify-center mt-4">
         <select id="petSelector" class="p-2 border border-gray-300 rounded-lg">
             <?php
@@ -94,7 +103,7 @@ if (!$pet) {
         </select>
     </div>
 
-    <!-- ✅ Pet Profile Section -->
+    <!--  Pet Profile Section -->
     <div class="flex flex-col items-center mt-6">
         <img id="petImage" src="../uploads/<?= htmlspecialchars($pet['image']) ?>" alt="Pet Image" 
              class="w-48 h-48 object-cover rounded-full shadow-lg border-4 border-blue-400">
@@ -173,7 +182,7 @@ document.getElementById("petSelector").addEventListener("change", function() {
             sidebar.classList.remove("open");
         });
 
-        function updateTime() {
+ function updateTime() {
             let now = new Date();
             let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
             document.getElementById("currentTime").textContent = timeString;
@@ -182,6 +191,28 @@ document.getElementById("petSelector").addEventListener("change", function() {
         // Update time every second
         setInterval(updateTime, 1000);
         updateTime(); // Call once to display immediately
+        
+        // JavaScript to update current time and date
+function updateTimeAndDate() {
+    // Get current date and time
+    const currentTime = new Date();
+    
+    // Format current time (e.g., 12:34 PM)
+    const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Format current date (e.g., April 4, 2025)
+    const formattedDate = currentTime.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Update the current time and date in the DOM
+    document.getElementById('currentTime').textContent = formattedTime;
+    document.getElementById('currentDate').textContent = formattedDate;
+}
+
+// Update time and date every minute
+setInterval(updateTimeAndDate, 60000);
+
+// Initial call to update the time and date immediately
+updateTimeAndDate();
     </script>
 
 </body>

@@ -3,6 +3,12 @@ session_start();
 include 'design/top.php';
 include 'design/mid.php';
 include '../internet/connect_ka.php';
+
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
+$email = $_SESSION['email'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,13 +27,25 @@ include '../internet/connect_ka.php';
 
     <div id="mainContent" class="main-content flex-1 transition-all">
         <!-- Navbar -->
-        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <!-- ☰ Button (For PC and Mobile) -->
-            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
-                ☰
-            </button>
-            <span class="font-bold text-white text-sm md:text-base lg:text-lg">Welcome, Wendhil Himarangan</span>
-        </nav>
+  <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+    <!--  Button -->
+    <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+        ☰
+    </button>
+
+    <div class="flex items-center gap-4 flex-grow">  
+        <!-- Current Time and Date -->
+        <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+        <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <!-- Welcome Message -->
+        <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+            Welcome, <?= htmlspecialchars($email) ?>
+        </span>
+    </div>
+</nav>
 
         <!-- Dashboard Content -->
         <div class="p-6 bg-white">
@@ -149,6 +167,37 @@ include '../internet/connect_ka.php';
         closeSidebarMobile.addEventListener("click", function() {
             sidebar.classList.remove("open");
         });
+        function updateTime() {
+            let now = new Date();
+            let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
+            document.getElementById("currentTime").textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime(); // Call once to display immediately
+        
+        // JavaScript to update current time and date
+function updateTimeAndDate() {
+    // Get current date and time
+    const currentTime = new Date();
+    
+    // Format current time (e.g., 12:34 PM)
+    const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Format current date (e.g., April 4, 2025)
+    const formattedDate = currentTime.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Update the current time and date in the DOM
+    document.getElementById('currentTime').textContent = formattedTime;
+    document.getElementById('currentDate').textContent = formattedDate;
+}
+
+// Update time and date every minute
+setInterval(updateTimeAndDate, 60000);
+
+// Initial call to update the time and date immediately
+updateTimeAndDate();
     </script>
 
 

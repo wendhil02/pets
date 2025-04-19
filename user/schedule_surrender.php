@@ -1,36 +1,51 @@
 <?php
 session_start();
-include 'design/mid.php';
 include 'design/top.php';
+include 'design/mid.php';
+
 include '../internet/connect_ka.php';
 
-if (!isset($_SESSION['email'])) {
-    $_SESSION['notification'] = "❌ Please log in first.";
-    header("Location: auth.php"); // Redirect to login page
-    exit();
+if (!isset($_SESSION['email']) || !isset($_SESSION['session_key'])) {
+    session_unset();
+    session_destroy();
+    header("Location: ../index.php");
+    exit(); // Make sure you call exit after header() to stop further execution
 }
+
+// Now you can access the user data and session key in the protected file
+$email = $_SESSION['email'];
+$first_name = $_SESSION['first_name'];
+$middle_name = $_SESSION['middle_name'];
+$last_name = $_SESSION['last_name'];
+$session_key = $_SESSION['session_key']; // session_key is available here
+
 // ✅ Kunin ang email mula sa session
 $user_email = $_SESSION['email'];
 
 ?>
 
+<title>Schedule Set</title>
 
 <body class="flex bg-gray-100">
 
     <div id="mainContent" class="main-content flex-1 transition-all ">
-        <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <!-- ☰ Button (For PC and Mobile) -->
+      
+    <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+            <!-- Button -->
             <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
                 ☰
             </button>
 
+            <div class="flex items-center gap-4 flex-grow">
+                <!-- Current Time and Date -->
+                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+                <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+            </div>
+
             <div class="flex items-center gap-4">
-                <!-- 🟢 Real-time Time Display -->
-
-
                 <!-- Welcome Message -->
                 <span class="font-bold text-white text-sm md:text-base lg:text-lg">
-                    Welcome, <?= htmlspecialchars($user_email) ?>
+                    Welcome, <?= htmlspecialchars($email) ?>
                 </span>
             </div>
         </nav>
@@ -38,6 +53,7 @@ $user_email = $_SESSION['email'];
 
             <div class="flex items-center justify-between mt-1">
                 <h2 class="text-lg font-semibold">Your Pending Pets Schedule Set</h2>
+
                 <button id="openGuideModal" class="px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
                     Guide
                 </button>
@@ -50,30 +66,55 @@ $user_email = $_SESSION['email'];
 
             <p id="scheduleAlert" class="text-center mt-2"></p>
 
-            <div class="flex justify-center mt-6">
-                <div class="w-full max-w-2xl">
-                    <table class="w-full border-collapse border border-gray-300 text-center">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border p-2">Select</th>
-                                <th class="border p-2">Pet Name</th>
-                                <th class="border p-2">Type</th>
-                                <th class="border p-2">Status Schedule</th>
-                                <th class="border p-2">Email</th>
-                                <th class="border p-2">Schedule Date & time</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pendingPetsList" class="text-center">
-                            <!-- Dito maglo-load ang pets gamit ang JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+           
+    <div class=" max-w-4xl bg-white p-6 rounded-lg shadow-md">
+        <table class="w-full border-collapse text-center">
+            <thead>
+                <tr class="bg-gray-100 text-gray-700">
+                    <th class="border-b p-3 text-sm font-medium">Select</th>
+                    <th class="border-b p-3 text-sm font-medium">Pet Name</th>
+                    <th class="border-b p-3 text-sm font-medium">Type</th>
+                    <th class="border-b p-3 text-sm font-medium">Status Schedule</th>
+                    <th class="border-b p-3 text-sm font-medium">Email</th>
+                    <th class="border-b p-3 text-sm font-medium">Schedule Date & Time</th>
+                   
+                </tr>
+            </thead>
+            <tbody id="pendingPetsList">
+                <?php if (isset($pets) && is_array($pets) && count($pets) > 0): ?>
+                    <?php foreach ($pets as $pet): ?>
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="border-b p-3">
+                                <input type="checkbox" class="selectPet rounded-md">
+                            </td>
+                            <td class="border-b p-3"><?php echo htmlspecialchars($pet['petname']); ?></td>
+                            <td class="border-b p-3"><?php echo htmlspecialchars($pet['type']); ?></td>
+                            <td class="border-b p-3">
+                                <?php echo ($pet['schedule_date'] != '') ? 'Scheduled' : 'Not Scheduled'; ?>
+                            </td>
+                            <td class="border-b p-3"><?php echo htmlspecialchars($pet['email']); ?></td>
+                            <td class="border-b p-3">
+                                <?php echo ($pet['schedule_date'] != '') ? htmlspecialchars($pet['schedule_date']) : 'Not Set'; ?>
+                            </td>
+                            <td class="border-b p-3">
+                                <?php echo ($pet['schedule_date'] != '') ? 'Scheduled' : 'Pending'; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="7" class="border p-4 text-center text-gray-500">No pending pets found.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+
 
             <div class="flex justify-center mt-4">
                 <button id="openScheduleModal" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Set Schedule</button>
             </div>
-
 
         </div>
 
@@ -118,6 +159,7 @@ $user_email = $_SESSION['email'];
                 </div>
             </div>
         </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
         <script>
             document.getElementById("openGuideModal").addEventListener("click", function() {
@@ -197,7 +239,7 @@ $user_email = $_SESSION['email'];
 
                 document.getElementById("openScheduleModal").addEventListener("click", function() {
                     if (selectedPets.size === 0) {
-                        showNotification("⚠️ Please select at least one pet!", "error");
+                        showNotification(" Please select at least one pet!", "error");
                         return;
                     }
                     document.getElementById("scheduleModal").classList.remove("hidden");
@@ -276,13 +318,17 @@ $user_email = $_SESSION['email'];
             });
 
             function updateTime() {
-                let now = new Date();
-                let timeString = now.toLocaleTimeString(); // Format: HH:MM:SS AM/PM
-                document.getElementById("currentTime").textContent = timeString;
+                const timeElement = document.getElementById("timeElement");
+
+                // Check if the element exists
+                if (timeElement) {
+                    timeElement.textContent = ""; // Modify this as needed
+                } else {
+                    console.error("Element with id 'timeElement' not found.");
+                }
             }
 
-            // Update time every second
-            setInterval(updateTime, 1000);
-            updateTime(); // Call once to display immediately
+            // Call updateTime to ensure it's executed
+            updateTime();
         </script>
 </body>
