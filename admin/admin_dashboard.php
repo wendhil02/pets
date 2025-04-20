@@ -96,7 +96,7 @@ ob_end_flush();
                 <button type="submit" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Post Announcement</button>
 
                 <label class="block mb-2 text-sm font-medium text-gray-700">Upload Featured Image</label>
-                <input type="file" name="featured_image" accept="image/*" required class="block w-full text-sm text-gray-600 mb-4">
+                <input type="file" name="featured_image" accept="image/*"  class="block w-full text-sm text-gray-600 mb-4">
 
                 <button type="submit" name="upload_featured" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                     Upload Featured Image

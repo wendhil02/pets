@@ -69,8 +69,6 @@ if (isset($_POST['login'])) {
     }
 }
 ?>
-
-<!-- ✅ HTML + Tailwind Design -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,9 +82,12 @@ if (isset($_POST['login'])) {
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-800 to-blue-800 min-h-screen flex items-center justify-center px-4">
+<body class="min-h-screen flex items-center justify-center relative bg-cover bg-center" style="background-image: url('logo/lgupic.jpg');">
 
-    <div class="bg-white shadow-xl rounded-xl p-4 sm:p-6 w-full max-w-sm text-sm">
+    <!-- Overlay background -->
+    <div class="absolute inset-0 bg-black opacity-50 z-0"></div>
+
+    <div class="relative z-10 bg-white shadow-xl rounded-xl p-4 sm:p-6 w-full max-w-sm text-sm">
         <div class="text-center mb-4">
             <img src="logo/logo.png" alt="Pet Logo" class="mx-auto w-16 h-16 mb-2">
             <h2 class="text-xl font-semibold text-emerald-600">Login to Pet Welfare</h2>
@@ -105,9 +106,12 @@ if (isset($_POST['login'])) {
                 <input type="email" name="email" required class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400">
             </div>
 
-            <div>
+            <div class="relative">
                 <label class="block text-gray-700 text-xs">Password</label>
-                <input type="password" name="password" required class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                <input type="password" id="password" name="password" required class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                <button type="button" id="togglePassword" class="absolute right-0 top-1/2 transform -translate-y-1/2 text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg px-2 py-1 text-xs mt-2 mr-2">
+                    Show
+                </button>
             </div>
 
             <button type="submit" name="login" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-1.5 text-sm rounded transition duration-200">
@@ -121,5 +125,26 @@ if (isset($_POST['login'])) {
         </p>
     </div>
 
+    <!-- Copyright Section -->
+    <footer class="absolute bottom-4 w-full text-center text-xs text-gray-600 z-10">
+        <p>&copy; 2025 Pet Welfare. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Password toggle functionality
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        
+        togglePassword.addEventListener('click', function (e) {
+            // Toggle the type attribute using a ternary operator
+            const type = password.type === 'password' ? 'text' : 'password';
+            password.type = type;
+            
+            // Change the text based on password visibility
+            togglePassword.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+    </script>
+
 </body>
 </html>
+

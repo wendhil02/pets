@@ -91,89 +91,136 @@ if (is_dir($directory)) {
     <div id="mainContent" class="main-content flex-1 transition-all">
         <!-- Navbar -->
         <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto sticky top-0 z-50">
-    <!-- Button -->
-    <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
-        ☰
-    </button>
+            <!-- Button -->
+            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+                ☰
+            </button>
 
-    <div class="flex items-center gap-4 flex-grow">
-        <!-- Current Time and Date -->
-        <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
-        <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
-    </div>
-
-    <div class="flex items-center gap-4">
-        <!-- Welcome Message -->
-        <span class="font-bold text-white text-sm md:text-base lg:text-lg">
-            Welcome, <?= htmlspecialchars($email) ?>
-        </span>
-    </div>
-</nav>
-
-
-        <!-- Dashboard Content -->
-        <div class="p-6 bg-white mt-4">
-            <!-- Announcements -->
-            <div class="mb-6">
-                <?php if (!empty($featured_images)): ?>
-                    <div class="p-3 bg-gray-100 mt-2 rounded-lg shadow-md">
-                        <h2 class="text-xl font-bold mb-4 text-gray-700 text-center">📢Pet Images</h2>
-
-                        <div class="relative overflow-hidden rounded-lg mx-auto max-w-lg h-full">
-                            <div class="flex animate-slider">
-                                <?php foreach ($featured_images as $image): ?>
-                                    <div class="flex-shrink-0 w-full">
-                                        <img src="../uploads/featured/<?= htmlspecialchars($image['image_path']) ?>"
-                                            alt="Featured Image"
-                                            class="w-full h-full object-cover rounded-lg">
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <h2 class="text-xl font-bold mb-4 text-gray-700 mt-3">📢 Announcements</h2>
-
-                <?php if ($announcement_result && $announcement_result->num_rows > 0): ?>
-                    <?php while ($row = $announcement_result->fetch_assoc()): ?>
-                        <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-700 p-4 mb-3 rounded-md shadow-sm rounded-md">
-
-                            <!-- Announcement Message -->
-                            <div class="text-sm mb-2"><?= nl2br(htmlspecialchars($row['message'])) ?></div>
-
-                            <!-- Announcement Image -->
-                            <?php if (!empty($row['image'])): ?>
-                                <div class="mt-2">
-                                    <img src="../uploads/announcements/<?= htmlspecialchars($row['image']) ?>" alt="Announcement Image" class="rounded-md shadow-md max-w-full h-[200px]">
-                                </div>
-                            <?php endif; ?>
-
-                            <!-- Timestamp -->
-                            <div class="text-xs text-gray-500 mt-3">
-                                Posted on <?= date("F j, Y, g:i A", strtotime($row['created_at'])) ?>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <p class="text-sm text-gray-500">No announcements available.</p>
-                <?php endif; ?>
+            <div class="flex items-center gap-4 flex-grow">
+                <!-- Current Time and Date -->
+                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+                <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
             </div>
 
+            <div class="flex items-center gap-4">
+                <!-- Welcome Message -->
+                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+                    Welcome, <?= htmlspecialchars($email) ?>
+                </span>
+            </div>
+        </nav>
 
-            <!-- Pet Welfare Info -->
-            <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-md shadow-sm">
-                <h3 class="text-lg font-semibold mb-2">🐾 About Pet Animal Welfare</h3>
-                <ul class="list-disc list-inside text-sm space-y-1">
-                    <li>Ensure pets have proper shelter, food, and clean water daily.</li>
-                    <li>Regular veterinary care is essential for health and vaccinations.</li>
-                    <li>Abandoning or abusing animals is a punishable offense under animal welfare laws.</li>
-                    <li>Adopt, don’t shop — give rescued animals a second chance at life.</li>
-                    <li>Spay or neuter your pets to help control the animal population.</li>
+
+<!-- Dashboard Content -->
+<div class="p-6 bg-gradient-to-b from-yellow-50 via-white to-yellow-50 mt-4 rounded-xl shadow-md">
+
+    <!-- Announcements -->
+    <div class="mb-10">
+        <?php if (!empty($featured_images)): ?>
+            <div class="p-5 bg-white rounded-xl shadow-lg">
+                <div class="flex flex-col items-center space-y-3">
+                    <img src="logo/logo.png" alt="LGU Logo" class="w-[100px] h-[100px] rounded-full border-4 border-yellow-400 shadow-md">
+                    <span class="text-2xl font-bold text-yellow-900 uppercase text-center">
+                        <i class="fa-solid fa-shield-dog text-yellow-500 mr-2"></i> LGU - Pet Animal Welfare Protection System
+                    </span>
+                </div>
+                <div class="relative overflow-hidden rounded-lg mx-auto mt-6 max-w-lg h-[350px] shadow-md">
+                    <div class="flex animate-slider">
+                        <?php foreach ($featured_images as $image): ?>
+                            <div class="flex-shrink-0 w-full">
+                                <img src="../uploads/featured/<?= htmlspecialchars($image['image_path']) ?>" alt="Featured Image" class="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform duration-500">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 mt-10 text-center">
+            📢 Official Announcement: Pet Animal Welfare Protection System
+        </h2>
+
+        <?php if ($announcement_result && $announcement_result->num_rows > 0): ?>
+            <?php while ($row = $announcement_result->fetch_assoc()): ?>
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-5 mb-4 rounded-xl shadow">
+                    <div class="text-base mb-2"><?= nl2br(htmlspecialchars($row['message'])) ?></div>
+                    <?php if (!empty($row['image'])): ?>
+                        <div class="mt-3">
+                            <img src="../uploads/announcements/<?= htmlspecialchars($row['image']) ?>" alt="Announcement Image" class="rounded-md shadow-md w-full max-h-[250px] object-cover">
+                        </div>
+                    <?php endif; ?>
+                    <div class="text-xs text-gray-500 mt-3">
+                        Posted on <?= date("F j, Y, g:i A", strtotime($row['created_at'])) ?>
+                    </div>
+                </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <p class="text-center text-sm text-gray-500">No announcements available.</p>
+        <?php endif; ?>
+    </div>
+
+    <!-- About Section -->
+    <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+        <h3 class="text-2xl font-bold text-yellow-600 mb-4">🐾 About Pet Animal Welfare Protection System</h3>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            The <strong>Pet Animal Welfare Protection System</strong> is an innovative initiative designed to safeguard and promote the well-being of pets within our community. It ensures that all pets are properly registered, cared for, and protected under animal welfare standards.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h4 class="text-xl font-semibold text-gray-800 mt-4 mb-2">🎯 Objectives:</h4>
+                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                    <li>Provide a systematic way to register and monitor pet animals.</li>
+                    <li>Encourage the adoption of rescued or abandoned animals.</li>
+                    <li>Educate the community about responsible pet ownership.</li>
+                    <li>Assist in the enforcement of animal welfare laws and regulations.</li>
+                    <li>Support vaccination drives and veterinary health care for pets.</li>
+                    <li>Respond to reports of animal abuse, neglect, or abandonment.</li>
                 </ul>
-                <p class="text-xs text-gray-600 mt-3">Be a responsible pet owner. Every animal deserves love, care, and protection.</p>
+            </div>
+            <div>
+                <h4 class="text-xl font-semibold text-gray-800 mt-4 mb-2">🌟 Mission & Vision:</h4>
+                <p class="text-gray-700 mb-4">
+                    <strong>Mission:</strong> To create a safe, nurturing environment where all pet animals are treated with compassion, respect, and dignity.
+                </p>
+                <p class="text-gray-700">
+                    <strong>Vision:</strong> A community where every pet is valued, protected, and given the opportunity to live a healthy and happy life, free from harm and neglect.
+                </p>
             </div>
         </div>
+
+        <h4 class="text-xl font-semibold text-gray-800 mt-6 mb-2">❤️ Core Values:</h4>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li><strong>Compassion</strong> – Treating all animals with kindness and empathy.</li>
+            <li><strong>Responsibility</strong> – Promoting responsible pet ownership and care.</li>
+            <li><strong>Protection</strong> – Ensuring the safety and welfare of all pets.</li>
+            <li><strong>Community Engagement</strong> – Encouraging public involvement in animal welfare efforts.</li>
+            <li><strong>Advocacy</strong> – Upholding the rights and dignity of every pet animal.</li>
+        </ul>
+    </div>
+
+    <!-- Pet Welfare Info -->
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-800 p-6 rounded-xl shadow-lg">
+        <h3 class="text-xl font-bold mb-4">🐶 About Pet Welfare Tips</h3>
+        <ul class="list-disc list-inside text-gray-700 space-y-3 text-sm">
+            <li>Ensure pets have proper shelter, food, and clean water daily.</li>
+            <li>Regular veterinary care is essential for maintaining health and keeping vaccinations updated.</li>
+            <li>Abandoning, neglecting, or abusing animals is a criminal offense under RA 8485 (Animal Welfare Act).</li>
+            <li>Adopt, don’t shop — give rescued animals a second chance at a loving home.</li>
+            <li>Spay or neuter your pets to help control overpopulation and reduce stray animals.</li>
+            <li>Microchipping and proper identification help return lost pets to their owners faster.</li>
+            <li>Report animal cruelty, neglect, or abuse immediately.</li>
+            <li>Join community programs supporting animal rescue, rehabilitation, and education.</li>
+        </ul>
+
+        <div class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-700 rounded-md">
+            <p class="text-sm font-semibold">Reminder:</p>
+            <p class="text-xs mt-1">Always adopt from certified shelters. Ensure your pets receive yearly vaccinations and regular health checks. Responsible pet ownership is a lifetime commitment.</p>
+        </div>
+    </div>
+
+</div>
+
 
         <script>
             const sidebar = document.getElementById("sidebar");

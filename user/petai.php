@@ -49,28 +49,28 @@ $session_key = $_SESSION['session_key'];
         padding: 10px;
     }
 </style>
+<body class="bg-white flex items-center justify-center min-h-screen relative">
+    <!-- Overlay background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 opacity-50 z-0"></div>
 
-<body class="bg-white flex items-center justify-center min-h-screen">
-    <div class="bg-gray-700 shadow-lg rounded-2xl p-6 max-w-md w-full text-center">
-                    <div class="relative">
-    <a href="dashboard.php" class="absolute top-0 left-0 mt-3 ml-3 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-        Back
-    </a>
-</div>
-    <div class="p-2 flex flex-col items-center space-y-3 px-4 text-white">
-        <img src="logo/logo.png" alt="LGU Logo" class="w-12 h-12 rounded-full mb-2 border-2 border-yellow-500">
-        <span class="text-sm font-semibold text-whie  text-center">
+    <div class="relative z-10 bg-gray-700 shadow-lg rounded-2xl p-6 max-w-md w-full text-center">
+        <div class="relative">
+            <a href="dashboard.php" class="absolute top-0 left-0 mt-3 ml-3 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                Back
+            </a>
+        </div>
+        <div class="p-2 flex flex-col items-center space-y-3 px-4 text-white">
+            <img src="logo/logo.png" alt="LGU Logo" class="w-12 h-12 rounded-full mb-2 border-2 border-yellow-500">
+            <span class="text-sm font-semibold text-white text-center">
+                <i class="fa-solid fa-shield-dog text-yellow-500"></i> LGU - Pet Animal Welfare Protection System
+                <p><i class="fa-solid fa-magnifying-glass mr-2"></i>Pet Image Recognition</p>
+            </span>
+        </div>
+        <br>
 
-                    <i class="fa-solid fa-shield-dog text-yellow-500"></i> LGU - Pet Animal Welfare Protection System
-                     <p><i class="fa-solid fa-magnifying-glass mr-2"></i>Pet Image Recognition</p>
-                </span>
-    </div>
-<br>
-   
         <label class="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">
             Pet Image
-           <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff" class="hidden">
-
+            <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff" class="hidden">
         </label>
 
         <!-- Image preview -->
@@ -90,13 +90,13 @@ $session_key = $_SESSION['session_key'];
 
         <!-- Horizontal scrolling image gallery -->
         <div class="overflow-x-auto mt-6 scroll-container">
-      
             <div class="flex space-x-4 scroll-content">
-                <!-- Abyssinian -->
-                <div id="petContainer" class="flex gap-4 overflow-x-auto whitespace-nowrap "></div>
-
+                <div id="petContainer" class="flex gap-4 overflow-x-auto whitespace-nowrap"></div>
             </div>
         </div>
+    </div>
+
+
 
 
 

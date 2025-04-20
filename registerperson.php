@@ -17,42 +17,54 @@ if (isset($_POST['register'])) {
     $city = trim($_POST['city']);
     $mobile = trim($_POST['mobile']);
 
-    $status = 'pending';
-    $role = 'user';
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $session_key = bin2hex(random_bytes(16));
-
-    // Check if email already exists
-    $checkEmailSQL = "SELECT COUNT(*) FROM registerlanding WHERE email = ?";
-    $stmt = $conn->prepare($checkEmailSQL);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->bind_result($emailCount);
-    $stmt->fetch();
-    $stmt->close();
-
-    if ($emailCount > 0) {
-        $message = "Email already exists. Please use another email.";
+    // Check if any field is empty
+    if (empty($email) || empty($first_name) || empty($last_name) || empty($password) || empty($house) || empty($street) || 
+        empty($barangay) || empty($city) || empty($mobile)) {
+        $message = "Please fill up all information.";
+    } 
+    // Validate that no field (except email) contains "@"
+    elseif (strpos($first_name, '@') !== false || strpos($middle_name, '@') !== false || strpos($last_name, '@') !== false ||
+            strpos($house, '@') !== false || strpos($street, '@') !== false || strpos($barangay, '@') !== false ||
+            strpos($city, '@') !== false || strpos($mobile, '@') !== false) {
+        $message = "The '@' character is not allowed in any field except email.";
+    } 
+    // Check password length
+    elseif (strlen($password) < 7) {
+        $message = "Password must be at least 7 characters.";
     } else {
-        // Proceed to insert
-        $insertSQL = "INSERT INTO registerlanding 
-            (email, first_name, middle_name, last_name, status, role, session_key, password, house, street, barangay, city, mobile) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($insertSQL);
-        $stmt->bind_param("sssssssssssss", $email, $first_name, $middle_name, $last_name, $status, $role, $session_key, $hashed_password, $house, $street, $barangay, $city, $mobile);
-
-        if ($stmt->execute()) {
-            $message = "✅ Registration successful. Wait for admin approval.";
-        } else {
-            $message = "❌ Registration failed. Please try again.";
-        }
+        // Check if email already exists
+        $checkEmailSQL = "SELECT COUNT(*) FROM registerlanding WHERE email = ?";
+        $stmt = $conn->prepare($checkEmailSQL);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($emailCount);
+        $stmt->fetch();
         $stmt->close();
+
+        if ($emailCount > 0) {
+            $message = "Email already exists. Please use another email.";
+        } else {
+            // Proceed to insert
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $session_key = bin2hex(random_bytes(16));
+
+            $insertSQL = "INSERT INTO registerlanding 
+                (email, first_name, middle_name, last_name, status, role, session_key, password, house, street, barangay, city, mobile) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($insertSQL);
+            $stmt->bind_param("sssssssssssss", $email, $first_name, $middle_name, $last_name, 'pending', 'user', $session_key, $hashed_password, $house, $street, $barangay, $city, $mobile);
+
+            if ($stmt->execute()) {
+                $message = "Registration successful. Wait for admin approval.";
+            } else {
+                $message = "Registration failed. Please try again.";
+            }
+            $stmt->close();
+        }
     }
 }
 ?>
 
-
-<!-- ✅ HTML Part -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,25 +76,75 @@ if (isset($_POST['register'])) {
         body {
             font-family: 'Poppins', sans-serif;
         }
+
+        /* Custom Styles for the Toggle */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(14px);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-900 to-blue-900 min-h-screen flex items-center justify-center px-4">
+<body class="min-h-screen flex items-center justify-center relative bg-cover bg-center" style="background-image: url('logo/lgupic.jpg');">
 
-    <div class="bg-white shadow-xl rounded-xl p-4 sm:p-6 w-full max-w-sm sm:max-w-md text-sm">
+    <!-- Overlay background -->
+    <div class="absolute inset-0 bg-black opacity-50 z-0"></div>
+
+    <div class="relative z-10 bg-white shadow-xl rounded-xl p-4 sm:p-6 w-full max-w-sm sm:max-w-md text-sm">
         <div class="text-center mb-4">
             <img src="logo/logo.png" alt="Pet Logo" class="mx-auto w-16 h-16 mb-1">
             <h2 class="text-xl font-semibold text-emerald-600">Register</h2>
             <p class="text-gray-600 text-xs">Join us in protecting our furry friends 🐾</p>
         </div>
 
-        <?php if (!empty($message)) echo "<p class='bg-green-100 text-green-700 p-2 mb-3 rounded text-xs'>$message</p>"; ?>
+        <!-- Display the error message in red -->
+        <?php if (!empty($message)) echo "<p class='bg-red-100 text-red-700 p-2 mb-3 rounded text-xs'>$message</p>"; ?>
 
         <form method="post" action="" class="space-y-3">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label class="block text-gray-700">First Name</label>
-                    <input type="text" name="first_name" required maxlength="50" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" pattern="[A-Za-z\s]+" title="Only letters and spaces allowed">
+                    <input type="text" name="first_name"  maxlength="50" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" pattern="[A-Za-z\s]+" title="Only letters and spaces allowed">
                 </div>
                 <div>
                     <label class="block text-gray-700">Middle Name</label>
@@ -90,41 +152,48 @@ if (isset($_POST['register'])) {
                 </div>
                 <div>
                     <label class="block text-gray-700">Last Name</label>
-                    <input type="text" name="last_name" required maxlength="50" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" pattern="[A-Za-z\s]+" title="Only letters and spaces allowed">
+                    <input type="text" name="last_name"  maxlength="50" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" pattern="[A-Za-z\s]+" title="Only letters and spaces allowed">
                 </div>
                 <div>
                     <label class="block text-gray-700">Email</label>
-                    <input type="email" name="email" required class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
+                    <input type="email" name="email"  class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
                 </div>
             </div>
 
-            <div>
+            <!-- Password with Facebook-style Toggle -->
+            <div class="relative">
                 <label class="block text-gray-700">Password</label>
-                <input type="password" name="password" required minlength="8" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" title="Password should be at least 8 characters long">
+                <input type="password" id="password" name="password"  minlength="8" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" title="Password should be at least 8 characters long">
+                
+                <!-- Facebook-style Toggle Button -->
+                <label class="toggle mt-2">
+                    <input type="checkbox" id="togglePassword">
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label class="block text-gray-700">House</label>
-                    <input type="text" name="house" required maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
+                    <input type="text" name="house"  maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
                 </div>
                 <div>
                     <label class="block text-gray-700">Street</label>
-                    <input type="text" name="street" required maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
+                    <input type="text" name="street"  maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
                 </div>
                 <div>
                     <label class="block text-gray-700">Barangay</label>
-                    <input type="text" name="barangay" required maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
+                    <input type="text" name="barangay"  maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
                 </div>
                 <div>
                     <label class="block text-gray-700">City</label>
-                    <input type="text" name="city" required maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
+                    <input type="text" name="city"  maxlength="100" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400">
                 </div>
             </div>
 
             <div>
                 <label class="block text-gray-700">Mobile</label>
-                <input type="text" name="mobile" required maxlength="15" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" pattern="^\d{10}$" title="Please enter a valid 10-digit mobile number">
+                <input type="text" name="mobile"  maxlength="15" class="w-full border px-2 py-1 rounded focus:ring-1 focus:ring-emerald-400" pattern="^\d{10}$" title="Please enter a valid 10-digit mobile number">
             </div>
 
             <button type="submit" name="register" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-1.5 text-sm rounded transition duration-200">
@@ -138,6 +207,19 @@ if (isset($_POST['register'])) {
         </p>
     </div>
 
+    <script>
+        document.getElementById('togglePassword').addEventListener('change', function() {
+            const passwordField = document.getElementById('password');
+
+            if (this.checked) {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+            }
+        });
+    </script>
+
 </body>
+</html>
 
 </html>

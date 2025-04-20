@@ -57,7 +57,12 @@ $current_page = basename($_SERVER['PHP_SELF']); // Get current file name
             <i class="fa-solid fa-list-check mr-2"></i> My Pets
         </a>
     </li>
-
+    <li>
+        <a href="viewofreq.php" class="flex items-center text-sm py-3 px-3 rounded transition-all duration-300 
+        <?= $current_page == 'viewofreq.php' ? 'bg-blue-800 text-white animate-slideRight' : 'hover:bg-blue-800 hover:text-white hover:translate-x-2' ?>">
+            <i class="fa-solid fa-list-check mr-2"></i> Requested Email Pet
+        </a>
+    </li>
     <!-- ADOPTION MANAGEMENT -->
     <li class="mt-5 text-xs font-bold text-gray-500 uppercase">Adoption & Adopted</li>
     <li>

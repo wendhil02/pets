@@ -4,19 +4,20 @@ session_start();
 include 'design/top.php';
 include 'design/mid.php';
 require '../internet/connect_ka.php';
+
+// Ensure the user is logged in as admin
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit();
 }
 
 $email = $_SESSION['email'];
-// Fetch all pending adoption requests
-// Fetch all adoption requests where email_confirmed has a value (not null or 0)
+
+// Fetch all pending adoption requests with confirmed email
 $sql = "SELECT ar.id, p.id AS pet_id, p.petname, ar.email AS adopter_email, ar.contact, ar.status, ar.schedule_date, ar.pickup_time, ar.email_confirmed
         FROM adoption_requests ar
         JOIN pet p ON ar.pet_id = p.id
         WHERE ar.status = 'pending' AND ar.email_confirmed IS NOT NULL AND ar.email_confirmed != 0";
-
 
 $result = $conn->query($sql);
 $pendingRequests = [];
@@ -27,7 +28,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Check if the 'id' is passed via URL and handle adoption approval
+// Handle adoption request approval
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
@@ -51,20 +52,22 @@ if (isset($_GET['id'])) {
         $updateStmt->bind_param("i", $id);
         $updateStmt->execute();
 
-        // Send email notifications
-
-
-        echo "Request approved and notifications sent!";
+        // Set a notification message for successful approval
+        $_SESSION['notification'] = 'Adoption request approved successfully!';
+        
+        // Redirect to the page with the updated list of pending requests
+        header("Location: get_approved_requests.php");
+        exit();
     } else {
-        echo "Request not found or already approved.";
+        // Request not found or already approved
+        $_SESSION['notification'] = 'Adoption request not found or already approved.';
+        header("Location: get_approved_requests.php");
+        exit();
     }
 }
 
 $conn->close();
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -72,35 +75,39 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Adoption Requests</title> <!-- Updated the title to match the content -->
+    <title>Pending Adoption Requests</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
 <body class="flex bg-gray-100">
-
-
     <div id="mainContent" class="main-content flex-1 transition-all ">
         <nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-            <!--  Button -->
             <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
                 ☰
             </button>
 
             <div class="flex items-center gap-4 flex-grow">
-                <!-- Current Time and Date -->
                 <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
                 <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Welcome Message -->
                 <span class="font-bold text-white text-sm md:text-base lg:text-lg">
                     Welcome, <?= htmlspecialchars($email) ?>
                 </span>
             </div>
         </nav>
+
         <div class="container mx-auto p-6">
-            <h2 class="text-3xl font-semibold text-center text-[#0077b6] mb-6">Pending Adoption Requests</h2> <!-- Updated heading -->
+            <h2 class="text-3xl font-semibold text-center text-[#0077b6] mb-6">Pending Adoption Requests</h2>
+
+            <!-- Notification Message -->
+            <?php if (isset($_SESSION['notification'])): ?>
+                <div class="bg-green-500 text-white p-4 rounded-lg mb-4">
+                    <?= $_SESSION['notification'] ?>
+                </div>
+                <?php unset($_SESSION['notification']); ?>
+            <?php endif; ?>
 
             <table class="min-w-full table-auto bg-white shadow-lg rounded-lg">
                 <thead>
@@ -108,8 +115,7 @@ $conn->close();
                         <th class="border border-gray-300 p-3">Pet Name</th>
                         <th class="border border-gray-300 p-3">Adopter Email</th>
                         <th class="border border-gray-300 p-3">Contact</th>
-
-                        <th class="border border-gray-300 p-3">Action</th> <!-- Added column for action (approve/reject) -->
+                        <th class="border border-gray-300 p-3">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -119,24 +125,23 @@ $conn->close();
                                 <td class="border border-gray-300 p-3"><?= htmlspecialchars($request['petname']) ?></td>
                                 <td class="border border-gray-300 p-3"><?= htmlspecialchars($request['adopter_email']) ?></td>
                                 <td class="border border-gray-300 p-3"><?= htmlspecialchars($request['contact']) ?></td>
-
                                 <td class="border border-gray-300 p-3">
                                     <a href="get_approved_requests.php?id=<?= $request['id'] ?>" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none">
                                         Approve
                                     </a>
-                                </td> <!-- Action button to approve -->
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" class="border border-gray-300 p-3 text-center">No pending adoption requests.</td>
+                            <td colspan="4" class="border border-gray-300 p-3 text-center">No pending adoption requests.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-
     </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const sidebar = document.getElementById("sidebar");

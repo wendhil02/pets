@@ -201,25 +201,25 @@ ob_end_flush();
     <?php endif; ?>
 
 <div id="mainContent" class="main-content flex-1 transition-all">
-    <nav class="bg-[#0077b6] shadow-md mt-3 mx-2 p-3 flex items-center justify-between rounded-lg max-w-auto mx-auto">
-        <!-- Button -->
-        <button id="toggleSidebar" class="text-white text-lg px-3 py-2 hover:bg-blue-100 rounded-md border border-transparent">
-            ☰
-        </button>
+<nav class="bg-[#0077b6] shadow-md mt-3 mr-2 ml-2 p-2 flex items-center justify-between rounded-lg max-w-auto mx-auto">
+            <!--  Button -->
+            <button id="toggleSidebar" class="text-white text-lg px-2 py-1 hover:bg-blue-100 rounded-md border border-transparent">
+                ☰
+            </button>
 
-        <div class="flex items-center gap-6 flex-grow">
-            <!-- Current Time and Date -->
-            <span id="currentTime" class="text-white text-sm md:text-base lg:text-sm"></span>
-            <div id="currentDate" class="text-white text-sm md:text-base lg:text-sm"></div>
-        </div>
+            <div class="flex items-center gap-4 flex-grow">
+                <!-- Current Time and Date -->
+                <span id="currentTime" class="text-white font-semibold text-sm md:text-base lg:text-lg"></span>
+                <div id="currentDate" class="text-white font-semibold text-sm md:text-base lg:text-lg"></div>
+            </div>
 
-        <div class="flex items-center gap-6">
-            <!-- Welcome Message -->
-            <span class="font-bold text-white text-sm md:text-base lg:text-sm">
-                Welcome, <?= htmlspecialchars($email) ?>
-            </span>
-        </div>
-    </nav>
+            <div class="flex items-center gap-4">
+                <!-- Welcome Message -->
+                <span class="font-bold text-white text-sm md:text-base lg:text-lg">
+                    Welcome, <?= htmlspecialchars($email) ?>
+                </span>
+            </div>
+        </nav>
 
     <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-4 mt-6 mx-2">
         <h2 class="text-2xl font-semibold text-center text-[#0077b6] mb-4 flex items-center justify-between">
